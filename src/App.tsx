@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Sidebar } from './components/Sidebar'
 import { Home } from './pages/Home'
+import { Emulators } from './pages/Emulators'
 import { Settings } from './pages/Settings'
 import { useSettings } from './store/settings'
 
@@ -31,6 +32,8 @@ export function App() {
     switch (activePage) {
       case 'home':
         return <Home />
+      case 'emulators':
+        return <Emulators />
       case 'settings':
         return <Settings />
       default:

@@ -36,7 +36,7 @@ export function getSettings(): AppSettings {
   } else {
     inMemorySettings = { ...DEFAULT_SETTINGS }
   }
-  return inMemorySettings
+  return inMemorySettings!
 }
 
 export function setSettings(update: Partial<AppSettings>): void {

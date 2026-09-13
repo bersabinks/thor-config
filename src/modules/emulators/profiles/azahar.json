@@ -1,0 +1,11 @@
+{
+  "configPath": "/sdcard/azahar/config.ini",
+  "settings": {
+    "graphics_api": "vulkan",
+    "resolution_factor": "4",
+    "async_shader_compilation": "1",
+    "use_new_3ds": "1",
+    "layout_option": "1",
+    "async_presentation": "1"
+  }
+}

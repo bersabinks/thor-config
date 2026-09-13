@@ -1,4 +1,5 @@
 import type { AdbDevice, PackageInfo } from '../../electron/main/adb/types'
+import type { PrepareApkResult } from '../../electron/main/emulators/source'
 
 export interface ElectronAPI {
   adb: {
@@ -15,6 +16,15 @@ export interface ElectronAPI {
   settings: {
     get(key: string): Promise<unknown>
     set(key: string, value: unknown): Promise<void>
+  }
+  emulators: {
+    prepareApk(id: string, githubRepo: string, assetPattern: string): Promise<PrepareApkResult>
+    applyConfig(serial: string, configPath: string, settings: Record<string, string>): Promise<void>
+    verifyConfig(
+      serial: string,
+      configPath: string,
+      settings: Record<string, string>
+    ): Promise<Record<string, string>>
   }
 }
 

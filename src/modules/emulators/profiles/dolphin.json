@@ -1,0 +1,13 @@
+{
+  "configPath": "/sdcard/dolphin-emu/Config/Dolphin.ini",
+  "settings": {
+    "InternalResolution": "4",
+    "AspectRatio": "0",
+    "UseExtendedAccessibilitySettings": "False",
+    "ExternalDisplayResolution": "Auto",
+    "BorderLeft": "0",
+    "BorderRight": "0",
+    "HotkeyScreenSwap": "Button_Select",
+    "GCPad1Type": "6"
+  }
+}

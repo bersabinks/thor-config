@@ -7,7 +7,7 @@ interface SidebarProps {
 
 const NAV_ITEMS: { id: Page; label: string; icon: string; available: boolean }[] = [
   { id: 'home', label: 'Préparation', icon: '⚙', available: true },
-  { id: 'emulators', label: 'Émulateurs', icon: '🎮', available: false },
+  { id: 'emulators', label: 'Émulateurs', icon: '🎮', available: true },
   { id: 'roms', label: 'ROMs', icon: '💿', available: false },
   { id: 'saves', label: 'Sauvegardes', icon: '💾', available: false },
   { id: 'vita', label: 'PS Vita', icon: '🎯', available: false },

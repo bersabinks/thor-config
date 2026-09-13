@@ -1,0 +1,9 @@
+{
+  "configPath": "/sdcard/Cemu/settings.ini",
+  "settings": {
+    "game_paths": "/sdcard/ROMs/WiiU",
+    "controller_profile": "Wii_U_GamePad",
+    "preferred_game_format": "wua",
+    "fullscreen": "1"
+  }
+}

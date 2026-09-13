@@ -85,7 +85,13 @@ export const MOCK_FIXTURES: MockFixtures = {
     'am start -a android.settings.SETTINGS': '',
   },
 
-  installedPackages: {},
+  installedPackages: {
+    // Émulateurs pré-installés en simulation (version correspond à prepareApk sim-1.0)
+    'me.magnum.melonds': { packageName: 'me.magnum.melonds', versionName: 'sim-1.0', versionCode: 10000 },
+    'org.azahar.android': { packageName: 'org.azahar.android', versionName: 'sim-1.0', versionCode: 10000 },
+    'org.dolphinemu.dolphinemu': { packageName: 'org.dolphinemu.dolphinemu', versionName: 'sim-1.0', versionCode: 10000 },
+    'info.cemu.Cemu': { packageName: 'info.cemu.Cemu', versionName: 'sim-1.0', versionCode: 10000 },
+  },
 
   commandDelayMs: 200,
   transferDelayMs: 500,

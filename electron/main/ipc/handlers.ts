@@ -1,6 +1,8 @@
 import { ipcMain } from 'electron'
 import { getAdbClient } from '../adb/factory'
 import { getSettings, setSettings } from '../settings'
+import { prepareApk } from '../emulators/source'
+import { applyConfig, verifyConfig } from '../emulators/configApplier'
 
 export function registerIpcHandlers(): void {
   ipcMain.handle('adb:listDevices', () => getAdbClient().listDevices())
@@ -44,4 +46,22 @@ export function registerIpcHandlers(): void {
   ipcMain.handle('settings:set', <K extends keyof ReturnType<typeof getSettings>>(_e: Electron.IpcMainInvokeEvent, key: K, value: ReturnType<typeof getSettings>[K]) => {
     setSettings({ [key]: value } as Partial<ReturnType<typeof getSettings>>)
   })
+
+  ipcMain.handle(
+    'emulators:prepareApk',
+    (_e, id: string, githubRepo: string, assetPattern: string) =>
+      prepareApk(id, githubRepo, assetPattern)
+  )
+
+  ipcMain.handle(
+    'emulators:applyConfig',
+    (_e, serial: string, configPath: string, settings: Record<string, string>) =>
+      applyConfig(serial, configPath, settings)
+  )
+
+  ipcMain.handle(
+    'emulators:verifyConfig',
+    (_e, serial: string, configPath: string, settings: Record<string, string>) =>
+      verifyConfig(serial, configPath, settings)
+  )
 }

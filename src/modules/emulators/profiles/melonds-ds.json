@@ -1,0 +1,11 @@
+{
+  "configPath": "/sdcard/melonds/melonds.ini",
+  "settings": {
+    "renderer": "opengl",
+    "internalResolution": "4",
+    "screenLayout": "0",
+    "touchInputMode": "0",
+    "fastForwardButton": "R2",
+    "dualScreenMode": "1"
+  }
+}

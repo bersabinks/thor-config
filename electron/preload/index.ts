@@ -22,4 +22,12 @@ contextBridge.exposeInMainWorld('electronAPI', {
     get: (key: string) => ipcRenderer.invoke('settings:get', key),
     set: (key: string, value: unknown) => ipcRenderer.invoke('settings:set', key, value),
   },
+  emulators: {
+    prepareApk: (id: string, githubRepo: string, assetPattern: string) =>
+      ipcRenderer.invoke('emulators:prepareApk', id, githubRepo, assetPattern),
+    applyConfig: (serial: string, configPath: string, settings: Record<string, string>) =>
+      ipcRenderer.invoke('emulators:applyConfig', serial, configPath, settings),
+    verifyConfig: (serial: string, configPath: string, settings: Record<string, string>) =>
+      ipcRenderer.invoke('emulators:verifyConfig', serial, configPath, settings),
+  },
 })
