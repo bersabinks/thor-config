@@ -33,6 +33,10 @@ export function registerIpcHandlers(): void {
     getAdbClient().getPackageInfo(serial, packageName)
   )
 
+  ipcMain.handle('adb:waitForDevice', (_e, serial: string, timeoutMs?: number) =>
+    getAdbClient().waitForDevice(serial, timeoutMs)
+  )
+
   ipcMain.handle('settings:get', <K extends keyof ReturnType<typeof getSettings>>(_e: Electron.IpcMainInvokeEvent, key: K) =>
     getSettings()[key]
   )

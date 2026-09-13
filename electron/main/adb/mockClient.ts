@@ -1,4 +1,4 @@
-import { MOCK_FIXTURES } from '@mocks/fixtures'
+import { MOCK_FIXTURES, getUiXmlForContext } from '@mocks/fixtures'
 import type { AdbClient, AdbDevice, PackageInfo } from './types'
 
 const MOCK_SERIAL = 'mock-ayn-thor-001'
@@ -32,6 +32,16 @@ export class MockAdbClient implements AdbClient {
     log('shell', serial, cmd)
     await delay(MOCK_FIXTURES.commandDelayMs)
 
+    // `cat /sdcard/window_dump.xml` renvoie l'XML selon le contexte d'écran en cours
+    if (cmd.includes('cat /sdcard/window_dump.xml')) {
+      return getUiXmlForContext(cmd)
+    }
+
+    // `am start` et `monkey -p` peuvent lancer une app et changer l'écran actif
+    if (cmd.includes('am start') || cmd.includes('monkey -p')) {
+      getUiXmlForContext(cmd)
+    }
+
     for (const [pattern, response] of Object.entries(MOCK_FIXTURES.shellResponses)) {
       if (cmd.includes(pattern)) return response
     }
@@ -46,6 +56,11 @@ export class MockAdbClient implements AdbClient {
   async uninstallApk(serial: string, packageName: string): Promise<void> {
     log('uninstallApk', serial, packageName)
     await delay(MOCK_FIXTURES.commandDelayMs)
+  }
+
+  async waitForDevice(serial: string, timeoutMs = 120000): Promise<void> {
+    log('waitForDevice', serial, `(timeout=${timeoutMs}ms)`)
+    await delay(Math.min(300, timeoutMs))
   }
 
   async getPackageInfo(serial: string, packageName: string): Promise<PackageInfo | null> {

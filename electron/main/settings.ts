@@ -4,9 +4,17 @@ import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs'
 
 export interface AppSettings {
   simulationMode: boolean
+  aynAbxyLayout: 'Xbox' | 'Nintendo'
+  aynTriggerMode: 'Analog' | 'Digital'
+  firmwareUpdateWaitSeconds: number
 }
 
-const DEFAULT_SETTINGS: AppSettings = { simulationMode: true }
+const DEFAULT_SETTINGS: AppSettings = {
+  simulationMode: true,
+  aynAbxyLayout: 'Xbox',
+  aynTriggerMode: 'Analog',
+  firmwareUpdateWaitSeconds: 30,
+}
 
 let inMemorySettings: AppSettings | null = null
 

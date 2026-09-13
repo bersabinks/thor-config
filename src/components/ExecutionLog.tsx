@@ -3,17 +3,23 @@ import { useAuditLog } from '../store/auditLog'
 import type { StepResult } from '../verification'
 
 function StepRow({ step }: { step: StepResult }) {
-  const icon = step.status === 'success' ? '✓' : '✗'
-  const className = `log-row log-row--${step.status === 'success' ? 'success' : 'error'}`
+  const ok = step.status === 'success'
+  const icon = ok ? '✓' : '✗'
+  const className = `log-row log-row--${ok ? 'success' : 'error'}`
   const time = new Date(step.timestamp).toLocaleTimeString('fr-FR')
 
   return (
     <div className={className}>
-      <span className="log-icon">{icon}</span>
-      <span className="log-label">{step.label}</span>
-      <span className="log-meta">
-        {step.attempts} tentative{step.attempts > 1 ? 's' : ''} · {time}
-      </span>
+      <div className="log-row-main">
+        <span className="log-icon">{icon}</span>
+        <span className="log-label">{step.label}</span>
+        <span className="log-meta">
+          {step.attempts} tentative{step.attempts > 1 ? 's' : ''} · {time}
+        </span>
+      </div>
+      {!ok && step.error && (
+        <div className="log-error">{step.error}</div>
+      )}
     </div>
   )
 }

@@ -10,6 +10,7 @@ export interface ElectronAPI {
     installApk(serial: string, apkPath: string): Promise<void>
     uninstallApk(serial: string, packageName: string): Promise<void>
     getPackageInfo(serial: string, packageName: string): Promise<PackageInfo | null>
+    waitForDevice(serial: string, timeoutMs?: number): Promise<void>
   }
   settings: {
     get(key: string): Promise<unknown>

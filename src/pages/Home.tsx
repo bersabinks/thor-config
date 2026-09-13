@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { DeviceStatus } from '../components/DeviceStatus'
 import { ExecutionLog } from '../components/ExecutionLog'
 import { ScreenWakeTest } from '../components/ScreenWakeTest'
+import { PrepareModule } from '../components/PrepareModule'
 import type { AdbDevice } from '../../electron/main/adb/types'
 import { useSettings } from '../store/settings'
 
@@ -35,13 +36,14 @@ export function Home() {
         <div>
           <h2>Préparation console</h2>
           <p className="page-desc">
-            Vérifiez la connexion, puis lancez les actions de configuration.
+            Configure automatiquement la console sans aucune interaction manuelle.
           </p>
         </div>
         <DeviceStatus />
       </div>
 
       <div className="page-content">
+        <PrepareModule device={device} />
         <ScreenWakeTest device={device} />
         <ExecutionLog />
       </div>

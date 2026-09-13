@@ -1,0 +1,17 @@
+{
+  "_note": "Libellés exacts de l'app AYN Settings. À ajuster si les libellés diffèrent selon la version du firmware.",
+
+  "packageHints": ["com.ayn.settings", "com.ayn.gamepad", "com.ayn.controller"],
+
+  "abxyPath": ["Controller", "Button Layout"],
+  "abxyLabels": {
+    "Xbox": "Xbox",
+    "Nintendo": "Nintendo"
+  },
+
+  "triggerPath": ["Controller", "Trigger Mode"],
+  "triggerLabels": {
+    "Analog": "Analog",
+    "Digital": "Digital"
+  }
+}

@@ -57,6 +57,10 @@ export class RealAdbClient implements AdbClient {
     await runAdb('-s', serial, 'uninstall', packageName)
   }
 
+  async waitForDevice(serial: string, timeoutMs = 120000): Promise<void> {
+    await execFileAsync('adb', ['-s', serial, 'wait-for-device'], { timeout: timeoutMs })
+  }
+
   async getPackageInfo(serial: string, packageName: string): Promise<PackageInfo | null> {
     try {
       const output = await runAdb('-s', serial, 'shell', `dumpsys package ${packageName}`)

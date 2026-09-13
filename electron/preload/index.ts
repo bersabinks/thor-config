@@ -15,6 +15,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
       ipcRenderer.invoke('adb:uninstallApk', serial, packageName),
     getPackageInfo: (serial: string, packageName: string) =>
       ipcRenderer.invoke('adb:getPackageInfo', serial, packageName),
+    waitForDevice: (serial: string, timeoutMs?: number) =>
+      ipcRenderer.invoke('adb:waitForDevice', serial, timeoutMs),
   },
   settings: {
     get: (key: string) => ipcRenderer.invoke('settings:get', key),
