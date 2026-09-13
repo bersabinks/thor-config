@@ -1,0 +1,79 @@
+name: Build & Release
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
+        continue-on-error: true
+
+      - name: Build (renderer + main)
+        run: npm run build
+
+      - name: Package Windows installer
+        run: npm run package
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate tag name
+        id: tag
+        shell: bash
+        run: echo "TAG=build-$(date +'%Y-%m-%d-%H%M')" >> "$GITHUB_OUTPUT"
+
+      - name: Collect commit messages
+        id: commits
+        shell: bash
+        run: |
+          MSGS=$(git log --oneline -10 --pretty=format:"- %s")
+          echo "MESSAGES<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$MSGS" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+
+      - name: Create versioned Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.tag.outputs.TAG }}
+          name: "ThorConfig ${{ steps.tag.outputs.TAG }}"
+          files: release/**/*.exe
+          body: |
+            ## ThorConfig — build automatique
+
+            ${{ steps.commits.outputs.MESSAGES }}
+
+            ---
+            **Comment tester** : téléchargez le `.exe` ci-dessous et lancez-le. Aucun Node.js requis.
+            Activez le **mode simulation** dans Réglages si vous n'avez pas de console branchée.
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update latest-test tag
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: latest-test
+          name: "ThorConfig — dernier build (latest-test)"
+          files: release/**/*.exe
+          body: |
+            Ce tag est mis à jour à chaque push sur `main`.
+            Il pointe toujours vers le **dernier build Windows fonctionnel**.
+
+            **Lien permanent à partager à ton ami testeur** : télécharge le `.exe` ici.
+          token: ${{ secrets.GITHUB_TOKEN }}

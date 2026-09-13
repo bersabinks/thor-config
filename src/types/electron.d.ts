@@ -1,0 +1,24 @@
+import type { AdbDevice, PackageInfo } from '../../electron/main/adb/types'
+
+export interface ElectronAPI {
+  adb: {
+    listDevices(): Promise<AdbDevice[]>
+    getDeviceProps(serial: string): Promise<Record<string, string>>
+    pushFile(serial: string, localPath: string, remotePath: string): Promise<void>
+    pullFile(serial: string, remotePath: string, localPath: string): Promise<void>
+    shell(serial: string, cmd: string): Promise<string>
+    installApk(serial: string, apkPath: string): Promise<void>
+    uninstallApk(serial: string, packageName: string): Promise<void>
+    getPackageInfo(serial: string, packageName: string): Promise<PackageInfo | null>
+  }
+  settings: {
+    get(key: string): Promise<unknown>
+    set(key: string, value: unknown): Promise<void>
+  }
+}
+
+declare global {
+  interface Window {
+    electronAPI: ElectronAPI
+  }
+}
