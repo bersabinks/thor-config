@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Sidebar } from './components/Sidebar'
 import { Home } from './pages/Home'
 import { Emulators } from './pages/Emulators'
+import { Roms } from './pages/Roms'
 import { Settings } from './pages/Settings'
 import { useSettings } from './store/settings'
 
@@ -34,6 +35,8 @@ export function App() {
         return <Home />
       case 'emulators':
         return <Emulators />
+      case 'roms':
+        return <Roms />
       case 'settings':
         return <Settings />
       default:

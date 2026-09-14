@@ -30,4 +30,27 @@ contextBridge.exposeInMainWorld('electronAPI', {
     verifyConfig: (serial: string, configPath: string, settings: Record<string, string>) =>
       ipcRenderer.invoke('emulators:verifyConfig', serial, configPath, settings),
   },
+  roms: {
+    readHeader: (localPath: string, length: number) =>
+      ipcRenderer.invoke('roms:readHeader', localPath, length),
+    sha256Local: (localPath: string) => ipcRenderer.invoke('roms:sha256Local', localPath),
+    hasChdman: () => ipcRenderer.invoke('roms:hasChdman'),
+    chdmanConvert: (localPath: string) => ipcRenderer.invoke('roms:chdmanConvert', localPath),
+    ensureRemoteDir: (serial: string, remoteDir: string) =>
+      ipcRenderer.invoke('roms:ensureRemoteDir', serial, remoteDir),
+    sha256Device: (serial: string, remotePath: string) =>
+      ipcRenderer.invoke('roms:sha256Device', serial, remotePath),
+    writeRemoteText: (serial: string, remotePath: string, content: string) =>
+      ipcRenderer.invoke('roms:writeRemoteText', serial, remotePath, content),
+    readRemoteText: (serial: string, remotePath: string) =>
+      ipcRenderer.invoke('roms:readRemoteText', serial, remotePath),
+    pickImportFolder: () => ipcRenderer.invoke('roms:pickImportFolder'),
+    startWatcher: (folder: string) => ipcRenderer.invoke('roms:startWatcher', folder),
+    stopWatcher: () => ipcRenderer.invoke('roms:stopWatcher'),
+    onFileDetected: (cb: (path: string) => void) => {
+      const listener = (_e: unknown, path: string) => cb(path)
+      ipcRenderer.on('roms:fileDetected', listener)
+      return () => ipcRenderer.removeListener('roms:fileDetected', listener)
+    },
+  },
 })

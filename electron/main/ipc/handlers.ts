@@ -1,8 +1,10 @@
-import { ipcMain } from 'electron'
+import { ipcMain, dialog } from 'electron'
 import { getAdbClient } from '../adb/factory'
 import { getSettings, setSettings } from '../settings'
 import { prepareApk } from '../emulators/source'
 import { applyConfig, verifyConfig } from '../emulators/configApplier'
+import * as romOps from '../roms/romOps'
+import { startImportWatcher, stopImportWatcher } from '../roms/importWatcher'
 
 export function registerIpcHandlers(): void {
   ipcMain.handle('adb:listDevices', () => getAdbClient().listDevices())
@@ -64,4 +66,30 @@ export function registerIpcHandlers(): void {
     (_e, serial: string, configPath: string, settings: Record<string, string>) =>
       verifyConfig(serial, configPath, settings)
   )
+
+  // ── ROMs ──────────────────────────────────────────────────────────────────
+  ipcMain.handle('roms:readHeader', (_e, localPath: string, length: number) =>
+    romOps.readHeader(localPath, length)
+  )
+  ipcMain.handle('roms:sha256Local', (_e, localPath: string) => romOps.sha256Local(localPath))
+  ipcMain.handle('roms:hasChdman', () => romOps.hasChdman())
+  ipcMain.handle('roms:chdmanConvert', (_e, localPath: string) => romOps.chdmanConvert(localPath))
+  ipcMain.handle('roms:ensureRemoteDir', (_e, serial: string, remoteDir: string) =>
+    romOps.ensureRemoteDir(serial, remoteDir)
+  )
+  ipcMain.handle('roms:sha256Device', (_e, serial: string, remotePath: string) =>
+    romOps.sha256Device(serial, remotePath)
+  )
+  ipcMain.handle('roms:writeRemoteText', (_e, serial: string, remotePath: string, content: string) =>
+    romOps.writeRemoteText(serial, remotePath, content)
+  )
+  ipcMain.handle('roms:readRemoteText', (_e, serial: string, remotePath: string) =>
+    romOps.readRemoteText(serial, remotePath)
+  )
+  ipcMain.handle('roms:pickImportFolder', async () => {
+    const result = await dialog.showOpenDialog({ properties: ['openDirectory'] })
+    return result.canceled ? null : result.filePaths[0]
+  })
+  ipcMain.handle('roms:startWatcher', (_e, folder: string) => startImportWatcher(folder))
+  ipcMain.handle('roms:stopWatcher', () => stopImportWatcher())
 }

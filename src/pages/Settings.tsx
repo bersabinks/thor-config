@@ -6,7 +6,14 @@ export function Settings() {
     aynAbxyLayout, setAynAbxyLayout,
     aynTriggerMode, setAynTriggerMode,
     firmwareUpdateWaitSeconds, setFirmwareUpdateWaitSeconds,
+    importFolder, setImportFolder,
+    romsParallelism, setRomsParallelism,
   } = useSettings()
+
+  async function handlePickImportFolder() {
+    const folder = await window.electronAPI.roms.pickImportFolder()
+    if (folder) await setImportFolder(folder)
+  }
 
   return (
     <div className="page">
@@ -129,6 +136,45 @@ export function Settings() {
                   onChange={(e) => setFirmwareUpdateWaitSeconds(Number(e.target.value))}
                 />
                 <span className="hint">sec</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ── ROMs ── */}
+        <div className="card">
+          <div className="card-header">
+            <h3>ROMs — Dossier d'import</h3>
+            <p className="card-desc">
+              Dossier local surveillé : tout fichier de jeu déposé ici est identifié, rangé et
+              transféré automatiquement sur la console.
+            </p>
+          </div>
+          <div className="card-body">
+            <div className="settings-row">
+              <div className="settings-row-label">
+                <span>Dossier d'import</span>
+                <span>{importFolder || 'Aucun dossier sélectionné'}</span>
+              </div>
+              <button className="btn-ghost btn-sm" onClick={handlePickImportFolder}>
+                {importFolder ? 'Changer…' : 'Choisir…'}
+              </button>
+            </div>
+
+            <div className="settings-row">
+              <div className="settings-row-label">
+                <span>Parallélisme des transferts</span>
+                <span>Nombre de fichiers traités en parallèle (limite le débit USB)</span>
+              </div>
+              <div className="number-input">
+                <input
+                  type="number"
+                  min={1}
+                  max={8}
+                  value={romsParallelism}
+                  onChange={(e) => setRomsParallelism(Number(e.target.value))}
+                />
+                <span className="hint">fichiers</span>
               </div>
             </div>
           </div>

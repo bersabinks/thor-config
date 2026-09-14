@@ -7,6 +7,8 @@ export interface AppSettings {
   aynAbxyLayout: 'Xbox' | 'Nintendo'
   aynTriggerMode: 'Analog' | 'Digital'
   firmwareUpdateWaitSeconds: number
+  importFolder: string
+  romsParallelism: number
 }
 
 const DEFAULT_SETTINGS: AppSettings = {
@@ -14,6 +16,8 @@ const DEFAULT_SETTINGS: AppSettings = {
   aynAbxyLayout: 'Xbox',
   aynTriggerMode: 'Analog',
   firmwareUpdateWaitSeconds: 30,
+  importFolder: '',
+  romsParallelism: 2,
 }
 
 let inMemorySettings: AppSettings | null = null

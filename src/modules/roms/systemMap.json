@@ -1,0 +1,53 @@
+[
+  {
+    "id": "nds",
+    "displayName": "Nintendo DS",
+    "folder": "nds",
+    "extensions": [".nds", ".dsi"],
+    "chd": false,
+    "magic": [{ "offset": 192, "hex": "24FFAE51" }]
+  },
+  {
+    "id": "3ds",
+    "displayName": "Nintendo 3DS",
+    "folder": "n3ds",
+    "extensions": [".3ds", ".cci", ".cxi", ".cia"],
+    "chd": false,
+    "magic": [{ "offset": 256, "hex": "4E435344" }]
+  },
+  {
+    "id": "gc",
+    "displayName": "Nintendo GameCube",
+    "folder": "gc",
+    "extensions": [".iso", ".gcm", ".rvz", ".gcz", ".ciso"],
+    "chd": false,
+    "magic": [{ "offset": 28, "hex": "C2339F3D" }]
+  },
+  {
+    "id": "wii",
+    "displayName": "Nintendo Wii",
+    "folder": "wii",
+    "extensions": [".iso", ".wbfs", ".rvz", ".wia"],
+    "chd": false,
+    "magic": [
+      { "offset": 24, "hex": "5D1C9EA3" },
+      { "offset": 0, "hex": "57424653" }
+    ]
+  },
+  {
+    "id": "wiiu",
+    "displayName": "Nintendo Wii U",
+    "folder": "wiiu",
+    "extensions": [".wua", ".wux", ".wud", ".rpx"],
+    "chd": false,
+    "magic": [{ "offset": 0, "hex": "57555830" }]
+  },
+  {
+    "id": "ps2",
+    "displayName": "Sony PlayStation 2",
+    "folder": "ps2",
+    "extensions": [".iso", ".bin"],
+    "chd": true,
+    "magic": [{ "offset": 32769, "hex": "4344303031" }]
+  }
+]

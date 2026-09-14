@@ -26,6 +26,20 @@ export interface ElectronAPI {
       settings: Record<string, string>
     ): Promise<Record<string, string>>
   }
+  roms: {
+    readHeader(localPath: string, length: number): Promise<Uint8Array>
+    sha256Local(localPath: string): Promise<string>
+    hasChdman(): Promise<boolean>
+    chdmanConvert(localPath: string): Promise<string>
+    ensureRemoteDir(serial: string, remoteDir: string): Promise<void>
+    sha256Device(serial: string, remotePath: string): Promise<string>
+    writeRemoteText(serial: string, remotePath: string, content: string): Promise<void>
+    readRemoteText(serial: string, remotePath: string): Promise<string>
+    pickImportFolder(): Promise<string | null>
+    startWatcher(folder: string): Promise<void>
+    stopWatcher(): Promise<void>
+    onFileDetected(cb: (path: string) => void): () => void
+  }
 }
 
 declare global {
