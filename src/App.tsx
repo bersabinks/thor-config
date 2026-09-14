@@ -5,6 +5,7 @@ import { Emulators } from './pages/Emulators'
 import { Roms } from './pages/Roms'
 import { Saves } from './pages/Saves'
 import { Vita } from './pages/Vita'
+import { Launcher } from './pages/Launcher'
 import { Settings } from './pages/Settings'
 import { useSettings } from './store/settings'
 
@@ -43,6 +44,8 @@ export function App() {
         return <Saves />
       case 'vita':
         return <Vita />
+      case 'launcher':
+        return <Launcher />
       case 'settings':
         return <Settings />
       default:

@@ -2,6 +2,8 @@
   "id": "cocoon",
   "displayName": "Cocoon",
   "packageName": "rip.moth.cocoonshell",
-  "mainActivity": null,
-  "_todo": "Activité principale inconnue — à relever sur la console (adb shell cmd package resolve-activity --brief rip.moth.cocoonshell)"
+  "_packageNote": "Confirmé par ADB sur la console du testeur (2026-09-14).",
+  "mainActivity": "rip.moth.cocoonshell/.MainActivity",
+  "_mainActivityNote": "Relevée dans le JSON d'audit du Launcher sur la console du testeur (2026-09-14). Si null, l'activité HOME est résolue à l'exécution (cmd package resolve-activity -c android.intent.category.HOME rip.moth.cocoonshell).",
+  "_installNote": "Aucune source APK officielle vérifiée pour Cocoon : le module détecte sa présence (pm list packages) sans l'installer."
 }
