@@ -53,4 +53,23 @@ contextBridge.exposeInMainWorld('electronAPI', {
       return () => ipcRenderer.removeListener('roms:fileDetected', listener)
     },
   },
+  saves: {
+    listDeviceFiles: (serial: string, dir: string) =>
+      ipcRenderer.invoke('saves:listDeviceFiles', serial, dir),
+    sha256Device: (serial: string, p: string) => ipcRenderer.invoke('saves:sha256Device', serial, p),
+    deviceFileSize: (serial: string, p: string) =>
+      ipcRenderer.invoke('saves:deviceFileSize', serial, p),
+    ensureRemoteDir: (serial: string, dir: string) =>
+      ipcRenderer.invoke('saves:ensureRemoteDir', serial, dir),
+    pullFile: (serial: string, dp: string, lp: string) =>
+      ipcRenderer.invoke('saves:pullFile', serial, dp, lp),
+    pushFile: (serial: string, lp: string, dp: string) =>
+      ipcRenderer.invoke('saves:pushFile', serial, lp, dp),
+    sha256Local: (lp: string) => ipcRenderer.invoke('saves:sha256Local', lp),
+    writeText: (lp: string, content: string) => ipcRenderer.invoke('saves:writeText', lp, content),
+    readText: (lp: string) => ipcRenderer.invoke('saves:readText', lp),
+    listBackups: (emulatorId: string) => ipcRenderer.invoke('saves:listBackups', emulatorId),
+    readManifest: (emulatorId: string, backupId: string) =>
+      ipcRenderer.invoke('saves:readManifest', emulatorId, backupId),
+  },
 })

@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { run as runEmulators } from '../modules/emulators'
+import { runInitialBackups, makeDefaultSavesIpc, makeSimulationSavesIpc } from '../modules/saves'
 import { useAuditLog } from '../store/auditLog'
+import { useSettings } from '../store/settings'
 import type { StepResult } from '../verification'
 import type { AdbDevice } from '../../electron/main/adb/types'
 import sources from '../modules/emulators/sources.json'
@@ -23,6 +25,7 @@ export function EmulatorsModule({ device }: Props) {
   const [runStatus, setRunStatus] = useState<RunStatus>('idle')
   const [liveSteps, setLiveSteps] = useState<LiveStep[]>([])
   const addStep = useAuditLog((s) => s.addStep)
+  const { simulationMode } = useSettings()
 
   async function handleRun() {
     if (!device || runStatus === 'running') return
@@ -41,7 +44,25 @@ export function EmulatorsModule({ device }: Props) {
       addStep(result)
     }
 
-    await runEmulators({ serial: device.serial, onStep })
+    const result = await runEmulators({ serial: device.serial, onStep })
+
+    // Prompt 5 : sauvegarde "état initial" automatique pour chaque émulateur
+    // dont l'installation a réussi (la config ignorée n'empêche pas le backup).
+    const installed = sources
+      .filter((s) =>
+        result.steps.some(
+          (step) => step.label === `${s.displayName} — Installation` && step.status === 'success'
+        )
+      )
+      .map((s) => s.id)
+    if (installed.length > 0) {
+      const savesIpc = simulationMode ? makeSimulationSavesIpc() : makeDefaultSavesIpc()
+      await runInitialBackups(device.serial, installed, savesIpc, addStep, {
+        maxRetries: simulationMode ? 1 : 2,
+        retryDelayMs: simulationMode ? 0 : 2000,
+      })
+    }
+
     setRunStatus('done')
   }
 

@@ -5,6 +5,7 @@ import { prepareApk } from '../emulators/source'
 import { applyConfig, verifyConfig } from '../emulators/configApplier'
 import * as romOps from '../roms/romOps'
 import { startImportWatcher, stopImportWatcher } from '../roms/importWatcher'
+import * as saveOps from '../saves/saveOps'
 
 export function registerIpcHandlers(): void {
   ipcMain.handle('adb:listDevices', () => getAdbClient().listDevices())
@@ -92,4 +93,33 @@ export function registerIpcHandlers(): void {
   })
   ipcMain.handle('roms:startWatcher', (_e, folder: string) => startImportWatcher(folder))
   ipcMain.handle('roms:stopWatcher', () => stopImportWatcher())
+
+  // ── Sauvegardes ────────────────────────────────────────────────────────────
+  ipcMain.handle('saves:listDeviceFiles', (_e, serial: string, dir: string) =>
+    saveOps.listDeviceFiles(serial, dir)
+  )
+  ipcMain.handle('saves:sha256Device', (_e, serial: string, p: string) =>
+    saveOps.sha256Device(serial, p)
+  )
+  ipcMain.handle('saves:deviceFileSize', (_e, serial: string, p: string) =>
+    saveOps.deviceFileSize(serial, p)
+  )
+  ipcMain.handle('saves:ensureRemoteDir', (_e, serial: string, dir: string) =>
+    saveOps.ensureRemoteDir(serial, dir)
+  )
+  ipcMain.handle('saves:pullFile', (_e, serial: string, dp: string, lp: string) =>
+    saveOps.pullFile(serial, dp, lp)
+  )
+  ipcMain.handle('saves:pushFile', (_e, serial: string, lp: string, dp: string) =>
+    saveOps.pushFile(serial, lp, dp)
+  )
+  ipcMain.handle('saves:sha256Local', (_e, lp: string) => saveOps.sha256Local(lp))
+  ipcMain.handle('saves:writeText', (_e, lp: string, content: string) =>
+    saveOps.writeText(lp, content)
+  )
+  ipcMain.handle('saves:readText', (_e, lp: string) => saveOps.readText(lp))
+  ipcMain.handle('saves:listBackups', (_e, emulatorId: string) => saveOps.listBackups(emulatorId))
+  ipcMain.handle('saves:readManifest', (_e, emulatorId: string, backupId: string) =>
+    saveOps.readManifest(emulatorId, backupId)
+  )
 }

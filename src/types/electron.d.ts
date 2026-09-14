@@ -40,6 +40,19 @@ export interface ElectronAPI {
     stopWatcher(): Promise<void>
     onFileDetected(cb: (path: string) => void): () => void
   }
+  saves: {
+    listDeviceFiles(serial: string, dir: string): Promise<string[]>
+    sha256Device(serial: string, p: string): Promise<string>
+    deviceFileSize(serial: string, p: string): Promise<number>
+    ensureRemoteDir(serial: string, dir: string): Promise<void>
+    pullFile(serial: string, devicePath: string, localPath: string): Promise<void>
+    pushFile(serial: string, localPath: string, devicePath: string): Promise<void>
+    sha256Local(localPath: string): Promise<string>
+    writeText(localPath: string, content: string): Promise<void>
+    readText(localPath: string): Promise<string>
+    listBackups(emulatorId: string): Promise<string[]>
+    readManifest(emulatorId: string, backupId: string): Promise<string | null>
+  }
 }
 
 declare global {

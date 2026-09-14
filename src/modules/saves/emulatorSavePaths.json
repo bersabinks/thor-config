@@ -1,0 +1,16 @@
+{
+  "melonds-ds": [
+    { "label": "saves", "devicePath": "/sdcard/melonds/saves" }
+  ],
+  "azahar": [
+    { "label": "sdmc", "devicePath": "/sdcard/azahar/sdmc/Nintendo 3DS" },
+    { "label": "saves", "devicePath": "/sdcard/azahar/saves" }
+  ],
+  "dolphin": [
+    { "label": "gc", "devicePath": "/sdcard/dolphin-emu/GC" },
+    { "label": "wii", "devicePath": "/sdcard/dolphin-emu/Wii" }
+  ],
+  "cemu": [
+    { "label": "save", "devicePath": "/sdcard/Cemu/mlc01/usr/save" }
+  ]
+}
