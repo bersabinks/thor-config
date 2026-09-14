@@ -6,6 +6,7 @@ import {
   SIMULATION_SAMPLE_FILES,
 } from '../modules/roms/romsIpc'
 import type { RomsIpc } from '../modules/roms/romsProcess'
+import { isVitaArchiveCandidate } from '../modules/vita'
 import { useAuditLog } from '../store/auditLog'
 import { useSettings } from '../store/settings'
 import type { StepResult } from '../verification'
@@ -41,6 +42,7 @@ export function RomsModule({ device }: Props) {
   useEffect(() => {
     if (simulationMode) return
     const unsub = window.electronAPI.roms.onFileDetected((path) => {
+      if (isVitaArchiveCandidate(path)) return // .zip/.7z : routés vers le module PS Vita
       setQueue((q) => (q.includes(path) ? q : [...q, path]))
     })
     if (importFolder) void window.electronAPI.roms.startWatcher(importFolder)

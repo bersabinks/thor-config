@@ -7,6 +7,7 @@ interface SettingsStore {
   firmwareUpdateWaitSeconds: number
   importFolder: string
   romsParallelism: number
+  vitaOutputFolder: string
   loaded: boolean
   load: () => Promise<void>
   setSimulationMode: (value: boolean) => Promise<void>
@@ -15,6 +16,7 @@ interface SettingsStore {
   setFirmwareUpdateWaitSeconds: (value: number) => Promise<void>
   setImportFolder: (value: string) => Promise<void>
   setRomsParallelism: (value: number) => Promise<void>
+  setVitaOutputFolder: (value: string) => Promise<void>
 }
 
 async function persist(key: string, value: unknown) {
@@ -28,17 +30,20 @@ export const useSettings = create<SettingsStore>((set) => ({
   firmwareUpdateWaitSeconds: 30,
   importFolder: '',
   romsParallelism: 2,
+  vitaOutputFolder: '',
   loaded: false,
 
   load: async () => {
-    const [simMode, abxy, trigger, fwWait, importFolder, parallelism] = await Promise.all([
-      window.electronAPI.settings.get('simulationMode'),
-      window.electronAPI.settings.get('aynAbxyLayout'),
-      window.electronAPI.settings.get('aynTriggerMode'),
-      window.electronAPI.settings.get('firmwareUpdateWaitSeconds'),
-      window.electronAPI.settings.get('importFolder'),
-      window.electronAPI.settings.get('romsParallelism'),
-    ])
+    const [simMode, abxy, trigger, fwWait, importFolder, parallelism, vitaOutputFolder] =
+      await Promise.all([
+        window.electronAPI.settings.get('simulationMode'),
+        window.electronAPI.settings.get('aynAbxyLayout'),
+        window.electronAPI.settings.get('aynTriggerMode'),
+        window.electronAPI.settings.get('firmwareUpdateWaitSeconds'),
+        window.electronAPI.settings.get('importFolder'),
+        window.electronAPI.settings.get('romsParallelism'),
+        window.electronAPI.settings.get('vitaOutputFolder'),
+      ])
     set({
       simulationMode: simMode !== false,
       aynAbxyLayout: (abxy as 'Xbox' | 'Nintendo') ?? 'Xbox',
@@ -46,6 +51,7 @@ export const useSettings = create<SettingsStore>((set) => ({
       firmwareUpdateWaitSeconds: (fwWait as number) ?? 30,
       importFolder: (importFolder as string) ?? '',
       romsParallelism: (parallelism as number) ?? 2,
+      vitaOutputFolder: (vitaOutputFolder as string) ?? '',
       loaded: true,
     })
   },
@@ -78,5 +84,10 @@ export const useSettings = create<SettingsStore>((set) => ({
   setRomsParallelism: async (value) => {
     await persist('romsParallelism', value)
     set({ romsParallelism: value })
+  },
+
+  setVitaOutputFolder: async (value) => {
+    await persist('vitaOutputFolder', value)
+    set({ vitaOutputFolder: value })
   },
 }))

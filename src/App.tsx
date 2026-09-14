@@ -4,6 +4,7 @@ import { Home } from './pages/Home'
 import { Emulators } from './pages/Emulators'
 import { Roms } from './pages/Roms'
 import { Saves } from './pages/Saves'
+import { Vita } from './pages/Vita'
 import { Settings } from './pages/Settings'
 import { useSettings } from './store/settings'
 
@@ -40,6 +41,8 @@ export function App() {
         return <Roms />
       case 'saves':
         return <Saves />
+      case 'vita':
+        return <Vita />
       case 'settings':
         return <Settings />
       default:

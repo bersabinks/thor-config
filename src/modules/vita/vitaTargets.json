@@ -1,0 +1,7 @@
+{
+  "vita3kPackageName": "org.vita3k.emulator",
+  "_packageConfirmed": false,
+  "_packageNote": "packageName à confirmer par ADB sur la console (adb shell pm list packages | grep -i vita), comme pour Azahar.",
+  "deviceDropDir": "/sdcard/PSVita",
+  "_deviceDropNote": "Android bloque Android/data/ via ADB sans root (vérifié le 2026-09-14) : le dossier interne de Vita3K n'est pas accessible. Les .vpk/.dpt sont donc déposés dans ce dossier du stockage partagé, d'où Vita3K peut les installer."
+}

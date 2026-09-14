@@ -9,6 +9,8 @@ export interface AppSettings {
   firmwareUpdateWaitSeconds: number
   importFolder: string
   romsParallelism: number
+  /** Dossier de sortie PS Vita quand la cible est un PC ('' = Documents/ThorConfig/PSVita). */
+  vitaOutputFolder: string
 }
 
 const DEFAULT_SETTINGS: AppSettings = {
@@ -18,6 +20,7 @@ const DEFAULT_SETTINGS: AppSettings = {
   firmwareUpdateWaitSeconds: 30,
   importFolder: '',
   romsParallelism: 2,
+  vitaOutputFolder: '',
 }
 
 let inMemorySettings: AppSettings | null = null

@@ -10,7 +10,7 @@ const NAV_ITEMS: { id: Page; label: string; icon: string; available: boolean }[]
   { id: 'emulators', label: 'Émulateurs', icon: '🎮', available: true },
   { id: 'roms', label: 'ROMs', icon: '💿', available: true },
   { id: 'saves', label: 'Sauvegardes', icon: '💾', available: true },
-  { id: 'vita', label: 'PS Vita', icon: '🎯', available: false },
+  { id: 'vita', label: 'PS Vita', icon: '🎯', available: true },
   { id: 'launcher', label: 'Launcher', icon: '🚀', available: false },
   { id: 'report', label: 'Rapport final', icon: '📋', available: false },
 ]

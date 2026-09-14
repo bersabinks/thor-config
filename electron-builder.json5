@@ -9,6 +9,10 @@
     "out/**",
     "!out/**/*.map"
   ],
+  // Le binaire 7za ne peut pas être exécuté depuis l'archive asar.
+  asarUnpack: [
+    "node_modules/7zip-bin/**"
+  ],
   win: {
     executableName: "ThorConfig",
     target: [

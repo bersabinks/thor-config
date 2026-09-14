@@ -8,11 +8,17 @@ export function Settings() {
     firmwareUpdateWaitSeconds, setFirmwareUpdateWaitSeconds,
     importFolder, setImportFolder,
     romsParallelism, setRomsParallelism,
+    vitaOutputFolder, setVitaOutputFolder,
   } = useSettings()
 
   async function handlePickImportFolder() {
     const folder = await window.electronAPI.roms.pickImportFolder()
     if (folder) await setImportFolder(folder)
+  }
+
+  async function handlePickVitaOutputFolder() {
+    const folder = await window.electronAPI.roms.pickImportFolder()
+    if (folder) await setVitaOutputFolder(folder)
   }
 
   return (
@@ -175,6 +181,35 @@ export function Settings() {
                   onChange={(e) => setRomsParallelism(Number(e.target.value))}
                 />
                 <span className="hint">fichiers</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ── PS Vita ── */}
+        <div className="card">
+          <div className="card-header">
+            <h3>PS Vita — Sortie PC</h3>
+            <p className="card-desc">
+              Quand Vita3K n'est pas installé sur la console, les fichiers .vpk et .dpt générés
+              sont copiés dans ce dossier local pour un Vita3K sur PC.
+            </p>
+          </div>
+          <div className="card-body">
+            <div className="settings-row">
+              <div className="settings-row-label">
+                <span>Dossier de sortie</span>
+                <span>{vitaOutputFolder || 'Par défaut : Documents\\ThorConfig\\PSVita'}</span>
+              </div>
+              <div>
+                {vitaOutputFolder && (
+                  <button className="btn-ghost btn-sm" onClick={() => setVitaOutputFolder('')}>
+                    Par défaut
+                  </button>
+                )}
+                <button className="btn-ghost btn-sm" onClick={handlePickVitaOutputFolder}>
+                  {vitaOutputFolder ? 'Changer…' : 'Choisir…'}
+                </button>
               </div>
             </div>
           </div>

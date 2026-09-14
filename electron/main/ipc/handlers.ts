@@ -6,6 +6,7 @@ import { applyConfig, verifyConfig } from '../emulators/configApplier'
 import * as romOps from '../roms/romOps'
 import { startImportWatcher, stopImportWatcher } from '../roms/importWatcher'
 import * as saveOps from '../saves/saveOps'
+import * as vitaOps from '../vita/vitaOps'
 
 export function registerIpcHandlers(): void {
   ipcMain.handle('adb:listDevices', () => getAdbClient().listDevices())
@@ -122,4 +123,28 @@ export function registerIpcHandlers(): void {
   ipcMain.handle('saves:readManifest', (_e, emulatorId: string, backupId: string) =>
     saveOps.readManifest(emulatorId, backupId)
   )
+
+  // ── PS Vita ────────────────────────────────────────────────────────────────
+  ipcMain.handle('vita:listArchive', (_e, p: string) => vitaOps.listArchive(p))
+  ipcMain.handle('vita:extractArchive', (_e, p: string) => vitaOps.extractArchive(p))
+  ipcMain.handle('vita:readLocalBytes', (_e, p: string) => vitaOps.readLocalBytes(p))
+  ipcMain.handle('vita:prepareOutputDir', (_e, titleId: string) =>
+    vitaOps.prepareOutputDir(titleId)
+  )
+  ipcMain.handle('vita:createZipFromDir', (_e, src: string, out: string) =>
+    vitaOps.createZipFromDir(src, out)
+  )
+  ipcMain.handle('vita:writeText', (_e, p: string, content: string) =>
+    vitaOps.writeText(p, content)
+  )
+  ipcMain.handle('vita:readText', (_e, p: string) => vitaOps.readText(p))
+  ipcMain.handle('vita:sha256Local', (_e, p: string) => vitaOps.sha256Local(p))
+  ipcMain.handle('vita:fileSize', (_e, p: string) => vitaOps.fileSize(p))
+  ipcMain.handle('vita:copyLocal', (_e, src: string, dest: string) =>
+    vitaOps.copyLocal(src, dest)
+  )
+  ipcMain.handle('vita:resolvePcOutputDir', (_e, configured: string) =>
+    vitaOps.resolvePcOutputDir(configured)
+  )
+  ipcMain.handle('vita:removeWorkDir', (_e, dir: string) => vitaOps.removeWorkDir(dir))
 }

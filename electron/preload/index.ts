@@ -72,4 +72,20 @@ contextBridge.exposeInMainWorld('electronAPI', {
     readManifest: (emulatorId: string, backupId: string) =>
       ipcRenderer.invoke('saves:readManifest', emulatorId, backupId),
   },
+  vita: {
+    listArchive: (p: string) => ipcRenderer.invoke('vita:listArchive', p),
+    extractArchive: (p: string) => ipcRenderer.invoke('vita:extractArchive', p),
+    readLocalBytes: (p: string) => ipcRenderer.invoke('vita:readLocalBytes', p),
+    prepareOutputDir: (titleId: string) => ipcRenderer.invoke('vita:prepareOutputDir', titleId),
+    createZipFromDir: (src: string, out: string) =>
+      ipcRenderer.invoke('vita:createZipFromDir', src, out),
+    writeText: (p: string, content: string) => ipcRenderer.invoke('vita:writeText', p, content),
+    readText: (p: string) => ipcRenderer.invoke('vita:readText', p),
+    sha256Local: (p: string) => ipcRenderer.invoke('vita:sha256Local', p),
+    fileSize: (p: string) => ipcRenderer.invoke('vita:fileSize', p),
+    copyLocal: (src: string, dest: string) => ipcRenderer.invoke('vita:copyLocal', src, dest),
+    resolvePcOutputDir: (configured: string) =>
+      ipcRenderer.invoke('vita:resolvePcOutputDir', configured),
+    removeWorkDir: (dir: string) => ipcRenderer.invoke('vita:removeWorkDir', dir),
+  },
 })

@@ -53,6 +53,20 @@ export interface ElectronAPI {
     listBackups(emulatorId: string): Promise<string[]>
     readManifest(emulatorId: string, backupId: string): Promise<string | null>
   }
+  vita: {
+    listArchive(archivePath: string): Promise<string[]>
+    extractArchive(archivePath: string): Promise<{ workDir: string; files: string[] }>
+    readLocalBytes(localPath: string): Promise<Uint8Array>
+    prepareOutputDir(titleId: string): Promise<string>
+    createZipFromDir(sourceDir: string, outPath: string): Promise<void>
+    writeText(localPath: string, content: string): Promise<void>
+    readText(localPath: string): Promise<string>
+    sha256Local(localPath: string): Promise<string>
+    fileSize(localPath: string): Promise<number>
+    copyLocal(sourcePath: string, destPath: string): Promise<void>
+    resolvePcOutputDir(configured: string): Promise<string>
+    removeWorkDir(workDir: string): Promise<void>
+  }
 }
 
 declare global {
