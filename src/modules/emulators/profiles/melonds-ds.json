@@ -1,5 +1,6 @@
 {
   "configPath": "/sdcard/melonds/melonds.ini",
+  "_confirmed": false,
   "settings": {
     "renderer": "opengl",
     "internalResolution": "4",

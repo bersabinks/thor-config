@@ -1,5 +1,6 @@
 {
   "configPath": "/sdcard/dolphin-emu/Config/Dolphin.ini",
+  "_confirmed": false,
   "settings": {
     "InternalResolution": "4",
     "AspectRatio": "0",

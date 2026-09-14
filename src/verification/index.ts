@@ -1,9 +1,11 @@
 export interface StepResult {
   label: string
-  status: 'success' | 'failed_after_retries'
+  status: 'success' | 'failed_after_retries' | 'skipped'
   attempts: number
   lastValue: unknown
   error?: string
+  /** Message d'explication — ex. raison pour laquelle une étape est ignorée (skipped). */
+  note?: string
   timestamp: number
 }
 

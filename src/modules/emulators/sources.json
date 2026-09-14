@@ -2,6 +2,7 @@
   {
     "id": "melonds-ds",
     "displayName": "MelonDS Dual Screen",
+    "sourceType": "github",
     "githubRepo": "rafaelvcaetano/melonDS-android",
     "assetPattern": "\\.apk$",
     "packageName": "me.magnum.melonds"
@@ -9,22 +10,24 @@
   {
     "id": "azahar",
     "displayName": "Azahar (3DS)",
+    "sourceType": "github",
     "githubRepo": "azahar-emu/azahar",
     "assetPattern": "\\.apk$",
-    "packageName": "org.azahar.android"
+    "packageName": "io.github.lime3ds.android"
   },
   {
     "id": "dolphin",
     "displayName": "Dolphin (dev build)",
-    "githubRepo": "dolphin-emu/dolphin",
-    "assetPattern": ".*android.*\\.apk$",
+    "sourceType": "fdroid",
+    "fdroidRepo": "https://fdroid.dolphin-emu.org/fdroid/repo",
     "packageName": "org.dolphinemu.dolphinemu"
   },
   {
     "id": "cemu",
     "displayName": "Cemu (Wii U)",
-    "githubRepo": "cemu-project/Cemu",
-    "assetPattern": "Cemu.*\\.apk$",
-    "packageName": "info.cemu.Cemu"
+    "sourceType": "github",
+    "githubRepo": "SSimco/Cemu",
+    "assetPattern": "\\.apk$",
+    "packageName": "info.cemu.cemu"
   }
 ]

@@ -13,7 +13,8 @@ type RunStatus = 'idle' | 'running' | 'done'
 
 interface LiveStep {
   label: string
-  status: 'running' | 'success' | 'failed'
+  status: 'running' | 'success' | 'failed' | 'skipped'
+  note?: string
 }
 
 const STEP_SUFFIXES = ['Téléchargement APK', 'Installation', 'Configuration']
@@ -33,7 +34,8 @@ export function EmulatorsModule({ device }: Props) {
         ...prev,
         {
           label: result.label,
-          status: result.status === 'success' ? 'success' : 'failed',
+          status: liveStatusFor(result.status),
+          note: result.note,
         },
       ])
       addStep(result)
@@ -51,18 +53,21 @@ export function EmulatorsModule({ device }: Props) {
       : "Relancer l’installation"
 
   const successCount = liveSteps.filter((s) => s.status === 'success').length
+  const skippedCount = liveSteps.filter((s) => s.status === 'skipped').length
+  const failedCount = liveSteps.filter((s) => s.status === 'failed').length
 
   return (
-    <div className="card">
+    <div className="card card--fill">
       <div className="card-header">
         <h3>Émulateurs — Installation automatique</h3>
         <p className="card-desc">
-          Télécharge la dernière version de chaque émulateur depuis GitHub, l'installe et applique
-          le profil de configuration optimisé pour la Thor Max. Aucune intervention manuelle.
+          Télécharge la dernière version de chaque émulateur depuis GitHub et l'installe. Les profils
+          de configuration ne sont pas encore validés sur matériel réel : cette étape est ignorée et
+          reste à faire manuellement dans chaque émulateur.
         </p>
       </div>
 
-      <div className="card-body">
+      <div className="card-body card-body--scroll">
         <div className="prepare-steps">
           {sources.map((source, si) =>
             STEP_SUFFIXES.map((suffix, stepIdx) => {
@@ -81,7 +86,9 @@ export function EmulatorsModule({ device }: Props) {
             })
           )}
         </div>
+      </div>
 
+      <div className="card-footer">
         <button
           className="btn-primary"
           onClick={handleRun}
@@ -97,13 +104,20 @@ export function EmulatorsModule({ device }: Props) {
 
         {runStatus === 'done' && (
           <p className="hint">
-            Installation terminée.{' '}
-            {successCount}/{liveSteps.length} étapes réussies. Voir le journal ci-dessous.
+            Installation terminée. {successCount}/{liveSteps.length} réussies
+            {skippedCount > 0 && `, ${skippedCount} ignorée${skippedCount > 1 ? 's' : ''} (config non automatisable)`}
+            {failedCount > 0 && `, ${failedCount} en échec`}. Voir le journal ci-dessous.
           </p>
         )}
       </div>
     </div>
   )
+}
+
+function liveStatusFor(status: StepResult['status']): LiveStep['status'] {
+  if (status === 'success') return 'success'
+  if (status === 'skipped') return 'skipped'
+  return 'failed'
 }
 
 function descFor(suffix: string): string {
@@ -139,6 +153,7 @@ function EmulatorStepIndicator({
   let icon: React.ReactNode = <span className="step-num">{globalIndex + 1}</span>
   if (live?.status === 'success') icon = <span className="step-ok">✓</span>
   if (live?.status === 'failed') icon = <span className="step-err">✗</span>
+  if (live?.status === 'skipped') icon = <span className="step-skip">–</span>
   if (!live && running && liveSteps.length >= globalIndex) {
     icon = <span className="spinner step-spinner" />
   }
@@ -147,8 +162,13 @@ function EmulatorStepIndicator({
     <div className={`prepare-step ${live ? `prepare-step--${live.status}` : ''}`}>
       <div className="step-icon-wrap">{icon}</div>
       <div className="step-text">
-        <span className="step-label">{label}</span>
-        <span className="step-desc">{desc}</span>
+        <span className="step-label">
+          {label}
+          {live?.status === 'skipped' && <span className="step-badge">ignoré</span>}
+        </span>
+        <span className="step-desc">
+          {live?.status === 'skipped' && live.note ? live.note : desc}
+        </span>
       </div>
     </div>
   )

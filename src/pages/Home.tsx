@@ -42,7 +42,7 @@ export function Home() {
         <DeviceStatus />
       </div>
 
-      <div className="page-content">
+      <div className="page-content page-content--fill">
         <PrepareModule device={device} />
         <ScreenWakeTest device={device} />
         <ExecutionLog />

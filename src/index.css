@@ -41,8 +41,11 @@ html, body, #root {
 
 .main-area {
   flex: 1;
-  overflow-y: auto;
+  min-height: 0;
+  overflow: hidden;
   background: var(--bg-app);
+  display: flex;
+  flex-direction: column;
 }
 
 /* ── Sidebar ─────────────────────────────────── */
@@ -140,6 +143,8 @@ html, body, #root {
 .page {
   display: flex;
   flex-direction: column;
+  flex: 1;
+  min-height: 0;
   height: 100%;
   padding: 0;
 }
@@ -148,6 +153,7 @@ html, body, #root {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
+  flex-shrink: 0;
   padding: 24px 28px 16px;
   border-bottom: 1px solid var(--border);
   background: var(--bg-app);
@@ -166,11 +172,20 @@ html, body, #root {
 
 .page-content {
   flex: 1;
+  min-height: 0; /* empêche le flex child de dépasser sa hauteur allouée */
   padding: 20px 28px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 16px;
+}
+
+/* Pages "app" (Préparation, Émulateurs, …) : cadre fixe qui ne défile pas
+   lui-même. Seule la carte principale défile en interne, ce qui garde l'en-tête
+   de page et le bouton d'action toujours visibles quelle que soit la hauteur
+   de fenêtre ou la longueur de la liste. */
+.page-content--fill {
+  overflow: hidden;
 }
 
 /* ── Device Status ─────────────────────────── */
@@ -227,6 +242,7 @@ html, body, #root {
 .card-header {
   padding: 16px 18px 12px;
   border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
 }
 
 .card-header h3 {
@@ -245,6 +261,33 @@ html, body, #root {
   display: flex;
   flex-direction: column;
   gap: 12px;
+}
+
+/* Carte principale qui remplit la hauteur disponible : elle devient une colonne
+   flex dont seul le corps défile ; en-tête et pied restent fixes. */
+.card--fill {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+/* Corps de card à liste longue — défile en interne, sans hauteur en dur.
+   La hauteur réelle vient de la chaîne flex (min-height: 0 à chaque niveau). */
+.card-body--scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+/* Pied de card : bouton d'action toujours visible */
+.card-footer {
+  padding: 14px 18px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex-shrink: 0;
 }
 
 /* ── Buttons ─────────────────────────────────── */
@@ -301,6 +344,14 @@ html, body, #root {
   max-height: 340px;
 }
 
+/* Dans un cadre fixe, le journal cède la place à la carte principale :
+   il rétrécit (avec défilement interne de .log-body) plutôt que de pousser
+   le bouton hors écran sur les fenêtres basses. */
+.page-content--fill .execution-log {
+  flex: 0 1 auto;
+  min-height: 120px;
+}
+
 .log-header {
   display: flex;
   align-items: center;
@@ -350,6 +401,11 @@ html, body, #root {
   background: rgba(239, 68, 68, 0.04);
 }
 
+.log-row--skipped {
+  border-left-color: var(--warning);
+  background: rgba(245, 158, 11, 0.04);
+}
+
 .log-row-main {
   display: flex;
   align-items: center;
@@ -363,6 +419,7 @@ html, body, #root {
 
 .log-row--success .log-icon { color: var(--success); }
 .log-row--error .log-icon { color: var(--error); }
+.log-row--skipped .log-icon { color: var(--warning); }
 
 .log-label {
   flex: 1;
@@ -380,6 +437,14 @@ html, body, #root {
   opacity: 0.85;
   padding-left: 23px;
   font-family: 'Consolas', 'Fira Code', monospace;
+  word-break: break-word;
+}
+
+.log-note {
+  font-size: 11.5px;
+  color: var(--warning);
+  opacity: 0.9;
+  padding-left: 23px;
   word-break: break-word;
 }
 
@@ -511,6 +576,11 @@ code {
   background: rgba(239, 68, 68, 0.05);
 }
 
+.prepare-step--skipped {
+  border-color: rgba(245, 158, 11, 0.35);
+  background: rgba(245, 158, 11, 0.05);
+}
+
 .step-icon-wrap {
   flex-shrink: 0;
   width: 26px;
@@ -535,6 +605,21 @@ code {
 
 .step-ok { color: var(--success); font-size: 16px; font-weight: 700; }
 .step-err { color: var(--error); font-size: 16px; font-weight: 700; }
+.step-skip { color: var(--warning); font-size: 18px; font-weight: 700; line-height: 1; }
+
+.step-badge {
+  margin-left: 8px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: rgba(245, 158, 11, 0.15);
+  color: var(--warning);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  padding: 1px 6px;
+  border-radius: 4px;
+  vertical-align: middle;
+}
 
 .step-spinner {
   width: 16px;

@@ -7,14 +7,27 @@ import cemuProfile from './profiles/cemu.json'
 export interface EmulatorSource {
   id: string
   displayName: string
-  githubRepo: string
-  assetPattern: string
+  /** 'github' = release GitHub ; 'fdroid' = dépôt F-Droid (ex. Dolphin, pas de release GitHub). */
+  sourceType: 'github' | 'fdroid'
   packageName: string
+  /** Requis pour sourceType 'github'. */
+  githubRepo?: string
+  /** Requis pour sourceType 'github'. */
+  assetPattern?: string
+  /** Requis pour sourceType 'fdroid'. */
+  fdroidRepo?: string
 }
 
 export interface ConfigProfile {
   configPath: string
   settings: Record<string, string>
+  /**
+   * true uniquement si le profil a été validé sur du matériel réel. Tant qu'il
+   * vaut false/undefined, l'étape de configuration est **ignorée** (skipped)
+   * plutôt qu'appliquée à l'aveugle : on ne veut pas rapporter un succès pour
+   * une config qu'on n'a pas confirmé fonctionnelle.
+   */
+  _confirmed?: boolean
 }
 
 const PROFILES: Record<string, ConfigProfile> = {
@@ -73,11 +86,23 @@ function makeFailed(label: string, reason: string): StepResult {
   }
 }
 
+function makeSkipped(label: string, reason: string): StepResult {
+  return {
+    label,
+    status: 'skipped',
+    attempts: 0,
+    lastValue: null,
+    note: reason,
+    timestamp: Date.now(),
+  }
+}
+
 export async function installEmulator(
   serial: string,
   source: EmulatorSource,
   ipc: EmulatorIpc = makeDefaultIpc(),
-  options: InstallOptions = {}
+  options: InstallOptions = {},
+  profile: ConfigProfile | undefined = PROFILES[source.id]
 ): Promise<StepResult[]> {
   const retryDelayMs = options.retryDelayMs ?? 3000
   const maxRetries = options.maxRetries ?? 2
@@ -89,7 +114,7 @@ export async function installEmulator(
   const downloadResult = await runVerifiedAction<string>({
     label: `${source.displayName} — Téléchargement APK`,
     apply: async () => {
-      const r = await ipc.prepareApk(source.id, source.githubRepo, source.assetPattern)
+      const r = await ipc.prepareApk(source.id, source.githubRepo ?? '', source.assetPattern ?? '')
       localPath = r.localPath
       version = r.version
     },
@@ -122,10 +147,21 @@ export async function installEmulator(
   results.push(installResult)
 
   // ── Étape 3 : Application du profil de configuration ──────────────────────
-  const profile = PROFILES[source.id]
   if (!profile) {
     results.push(
       makeFailed(`${source.displayName} — Configuration`, `Profil inconnu : ${source.id}`)
+    )
+    return results
+  }
+
+  // Profil non validé sur matériel réel → on n'applique rien et on marque
+  // l'étape comme ignorée, plutôt que de rapporter un faux succès.
+  if (!profile._confirmed) {
+    results.push(
+      makeSkipped(
+        `${source.displayName} — Configuration`,
+        'Profil de configuration non validé sur matériel réel — application automatique désactivée, à configurer manuellement dans l’émulateur.'
+      )
     )
     return results
   }

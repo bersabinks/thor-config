@@ -3,9 +3,11 @@ import { useAuditLog } from '../store/auditLog'
 import type { StepResult } from '../verification'
 
 function StepRow({ step }: { step: StepResult }) {
+  const skipped = step.status === 'skipped'
   const ok = step.status === 'success'
-  const icon = ok ? '✓' : '✗'
-  const className = `log-row log-row--${ok ? 'success' : 'error'}`
+  const variant = ok ? 'success' : skipped ? 'skipped' : 'error'
+  const icon = ok ? '✓' : skipped ? '–' : '✗'
+  const className = `log-row log-row--${variant}`
   const time = new Date(step.timestamp).toLocaleTimeString('fr-FR')
 
   return (
@@ -14,12 +16,13 @@ function StepRow({ step }: { step: StepResult }) {
         <span className="log-icon">{icon}</span>
         <span className="log-label">{step.label}</span>
         <span className="log-meta">
-          {step.attempts} tentative{step.attempts > 1 ? 's' : ''} · {time}
+          {skipped
+            ? `ignoré · ${time}`
+            : `${step.attempts} tentative${step.attempts > 1 ? 's' : ''} · ${time}`}
         </span>
       </div>
-      {!ok && step.error && (
-        <div className="log-error">{step.error}</div>
-      )}
+      {skipped && step.note && <div className="log-note">{step.note}</div>}
+      {!ok && !skipped && step.error && <div className="log-error">{step.error}</div>}
     </div>
   )
 }

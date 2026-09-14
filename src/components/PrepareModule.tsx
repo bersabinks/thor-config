@@ -48,7 +48,7 @@ export function PrepareModule({ device }: Props) {
       : 'Relancer la préparation'
 
   return (
-    <div className="card">
+    <div className="card card--fill">
       <div className="card-header">
         <h3>Préparation console automatique</h3>
         <p className="card-desc">
@@ -57,7 +57,7 @@ export function PrepareModule({ device }: Props) {
         </p>
       </div>
 
-      <div className="card-body">
+      <div className="card-body card-body--scroll">
         <div className="prepare-steps">
           <StepIndicator
             index={1}
@@ -81,7 +81,9 @@ export function PrepareModule({ device }: Props) {
             running={runStatus === 'running'}
           />
         </div>
+      </div>
 
+      <div className="card-footer">
         <button
           className="btn-primary"
           onClick={handleRun}

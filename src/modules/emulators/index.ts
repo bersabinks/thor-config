@@ -1,6 +1,8 @@
 import type { StepResult } from '../../verification'
-import { installEmulator, makeDefaultIpc, type EmulatorIpc } from './emulatorInstall'
-import sources from './sources.json'
+import { installEmulator, makeDefaultIpc, type EmulatorIpc, type EmulatorSource } from './emulatorInstall'
+import sourcesJson from './sources.json'
+
+const sources = sourcesJson as EmulatorSource[]
 
 export interface EmulatorsRunContext {
   serial: string
@@ -27,8 +29,14 @@ export async function run(ctx: EmulatorsRunContext): Promise<EmulatorsModuleResu
   }
 
   const successCount = steps.filter((s) => s.status === 'success').length
-  const overallStatus =
-    successCount === steps.length ? 'success' : successCount > 0 ? 'partial' : 'failed'
+  const failedCount = steps.filter((s) => s.status === 'failed_after_retries').length
+  const skippedCount = steps.filter((s) => s.status === 'skipped').length
+
+  // Les étapes ignorées ne comptent ni comme succès ni comme échec.
+  let overallStatus: EmulatorsModuleResult['overallStatus']
+  if (failedCount === 0 && skippedCount === 0) overallStatus = 'success'
+  else if (successCount === 0 && skippedCount === 0) overallStatus = 'failed'
+  else overallStatus = 'partial'
 
   return { moduleId: 'emulators', steps, overallStatus }
 }

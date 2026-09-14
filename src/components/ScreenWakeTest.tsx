@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { runVerifiedAction } from '../verification'
+import { runVerifiedAction, type StepResult } from '../verification'
 import { useAuditLog } from '../store/auditLog'
 import type { AdbDevice } from '../../electron/main/adb/types'
 
@@ -11,7 +11,7 @@ type TestState = 'idle' | 'running' | 'done'
 
 export function ScreenWakeTest({ device }: Props) {
   const [state, setState] = useState<TestState>('idle')
-  const [lastStatus, setLastStatus] = useState<'success' | 'failed_after_retries' | null>(null)
+  const [lastStatus, setLastStatus] = useState<StepResult['status'] | null>(null)
   const addStep = useAuditLog((s) => s.addStep)
 
   async function handleTest() {

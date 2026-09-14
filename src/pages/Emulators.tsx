@@ -41,7 +41,7 @@ export function Emulators() {
         <DeviceStatus />
       </div>
 
-      <div className="page-content">
+      <div className="page-content page-content--fill">
         <EmulatorsModule device={device} />
         <ExecutionLog />
       </div>
