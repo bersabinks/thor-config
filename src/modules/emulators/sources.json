@@ -13,7 +13,7 @@
     "sourceType": "github",
     "githubRepo": "azahar-emu/azahar",
     "assetPattern": "\\.apk$",
-    "packageName": "io.github.lime3ds.android"
+    "packageName": "org.azahar_emu.azahar"
   },
   {
     "id": "dolphin",

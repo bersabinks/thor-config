@@ -9,7 +9,8 @@ import type { EmulatorSource } from '../emulatorInstall'
  * disparaisse silencieusement lors d'une régénération/refactor du manifest.
  *
  * Régressions déjà observées et couvertes ici :
- *  - Azahar : org.azahar.android  → io.github.lime3ds.android
+ *  - Azahar : org.azahar.android / io.github.lime3ds.android → org.azahar_emu.azahar
+ *             (packageName relevé par ADB sur la console du testeur)
  *  - Cemu   : info.cemu.Cemu      → info.cemu.cemu (minuscules)
  *  - Cemu   : cemu-project/Cemu   → SSimco/Cemu (port Android)
  *  - Dolphin: release GitHub       → sourceType fdroid (aucune release GitHub)
@@ -33,7 +34,7 @@ const EXPECTED: Record<string, Expected> = {
     displayName: 'Azahar (3DS)',
     sourceType: 'github',
     githubRepo: 'azahar-emu/azahar',
-    packageName: 'io.github.lime3ds.android',
+    packageName: 'org.azahar_emu.azahar',
   },
   dolphin: {
     displayName: 'Dolphin (dev build)',
@@ -91,9 +92,10 @@ describe('sources.json — valeurs vérifiées (Prompt 3)', () => {
   }
 
   // ── Corrections spécifiques (anti-régression ciblée) ────────────────────────
-  it('Azahar utilise le packageName Lime3DS, pas org.azahar.android', () => {
+  it('Azahar utilise le packageName réel org.azahar_emu.azahar (ni Lime3DS, ni org.azahar.android)', () => {
     const azahar = entries.find((s) => s.id === 'azahar')
-    expect(azahar?.packageName).toBe('io.github.lime3ds.android')
+    expect(azahar?.packageName).toBe('org.azahar_emu.azahar')
+    expect(azahar?.packageName).not.toBe('io.github.lime3ds.android')
     expect(azahar?.packageName).not.toBe('org.azahar.android')
   })
 

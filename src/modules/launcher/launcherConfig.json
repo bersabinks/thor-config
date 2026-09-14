@@ -1,0 +1,7 @@
+{
+  "id": "cocoon",
+  "displayName": "Cocoon",
+  "packageName": "rip.moth.cocoonshell",
+  "mainActivity": null,
+  "_todo": "Activité principale inconnue — à relever sur la console (adb shell cmd package resolve-activity --brief rip.moth.cocoonshell)"
+}
