@@ -47,6 +47,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     pickImportFolder: () => ipcRenderer.invoke('roms:pickImportFolder'),
     startWatcher: (folder: string) => ipcRenderer.invoke('roms:startWatcher', folder),
     stopWatcher: () => ipcRenderer.invoke('roms:stopWatcher'),
+    listImportFiles: (folder: string) => ipcRenderer.invoke('roms:listImportFiles', folder),
     onFileDetected: (cb: (path: string) => void) => {
       const listener = (_e: unknown, path: string) => cb(path)
       ipcRenderer.on('roms:fileDetected', listener)

@@ -94,6 +94,7 @@ export function registerIpcHandlers(): void {
   })
   ipcMain.handle('roms:startWatcher', (_e, folder: string) => startImportWatcher(folder))
   ipcMain.handle('roms:stopWatcher', () => stopImportWatcher())
+  ipcMain.handle('roms:listImportFiles', (_e, folder: string) => romOps.listImportFiles(folder))
 
   // ── Sauvegardes ────────────────────────────────────────────────────────────
   ipcMain.handle('saves:listDeviceFiles', (_e, serial: string, dir: string) =>

@@ -38,6 +38,7 @@ export interface ElectronAPI {
     pickImportFolder(): Promise<string | null>
     startWatcher(folder: string): Promise<void>
     stopWatcher(): Promise<void>
+    listImportFiles(folder: string): Promise<string[]>
     onFileDetected(cb: (path: string) => void): () => void
   }
   saves: {

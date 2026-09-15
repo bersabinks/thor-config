@@ -9,6 +9,8 @@ import {
   mkdirSync,
   writeFileSync,
   unlinkSync,
+  readdirSync,
+  existsSync,
 } from 'fs'
 import { spawn, spawnSync } from 'child_process'
 import { getAdbClient } from '../adb/factory'
@@ -23,6 +25,27 @@ export async function readHeader(localPath: string, length: number): Promise<Buf
   } finally {
     closeSync(fd)
   }
+}
+
+/**
+ * Liste récursivement les fichiers d'un dossier (chemins absolus). Utilisé par
+ * l'orchestrateur pour savoir si le dossier d'import contient déjà des fichiers à
+ * traiter, sans dépendre du watcher (qui, lui, sert au flux temps réel). Renvoie
+ * [] si le dossier est absent.
+ */
+export async function listImportFiles(folder: string): Promise<string[]> {
+  if (!folder || !existsSync(folder)) return []
+  const out: string[] = []
+  const walk = (dir: string, depth: number) => {
+    if (depth > 6) return
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      const full = join(dir, entry.name)
+      if (entry.isDirectory()) walk(full, depth + 1)
+      else if (entry.isFile()) out.push(full)
+    }
+  }
+  walk(folder, 0)
+  return out
 }
 
 export async function sha256Local(localPath: string): Promise<string> {

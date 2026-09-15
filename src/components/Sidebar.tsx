@@ -1,4 +1,13 @@
-type Page = 'home' | 'emulators' | 'roms' | 'saves' | 'vita' | 'launcher' | 'report' | 'settings'
+type Page =
+  | 'configure'
+  | 'home'
+  | 'emulators'
+  | 'roms'
+  | 'saves'
+  | 'vita'
+  | 'launcher'
+  | 'report'
+  | 'settings'
 
 interface SidebarProps {
   activePage: Page
@@ -6,13 +15,14 @@ interface SidebarProps {
 }
 
 const NAV_ITEMS: { id: Page; label: string; icon: string; available: boolean }[] = [
+  { id: 'configure', label: 'Configurer ma console', icon: '⚡', available: true },
   { id: 'home', label: 'Préparation', icon: '⚙', available: true },
   { id: 'emulators', label: 'Émulateurs', icon: '🎮', available: true },
   { id: 'roms', label: 'ROMs', icon: '💿', available: true },
   { id: 'saves', label: 'Sauvegardes', icon: '💾', available: true },
   { id: 'vita', label: 'PS Vita', icon: '🎯', available: true },
   { id: 'launcher', label: 'Launcher', icon: '🚀', available: true },
-  { id: 'report', label: 'Rapport final', icon: '📋', available: false },
+  { id: 'report', label: 'Rapport final', icon: '📋', available: true },
 ]
 
 export function Sidebar({ activePage, onNavigate }: SidebarProps) {

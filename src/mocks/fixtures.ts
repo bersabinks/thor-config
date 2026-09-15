@@ -65,6 +65,10 @@ export const MOCK_FIXTURES: MockFixtures = {
     'dumpsys power | grep mWakefulness': 'mWakefulness=Awake',
     'sha256sum': 'abc123def456  /sdcard/test.rom',
 
+    // Prompt 8 — pré-vérification espace disque (df -k /sdcard) : ~85 Gio libres
+    'df -k':
+      'Filesystem     1K-blocks     Used Available Use% Mounted on\n/dev/fuse      117440512 27262976  90177536  24% /storage/emulated',
+
     // Navigation par gestes
     'settings put secure navigation_mode': '',
     'settings get secure navigation_mode': '2',
