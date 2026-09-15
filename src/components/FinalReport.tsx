@@ -1,4 +1,5 @@
-import { EMULATOR_GUIDES } from '../modules/orchestrator'
+import { EMULATOR_GUIDES, THOR_MAX_HARDWARE } from '../modules/orchestrator'
+import { DiagnosticExport } from './DiagnosticExport'
 import {
   reportToJson,
   reportToMarkdown,
@@ -102,6 +103,9 @@ export function FinalReport({ report, modules, meta, onRerunFailed, rerunning, h
               </button>
             )}
           </div>
+          <div style={{ marginTop: 12 }}>
+            <DiagnosticExport />
+          </div>
         </div>
       </div>
 
@@ -163,6 +167,11 @@ export function FinalReport({ report, modules, meta, onRerunFailed, rerunning, h
               modifiables par ADB sans root (confirmé par enquête). À faire une fois, à la main, dans
               chaque émulateur installé — les valeurs ci-dessous correspondent aux profils cibles.
             </p>
+            <p className="card-desc">
+              Réglages AYN Thor Max : {THOR_MAX_HARDWARE.soc} / {THOR_MAX_HARDWARE.gpu}, écran
+              principal {THOR_MAX_HARDWARE.mainScreen}.
+              {!THOR_MAX_HARDWARE.verifiedOnHardware && ' Valeurs recommandées, encore à valider sur la console.'}
+            </p>
           </div>
           <div className="card-body">
             {guides.map((g) => (
@@ -175,6 +184,32 @@ export function FinalReport({ report, modules, meta, onRerunFailed, rerunning, h
                       <span className="guide-setting__path">{s.path}</span>
                       <span className="guide-setting__value">{s.value}</span>
                     </div>
+                  ))}
+                </div>
+
+                <div className="guide-thor">
+                  <div className="guide-thor__title">Spécifique AYN Thor Max</div>
+                  <div className="guide-setting">
+                    <span className="guide-setting__path">Pilote graphique</span>
+                    <span className="guide-setting__value">
+                      {g.thor.gpuDriver.applicable ? `Turnip (${THOR_MAX_HARDWARE.gpu})` : 'Non applicable'}
+                    </span>
+                  </div>
+                  <p className="guide-thor__text">{g.thor.gpuDriver.instructions}</p>
+                  <div className="guide-setting">
+                    <span className="guide-setting__path">Résolution interne recommandée</span>
+                    <span className="guide-setting__value">{g.thor.internalResolution.value}</span>
+                  </div>
+                  <p className="guide-thor__text">{g.thor.internalResolution.rationale}</p>
+                  <div className="guide-setting">
+                    <span className="guide-setting__path">Gâchettes analogiques L2/R2</span>
+                  </div>
+                  <p className="guide-thor__text">{g.thor.triggers}</p>
+                  {g.screenshots.map((shot) => (
+                    <figure key={shot.src} className="guide-thor__shot">
+                      <img src={shot.src} alt={shot.caption} />
+                      <figcaption className="hint">{shot.caption}</figcaption>
+                    </figure>
                   ))}
                 </div>
               </div>

@@ -1,0 +1,34 @@
+{
+  "_note": "Fichiers officiels Sony (serveurs playstation.net). URL : firmware repris de playstation.com/support/hardware/psvita/system-software, pré-installation et polices = liens de Vita3K (android/.../data/FirmwareLinks.kt) résolus. Sony ne publie aucune empreinte : SHA-256 et tailles calculés le 2026-09-15 sur les fichiers téléchargés depuis ces URL (en-tête SCEUF vérifié).",
+  "_installNote": "Vita3K Android installe le firmware via son menu « Install Firmware » et stocke ses données dans Android/data (inaccessible par ADB sans root) : les fichiers sont déposés dans remoteRoot, l'installation reste guidée.",
+  "remoteRoot": "/sdcard/PSVita/firmware",
+  "packages": [
+    {
+      "id": "firmware",
+      "displayName": "Firmware 3.74 (PSVUPDAT.PUP)",
+      "fileName": "PSVUPDAT.PUP",
+      "remoteSubdir": "",
+      "url": "http://dus01.psv.update.playstation.net/update/psv/image/2022_0209/rel_f2c7b12fe85496ec88a0391b514d6e3b/PSVUPDAT.PUP",
+      "sha256": "6ef6dc8da6db026f28647713e473486d770087a605c52a8d751bfca7478386cf",
+      "size": 133834240
+    },
+    {
+      "id": "preinstall",
+      "displayName": "Paquet de pré-installation (PSP2UPDAT.PUP)",
+      "fileName": "PSP2UPDAT.PUP",
+      "remoteSubdir": "preinstall",
+      "url": "http://dus01.psp2.update.playstation.net/update/psp2/image/2022_0209/pre_efd1ef6c1cc2fe92e72e9e783e421237/PSP2UPDAT.PUP?dest=us",
+      "sha256": "339d1439eb329cfbd1a936f0a1563458e0555ef52975486b2844e24b6049e33e",
+      "size": 128798720
+    },
+    {
+      "id": "font",
+      "displayName": "Paquet de polices (PSP2UPDAT.PUP)",
+      "fileName": "PSP2UPDAT.PUP",
+      "remoteSubdir": "font",
+      "url": "http://dus01.psp2.update.playstation.net/update/psp2/image/2019_0924/sd_8b5f60b56c3da8365b973dba570c53a5/PSP2UPDAT.PUP?dest=us",
+      "sha256": "f372d306a7f2711125bea29aa75cbcb1eb19724e9648478fba07b8d655b37344",
+      "size": 56768512
+    }
+  ]
+}

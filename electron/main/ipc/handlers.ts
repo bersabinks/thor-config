@@ -1,5 +1,13 @@
-import { ipcMain, dialog } from 'electron'
+import { app, BrowserWindow, dialog, ipcMain } from 'electron'
+import { join } from 'path'
 import { getAdbClient } from '../adb/factory'
+import { getAdbSetupState, startAdbSetup } from '../adb/platformToolsService'
+import { readTodayLog } from '../diagnostics/appLog'
+import {
+  collectDeviceDiagnostics,
+  diagnosticFileName,
+  writeDiagnosticPack,
+} from '../diagnostics/diagnosticPack'
 import { getSettings, setSettings } from '../settings'
 import { prepareApk } from '../emulators/source'
 import { applyConfig, verifyConfig } from '../emulators/configApplier'
@@ -42,6 +50,28 @@ export function registerIpcHandlers(): void {
   ipcMain.handle('adb:waitForDevice', (_e, serial: string, timeoutMs?: number) =>
     getAdbClient().waitForDevice(serial, timeoutMs)
   )
+
+  // ── Zero-Setup ADB ─────────────────────────────────────────────────────────
+  ipcMain.handle('adb:getSetupState', () => getAdbSetupState())
+  ipcMain.handle('adb:retrySetup', () => startAdbSetup())
+
+  // ── Pack de diagnostic ─────────────────────────────────────────────────────
+  ipcMain.handle('diagnostics:export', async (e, auditLogJson: string) => {
+    const win = BrowserWindow.fromWebContents(e.sender)
+    const options: Electron.SaveDialogOptions = {
+      title: 'Exporter le diagnostic ThorConfig',
+      defaultPath: join(app.getPath('documents'), diagnosticFileName()),
+      filters: [{ name: 'Archive zip', extensions: ['zip'] }],
+    }
+    const { canceled, filePath } = win
+      ? await dialog.showSaveDialog(win, options)
+      : await dialog.showSaveDialog(options)
+    if (canceled || !filePath) return null
+    const device = await collectDeviceDiagnostics(getAdbClient())
+    const result = writeDiagnosticPack(filePath, { auditLogJson, appLog: readTodayLog(), ...device })
+    console.log(`Diagnostic exporté : ${result.path} (SHA-256 ${result.sha256})`)
+    return result
+  })
 
   ipcMain.handle('settings:get', <K extends keyof ReturnType<typeof getSettings>>(_e: Electron.IpcMainInvokeEvent, key: K) =>
     getSettings()[key]
@@ -148,4 +178,5 @@ export function registerIpcHandlers(): void {
     vitaOps.resolvePcOutputDir(configured)
   )
   ipcMain.handle('vita:removeWorkDir', (_e, dir: string) => vitaOps.removeWorkDir(dir))
+  ipcMain.handle('vita:downloadFirmware', (_e, id: string) => vitaOps.downloadFirmware(id))
 }

@@ -9,7 +9,20 @@ import {
 
 export { processVitaArchive, VITA_TARGETS } from './vitaProcess'
 export type { VitaIpc, VitaOptions, VitaProcessResult, VitaTarget, VitaGameOutput } from './vitaProcess'
-export { makeDefaultVitaIpc, makeSimulationVitaIpc, SIMULATION_IMPORT_FILES } from './vitaIpc'
+export {
+  makeDefaultVitaIpc,
+  makeSimulationVitaIpc,
+  makeDefaultVitaFirmwareIpc,
+  makeSimulationVitaFirmwareIpc,
+  SIMULATION_IMPORT_FILES,
+} from './vitaIpc'
+export {
+  installVitaFirmware,
+  VITA_FIRMWARE_PACKAGES,
+  firmwareRemotePath,
+  type VitaFirmwareIpc,
+  type VitaFirmwarePackage,
+} from './firmware'
 
 export interface VitaRunContext {
   serial: string

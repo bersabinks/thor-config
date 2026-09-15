@@ -28,7 +28,7 @@ export const ADB_ERROR_INFO: Record<AdbErrorCode, AdbErrorInfo> = {
   ADB_NOT_FOUND: {
     retryable: false,
     message:
-      'ADB introuvable sur ce PC : installez les Android platform-tools (voir README) ou renseignez la variable d’environnement ADB_PATH.',
+      'ADB introuvable sur ce PC et installation automatique non aboutie (voir l’indicateur ADB) : vérifiez la connexion Internet, ou installez les Android platform-tools (voir README) / renseignez ADB_PATH.',
   },
   DEVICE_DISCONNECTED: {
     retryable: true,

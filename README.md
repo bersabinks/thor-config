@@ -121,7 +121,9 @@ Lien permanent à partager une fois pour toutes :
 ### Structure
 
 ```
-electron/main/adb/        client ADB réel, simulé, erreurs typées, résolution d'adb
+electron/main/adb/        client ADB réel, simulé, erreurs typées, résolution d'adb, Zero-Setup platform-tools
+electron/main/diagnostics/ journal du jour (logs/app-AAAA-MM-JJ.log) et pack de diagnostic .zip
+electron/main/net/        téléchargement en flux avec SHA-256 (platform-tools, firmware Vita3K)
 electron/main/…           opérations côté main (fichiers, APK, archives) exposées en IPC
 electron/preload/         pont window.electronAPI
 src/verification/         runVerifiedAction : apply → check → retry
@@ -144,10 +146,14 @@ Rien à installer côté développement : un installeur Windows, les outils ADB 
   1. Paramètres → À propos de la tablette → touchez **7 fois** « Numéro de build » (« Vous êtes
      développeur »).
   2. Paramètres → Système → **Options pour les développeurs** → activez **Débogage USB**.
-- **Android platform-tools (ADB)** sur le PC — l'application ne les embarque pas. Au choix :
-  - en une commande : `winget install Google.PlatformTools`, puis fermez/rouvrez l'application ;
-  - ou téléchargez le zip sur https://developer.android.com/tools/releases/platform-tools et extrayez-le
-    dans `C:\platform-tools` (détecté automatiquement, comme le SDK d'Android Studio).
+- **ADB : rien à installer.** Au premier lancement, si aucun adb n'est trouvé sur le PC, ThorConfig
+  télécharge les Android platform-tools officiels de Google
+  (`platform-tools-latest-windows.zip`, ~8 Mio) dans `%APPDATA%\ThorConfig\platform-tools` et les utilise
+  directement — le PATH du système n'est pas modifié. L'indicateur à côté du nom de la console affiche
+  « Téléchargement d'ADB… », puis « ADB intégré ». Connexion Internet requise la première fois.
+  - Sans Internet, ou si l'indicateur affiche « ADB non installé » : `winget install Google.PlatformTools`,
+    ou le zip de https://developer.android.com/tools/releases/platform-tools extrait dans
+    `C:\platform-tools` (détecté automatiquement), puis « Réessayer ».
 - **Driver USB ADB Windows : seulement si besoin.** Windows 10/11 reconnaît généralement la console sans
   rien installer. Si l'application reste sur « Aucun appareil connecté » alors que la console est branchée
   et déverrouillée : installez le **Google USB Driver** (https://developer.android.com/studio/run/win-usb),
@@ -170,15 +176,26 @@ Rien à installer côté développement : un installeur Windows, les outils ADB 
 
 | Message dans l'application | À faire |
 |---|---|
-| « ADB introuvable sur ce PC » | installez les platform-tools (voir prérequis), relancez l'application |
+| « ADB non installé » / « ADB introuvable sur ce PC » | vérifiez la connexion Internet puis « Réessayer », ou installez les platform-tools à la main (voir prérequis) |
 | « Débogage USB non autorisé » | déverrouillez la console et acceptez la popup d'autorisation |
 | « Console déconnectée » / « En pause » | vérifiez le câble ; la configuration reprend seule une fois rebranchée |
 | « Console hors ligne » | débranchez puis rebranchez le câble |
 | « Délai dépassé » | la console ne répond plus : déverrouillez-la, vérifiez qu'elle n'est pas en veille |
 | « Permission refusée par Android » | limite d'Android (dossier protégé) : à signaler au développeur, pas de manipulation à faire |
 
+### PS Vita (Vita3K)
+
+Si Vita3K est installé sur la console, « Configurer ma console » télécharge les trois fichiers firmware
+officiels depuis les serveurs Sony (firmware 3.74, paquet de pré-installation, paquet de polices, ~320 Mio
+au total), vérifie leur empreinte SHA-256 et les dépose dans `/sdcard/PSVita/firmware/`. Android
+n'autorisant pas l'écriture dans les données de Vita3K, l'installation se termine dans Vita3K :
+**Install Firmware** → sélectionner chaque fichier indiqué dans le rapport.
+
 ### Envoyer un retour
 
+- le **pack de diagnostic** : bouton « Exporter le diagnostic (.zip) » dans le rapport final ou dans
+  Réglages → Diagnostic. Envoyez le fichier **avec l'empreinte SHA-256 affichée**, pour vérifier qu'il est
+  arrivé intact ;
 - une **capture du rapport final** (ou du journal) ;
 - si le résultat n'est pas celui attendu : ce que vous avez vu **sur l'écran de la console elle-même**
   (photo ou courte vidéo si besoin) ;

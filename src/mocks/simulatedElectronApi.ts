@@ -42,7 +42,11 @@ export function createSimulatedElectronApi(
       uninstallApk: (s, p) => invoke('adb:uninstallApk', () => client.uninstallApk(s, p)),
       getPackageInfo: (s, p) => invoke('adb:getPackageInfo', () => client.getPackageInfo(s, p)),
       waitForDevice: (s, t) => invoke('adb:waitForDevice', () => client.waitForDevice(s, t)),
+      getSetupState: async () => ({ phase: 'system', path: 'adb', source: 'path' }),
+      retrySetup: async () => ({ phase: 'system', path: 'adb', source: 'path' }),
+      onSetupState: () => () => {},
     },
+    diagnostics: partial<ElectronAPI['diagnostics']>('diagnostics', {}),
     settings: {
       get: async (key) => settings[key],
       set: async (key, value) => {

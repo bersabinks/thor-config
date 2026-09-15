@@ -13,6 +13,10 @@ import {
   isVitaArchiveCandidate,
   makeDefaultVitaIpc,
   makeSimulationVitaIpc,
+  makeDefaultVitaFirmwareIpc,
+  makeSimulationVitaFirmwareIpc,
+  installVitaFirmware,
+  VITA_TARGETS,
   SIMULATION_IMPORT_FILES,
   type VitaIpc,
 } from '../vita'
@@ -152,12 +156,20 @@ export async function buildThorModules(opts: BuildModulesOptions): Promise<ThorM
     )
   )
 
-  // ── 5. PS Vita (si des archives PS Vita ont été détectées) ──────────────────
+  // ── 5. PS Vita (firmware Vita3K + archives PS Vita détectées) ───────────────
+  const firmwareIpc = simulation ? makeSimulationVitaFirmwareIpc() : makeDefaultVitaFirmwareIpc()
   modules.push(
     makeModule(
       'vita',
       'PS Vita',
       async (ctx, onStep) => {
+        const firmwareSteps = await installVitaFirmware(
+          ctx.serial,
+          firmwareIpc,
+          simulation ? { retryDelayMs: 0 } : undefined
+        )
+        firmwareSteps.forEach(onStep)
+        if (vitaArchives.length === 0) return
         await runVita({
           serial: ctx.serial,
           files: vitaArchives,
@@ -167,8 +179,13 @@ export async function buildThorModules(opts: BuildModulesOptions): Promise<ThorM
         })
       },
       {
-        shouldRun: () => vitaArchives.length > 0,
-        skipReason: () => 'Aucune archive PS Vita détectée dans le dossier d’import.',
+        // Une erreur ADB ici fait lever shouldRun : l'orchestrateur tente alors le
+        // module, et l'étape de détection du firmware rapporte l'échec.
+        shouldRun: async (ctx) =>
+          vitaArchives.length > 0 ||
+          (await firmwareIpc.getPackageInfo(ctx.serial, VITA_TARGETS.vita3kPackageName)) !== null,
+        skipReason: () =>
+          'Vita3K n’est pas installé sur la console et aucune archive PS Vita n’a été détectée.',
       }
     )
   )

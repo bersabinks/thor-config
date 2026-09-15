@@ -200,6 +200,11 @@ export class SimulatedDevice {
     if (cmd.startsWith('wc -c')) return String(this.readable(pathArg(cmd), 'wc').size)
     if (cmd.startsWith('cat ')) return this.readable(pathArg(cmd), 'cat').content ?? ''
     if (cmd.startsWith('find ')) return this.find(cmd)
+    if (cmd === 'getprop') {
+      return Object.entries(MOCK_FIXTURES.deviceProps)
+        .map(([k, v]) => `[${k}]: [${v}]`)
+        .join('\n')
+    }
     if ((m = /^getprop (\S+)$/.exec(cmd))) return MOCK_FIXTURES.deviceProps[m[1]] ?? ''
 
     // Lancement d'app : met à jour l'écran simulé pour les dumps UI suivants.

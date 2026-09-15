@@ -40,6 +40,14 @@ export {
   type PreCheckResult,
 } from './preChecks'
 
-export { EMULATOR_GUIDES, guideFor, type EmulatorGuide, type GuideSetting } from './emulatorGuide'
+export {
+  EMULATOR_GUIDES,
+  THOR_MAX_HARDWARE,
+  guideFor,
+  type EmulatorGuide,
+  type GuideSetting,
+  type GuideScreenshot,
+  type ThorMaxTuning,
+} from './emulatorGuide'
 
 export { buildThorModules, type BuildModulesOptions } from './thorModules'

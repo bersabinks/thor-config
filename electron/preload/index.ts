@@ -17,6 +17,16 @@ contextBridge.exposeInMainWorld('electronAPI', {
       ipcRenderer.invoke('adb:getPackageInfo', serial, packageName),
     waitForDevice: (serial: string, timeoutMs?: number) =>
       ipcRenderer.invoke('adb:waitForDevice', serial, timeoutMs),
+    getSetupState: () => ipcRenderer.invoke('adb:getSetupState'),
+    retrySetup: () => ipcRenderer.invoke('adb:retrySetup'),
+    onSetupState: (cb: (state: unknown) => void) => {
+      const listener = (_e: unknown, state: unknown) => cb(state)
+      ipcRenderer.on('adb:setupState', listener)
+      return () => ipcRenderer.removeListener('adb:setupState', listener)
+    },
+  },
+  diagnostics: {
+    export: (auditLogJson: string) => ipcRenderer.invoke('diagnostics:export', auditLogJson),
   },
   settings: {
     get: (key: string) => ipcRenderer.invoke('settings:get', key),
@@ -88,5 +98,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
     resolvePcOutputDir: (configured: string) =>
       ipcRenderer.invoke('vita:resolvePcOutputDir', configured),
     removeWorkDir: (dir: string) => ipcRenderer.invoke('vita:removeWorkDir', dir),
+    downloadFirmware: (id: string) => ipcRenderer.invoke('vita:downloadFirmware', id),
   },
 })
