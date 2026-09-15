@@ -67,30 +67,31 @@ const TURNIP_SOURCE =
 
 export const EMULATOR_GUIDES: EmulatorGuide[] = [
   {
-    id: 'melonds-ds',
-    displayName: 'MelonDS Dual Screen',
-    intro: 'Menu ⋮ → Settings, puis la section Video.',
+    id: 'watermelonds',
+    displayName: 'WatermelonDS (DS — Dual Screen)',
+    // Libellés relevés dans les ressources de WatermelonDS 0.7.0 (pref_video.xml,
+    // pref_retroachievements.xml, strings.xml) le 2026-09-15.
+    intro: 'Settings, écrans Video et RetroAchievements (libellés de WatermelonDS 0.7.0).',
     settings: [
-      { path: 'Video → Renderer', value: 'OpenGL' },
-      { path: 'Video → Internal resolution', value: '4×' },
-      { path: 'Video → Dual screen mode', value: 'Activé' },
-      { path: 'Video → Screen layout', value: 'Haut → écran interne, Bas → écran externe' },
-      { path: 'Input → Touchscreen (soft input)', value: 'Always invisible' },
-      { path: 'Input → Bouton R2', value: 'Fast forward (avance rapide)' },
+      { path: 'Settings → Video → Renderer', value: 'Vulkan (recommandé sur Adreno)' },
+      { path: 'Settings → Video → Internal resolution', value: '4×' },
+      { path: 'Settings → Video → Dual screen presets', value: 'Internal: Top, External: Bottom' },
+      { path: 'Dual screen presets → Keep DS aspect ratio', value: 'ON' },
+      { path: 'Dual screen presets → Integer scale', value: 'ON' },
+      { path: 'Settings → RetroAchievements → Enable RetroAchievements', value: 'Au choix (compte RetroAchievements requis)' },
     ],
     thor: {
       gpuDriver: {
-        applicable: false,
-        instructions:
-          'Non applicable : melonDS utilise OpenGL ES (ou le rendu logiciel). Turnip est un pilote Vulkan, il n’apporte rien ici — garder le pilote système.',
+        applicable: true,
+        instructions: `Avec le renderer Vulkan : Settings → Video → Adreno Vulkan driver → importer l’archive Turnip. Option réservée au build GitHub arm64 sur Android 9+ (celui installé par ThorConfig). ${TURNIP_SOURCE}`,
       },
       internalResolution: {
         value: '4×',
         rationale:
-          'Rendu OpenGL à 1024×768 par écran DS : tient dans les 1080 px de hauteur de l’écran principal. 5× (1280×960) reste possible ; au-delà, aucun gain visible et plus de chauffe.',
+          'Rendu à 1024×768 par écran DS : tient dans les 1080 px de hauteur de l’écran principal. Avec Integer scale, l’image reste nette ; au-delà de 5×, aucun gain visible et plus de chauffe.',
       },
       triggers:
-        'La DS n’a pas de gâchettes : L2/R2 sont libres. R2 → avance rapide, L2 → échange des écrans. Le mode Analog/Digital d’AYN Settings est sans effet sur ces raccourcis.',
+        'La DS n’a pas de gâchettes : L2/R2 sont libres (Settings → Input). R2 → avance rapide, L2 → échange des écrans. Le mode Analog/Digital d’AYN Settings est sans effet sur ces raccourcis.',
     },
     screenshots: [],
   },
@@ -145,6 +146,60 @@ export const EMULATOR_GUIDES: EmulatorGuide[] = [
       },
       triggers:
         'Gâchettes AYN en mode Analog, puis Controllers → GameCube Controller 1 → Triggers : L-Analog = axe L2, R-Analog = axe R2, L et R (clic numérique) = même gâchette enfoncée à fond. Indispensable pour les jeux à pression progressive (ex. Super Mario Sunshine).',
+    },
+    screenshots: [],
+  },
+  {
+    id: 'ppsspp',
+    displayName: 'PPSSPP (PSP)',
+    // Libellés relevés dans assets/lang/en_US.ini de PPSSPP (Graphics, Controls).
+    intro: 'Settings → Graphics pour le rendu, Settings → Controls pour le mapping.',
+    settings: [
+      { path: 'Graphics → Rendering backend', value: 'Vulkan (redémarre PPSSPP)' },
+      { path: 'Graphics → Rendering resolution', value: '3×' },
+      { path: 'Graphics → Texture scaling → Upscale level', value: '2× (xBRZ)' },
+      { path: 'Graphics → Texture filtering → Anisotropic filtering', value: '4× ou 8×' },
+      { path: 'Controls → Control mapping', value: 'Gâchettes L2/R2 → L et R du PSP' },
+    ],
+    thor: {
+      gpuDriver: {
+        applicable: true,
+        instructions: `Rendering backend en Vulkan, puis pilote Turnip via le gestionnaire de pilotes d’Android (PPSSPP utilise le pilote système par défaut ; l’import de pilote personnalisé n’existe pas dans toutes les versions — à vérifier sur la console). ${TURNIP_SOURCE}`,
+      },
+      internalResolution: {
+        value: '3×',
+        rationale:
+          '3× = 1440×816 à partir des 480×272 du PSP : sous les 1080 px de l’écran principal, marge confortable pour l’Adreno 740. 4× (1920×1088) reste possible sur les jeux légers, au prix de la chauffe.',
+      },
+      triggers:
+        'Le PSP n’a que L et R (numériques) : mapper L2/R2 dessus dans Control mapping. Les gâchettes AYN en mode Analog fonctionnent (seuil d’appui) ; passer en Digital si un appui n’est pas détecté.',
+    },
+    screenshots: [],
+  },
+  {
+    id: 'duckstation',
+    displayName: 'DuckStation (PS1)',
+    // Non installé par ThorConfig (Google Play uniquement) : libellés issus de la
+    // documentation communautaire, à confirmer sur la console.
+    intro: 'À installer depuis Google Play, puis Settings (libellés à confirmer sur la console).',
+    settings: [
+      { path: 'Settings → Graphics → GPU Renderer', value: 'Vulkan' },
+      { path: 'Settings → Graphics → Internal resolution', value: '3×' },
+      { path: 'Settings → Graphics → PGXP geometry correction', value: 'Activé' },
+      { path: 'Settings → Controllers → Multitap', value: 'Désactivé (sauf jeu 3-4 joueurs)' },
+    ],
+    thor: {
+      gpuDriver: {
+        applicable: true,
+        instructions: `Renderer Vulkan puis, si l’option existe dans la version installée, import d’un pilote Turnip. ${TURNIP_SOURCE}`,
+      },
+      internalResolution: {
+        value: '3×',
+        rationale:
+          '3× ≈ 1120×896 à partir des 320×240 de la PS1 : proche de la définition de l’écran, sans coût notable pour l’Adreno 740. PGXP corrige en plus le tremblement des polygones.',
+      },
+      triggers:
+        'La manette PS1 numérique n’a pas de gâchettes analogiques : L2/R2 sont mappés en boutons. Activer le mode Analog controller (DualShock) dans les réglages de manette pour les jeux qui le gèrent.',
     },
     screenshots: [],
   },

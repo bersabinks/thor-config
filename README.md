@@ -183,6 +183,17 @@ Rien à installer côté développement : un installeur Windows, les outils ADB 
 | « Délai dépassé » | la console ne répond plus : déverrouillez-la, vérifiez qu'elle n'est pas en veille |
 | « Permission refusée par Android » | limite d'Android (dossier protégé) : à signaler au développeur, pas de manipulation à faire |
 
+### Émulateurs et mises à jour
+
+« Configurer ma console » installe WatermelonDS (DS), Azahar (3DS), Dolphin (GameCube/Wii), Cemu (Wii U)
+et PPSSPP (PSP), puis **Obtainium**, qui gardera ces émulateurs à jour.
+
+**DuckStation (PlayStation 1) fait exception** : il n'est distribué que par Google Play, donc ThorConfig ne
+peut pas l'installer (l'étape est marquée « ignorée », ce n'est pas une erreur) et Obtainium ne peut pas le
+suivre. Installez-le à la main depuis le Play Store ; vos jeux PS1 sont rangés dans `ROMs/psx` quoi qu'il arrive. Une fenêtre « Importer des apps » s'ouvre alors dans
+Obtainium sur la console : **confirmez-la**. Si elle n'apparaît pas : Obtainium → Import/Export →
+Obtainium Import → `Download/thorconfig-obtainium-apps.json`.
+
 ### PS Vita (Vita3K)
 
 Si Vita3K est installé sur la console, « Configurer ma console » télécharge les trois fichiers firmware

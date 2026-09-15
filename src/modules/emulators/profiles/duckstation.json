@@ -1,0 +1,10 @@
+{
+  "_confirmed": false,
+  "_todo": "DuckStation Android n'est pas installé par ThorConfig (Google Play uniquement) et range sa configuration dans son dossier privé : chemin et clés inconnus. Valeurs cibles alignées sur la fiche guidée, jamais appliquées.",
+  "configPath": "TODO-dossier-DuckStation/settings.ini",
+  "settings": {
+    "GPURenderer": "Vulkan",
+    "GPUResolutionScale": "3",
+    "GPUPGXPEnable": "true"
+  }
+}

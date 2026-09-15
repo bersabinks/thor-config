@@ -85,10 +85,21 @@ export const MOCK_FIXTURES: MockFixtures = {
   installedPackages: {
     // Émulateurs pré-installés en simulation (version correspond à prepareApk sim-1.0)
     // Les clés DOIVENT correspondre aux packageName de sources.json (cf. sources.test.ts).
-    'me.magnum.melonds': { packageName: 'me.magnum.melonds', versionName: 'sim-1.0', versionCode: 10000 },
+    // WatermelonDS 0.7.0 : applicationId relevé dans le manifeste de l'APK de release.
+    'me.magnum.melondualds': { packageName: 'me.magnum.melondualds', versionName: 'sim-1.0', versionCode: 10000 },
     'org.azahar_emu.azahar': { packageName: 'org.azahar_emu.azahar', versionName: 'sim-1.0', versionCode: 10000 },
     'org.dolphinemu.dolphinemu': { packageName: 'org.dolphinemu.dolphinemu', versionName: 'sim-1.0', versionCode: 10000 },
     'info.cemu.cemu': { packageName: 'info.cemu.cemu', versionName: 'sim-1.0', versionCode: 10000 },
+    'org.ppsspp.ppsspp': { packageName: 'org.ppsspp.ppsspp', versionName: 'sim-1.0', versionCode: 10000 },
+    // DuckStation : présent sur une console « déjà configurée » (installé via Google Play),
+    // jamais installé par ThorConfig.
+    'com.github.stenzek.duckstation': {
+      packageName: 'com.github.stenzek.duckstation',
+      versionName: 'sim-1.0',
+      versionCode: 10000,
+    },
+    // Gestionnaire de mises à jour (src/modules/emulators/obtainium.json)
+    'dev.imranr.obtainium': { packageName: 'dev.imranr.obtainium', versionName: 'sim-1.0', versionCode: 10000 },
   },
 
   commandDelayMs: 200,

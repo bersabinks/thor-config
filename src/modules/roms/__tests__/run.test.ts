@@ -22,15 +22,24 @@ describe('run — lot de simulation', () => {
     expect(idSteps).toHaveLength(SIMULATION_SAMPLE_FILES.length)
     expect(idSteps.every((s) => s.status === 'success')).toBe(true)
 
-    // Les 2 disques PS2 → 2 étapes CHD ignorées.
+    // Systèmes CD-ROM (2 disques PS2 + 2 disques PS1) → 4 étapes CHD ignorées.
     const chd = res.steps.filter((s) => s.label.includes('Conversion CHD'))
-    expect(chd).toHaveLength(2)
+    expect(chd).toHaveLength(4)
     expect(chd.every((s) => s.status === 'skipped')).toBe(true)
 
-    // Playlist .m3u générée et vérifiée pour Final Fantasy X.
-    const m3u = res.steps.find((s) => s.label.includes('.m3u'))
-    expect(m3u).toBeDefined()
-    expect(m3u!.status).toBe('success')
+    // Rangement par système, dont les deux nouveaux (ES-DE : psp et psx).
+    const folders = Object.fromEntries(res.processed.map((p) => [p.file, p.system?.folder]))
+    expect(folders['God of War (USA).iso']).toBe('psp')
+    expect(folders['Metal Gear Solid (USA) (Disc 1).bin']).toBe('psx')
+    expect(folders['Final Fantasy X (USA) (Disc 1).iso']).toBe('ps2')
+
+    // Playlists .m3u : Final Fantasy X (PS2) et Metal Gear Solid (PS1).
+    const m3u = res.steps.filter((s) => s.label.includes('.m3u'))
+    expect(m3u.map((s) => s.label.split(' —')[0]).sort()).toEqual([
+      'Final Fantasy X (USA).m3u',
+      'Metal Gear Solid (USA).m3u',
+    ])
+    expect(m3u.every((s) => s.status === 'success')).toBe(true)
 
     // Présence de skipped sans échec → statut global 'partial'.
     expect(res.overallStatus).toBe('partial')

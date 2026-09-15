@@ -1,5 +1,6 @@
 import type { AdbDevice, PackageInfo } from '../../electron/main/adb/types'
 import type { PrepareApkResult } from '../../electron/main/emulators/source'
+import type { PrepareApkSource } from '../modules/emulators/emulatorInstall'
 import type { AdbSetupState } from '../../electron/main/adb/platformTools'
 import type { DiagnosticPackResult } from '../../electron/main/diagnostics/diagnosticPack'
 import type { FirmwareDownloadResult } from '../../electron/main/vita/firmwareDownload'
@@ -29,7 +30,7 @@ export interface ElectronAPI {
     set(key: string, value: unknown): Promise<void>
   }
   emulators: {
-    prepareApk(id: string, githubRepo: string, assetPattern: string): Promise<PrepareApkResult>
+    prepareApk(source: PrepareApkSource): Promise<PrepareApkResult>
     applyConfig(serial: string, configPath: string, settings: Record<string, string>): Promise<void>
     verifyConfig(
       serial: string,

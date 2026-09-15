@@ -51,6 +51,9 @@ export async function run(ctx: RomsRunContext): Promise<RomsModuleResult> {
     const member = processed.find((p) => p && group.files.includes(p.file))
     const folder = member?.system?.folder
     if (!folder) continue // aucun disque du groupe n'a pu être identifié
+    // Playlists réservées aux systèmes multi-disques (CD-ROM) : un « (Disc 2) »
+    // sur un système mono-support ne doit pas produire de .m3u parasite.
+    if (!member?.system?.multiDisc) continue
 
     const content = generateM3u(group)
     const remotePath = `${base}/${folder}/${m3uFileName(group)}`

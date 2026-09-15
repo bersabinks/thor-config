@@ -81,10 +81,8 @@ export function registerIpcHandlers(): void {
     setSettings({ [key]: value } as Partial<ReturnType<typeof getSettings>>)
   })
 
-  ipcMain.handle(
-    'emulators:prepareApk',
-    (_e, id: string, githubRepo: string, assetPattern: string) =>
-      prepareApk(id, githubRepo, assetPattern)
+  ipcMain.handle('emulators:prepareApk', (_e, source: Parameters<typeof prepareApk>[0]) =>
+    prepareApk(source)
   )
 
   ipcMain.handle(

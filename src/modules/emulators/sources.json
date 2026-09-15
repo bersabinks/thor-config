@@ -1,11 +1,11 @@
 [
   {
-    "id": "melonds-ds",
-    "displayName": "MelonDS Dual Screen",
+    "id": "watermelonds",
+    "displayName": "WatermelonDS (DS — Dual Screen)",
     "sourceType": "github",
-    "githubRepo": "rafaelvcaetano/melonDS-android",
-    "assetPattern": "\\.apk$",
-    "packageName": "me.magnum.melonds"
+    "githubRepo": "SapphireRhodonite/WatermelonDS",
+    "assetPattern": "^WatermelonDS-\\d+(\\.\\d+)*\\.apk$",
+    "packageName": "me.magnum.melondualds"
   },
   {
     "id": "azahar",
@@ -29,5 +29,21 @@
     "githubRepo": "SSimco/Cemu",
     "assetPattern": "\\.apk$",
     "packageName": "info.cemu.cemu"
+  },
+  {
+    "_verified": "2026-09-16 — les releases GitHub de hrydgard/ppsspp ne contiennent AUCUN APK (iOS/Linux/Windows/macOS uniquement) : pas d'assetPattern possible. PPSSPP est publié sur le dépôt F-Droid officiel (api/v1/packages/org.ppsspp.ppsspp). applicationId org.ppsspp.ppsspp confirmé dans android/build.gradle.kts (flavors gold/legacy/vr = autres ids).",
+    "id": "ppsspp",
+    "displayName": "PPSSPP (PSP)",
+    "sourceType": "fdroid",
+    "fdroidRepo": "https://f-droid.org/repo",
+    "packageName": "org.ppsspp.ppsspp"
+  },
+  {
+    "_verified": "2026-09-16 — aucune release GitHub Android (stenzek/duckstation ne publie que AppImage/Windows/macOS), absent de F-Droid (404), et https://www.duckstation.org/android/duckstation-android.apk renvoie 404. Le README officiel ne distribue l'app Android que par Google Play (« No support is provided for the Android app »). Installation automatique donc impossible : étapes ignorées, jamais en échec.",
+    "id": "duckstation",
+    "displayName": "DuckStation (PS1)",
+    "sourceType": "playstore",
+    "playStoreUrl": "https://play.google.com/store/apps/details?id=com.github.stenzek.duckstation",
+    "packageName": "com.github.stenzek.duckstation"
   }
 ]

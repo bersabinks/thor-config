@@ -39,7 +39,7 @@ function fakeSha(content: string): string {
 function seedDevice(): Map<string, string> {
   const device = new Map<string, string>()
   const seed: Record<string, string[]> = {
-    'melonds-ds': ['Pokemon HeartGold.sav', 'Mario Kart DS.sav'],
+    'watermelonds': ['Pokemon HeartGold.sav', 'Mario Kart DS.sav'],
     azahar: ['title/000/data.bin'],
     dolphin: ['MemoryCardA.USA.raw'],
     cemu: ['80000000/user/common/data.bin'],

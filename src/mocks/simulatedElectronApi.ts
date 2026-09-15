@@ -1,3 +1,6 @@
+import { mkdtempSync, rmSync, writeFileSync } from 'fs'
+import { tmpdir } from 'os'
+import { join } from 'path'
 import type { AdbClient } from '../../electron/main/adb/types'
 import type { ElectronAPI } from '../types/electron'
 
@@ -54,11 +57,28 @@ export function createSimulatedElectronApi(
       },
     },
     emulators: {
-      prepareApk: async (id) => ({ localPath: `/mock/cache/apk/${id}/sim-1.0/${id}.apk`, version: 'sim-1.0' }),
+      prepareApk: async ({ id }) => ({ localPath: `/mock/cache/apk/${id}/sim-1.0/${id}.apk`, version: 'sim-1.0' }),
       applyConfig: async () => {},
       verifyConfig: async (_serial, _path, expected) => ({ ...expected }),
     },
-    roms: partial<ElectronAPI['roms']>('roms', { listImportFiles: async () => [] }),
+    roms: partial<ElectronAPI['roms']>('roms', {
+      listImportFiles: async () => [],
+      // Mêmes commandes que electron/main/roms/romOps.ts, sur le client simulé.
+      ensureRemoteDir: (s, dir) => invoke('roms:ensureRemoteDir', async () => void (await client.shell(s, `mkdir -p '${dir}'`))),
+      sha256Device: (s, p) =>
+        invoke('roms:sha256Device', async () => /([a-f0-9]{64})/i.exec(await client.shell(s, `sha256sum '${p}'`))?.[1] ?? ''),
+      writeRemoteText: (s, remote, content) =>
+        invoke('roms:writeRemoteText', async () => {
+          const tmp = mkdtempSync(join(tmpdir(), 'thor-remote-text-'))
+          try {
+            writeFileSync(join(tmp, 'content'), content)
+            await client.pushFile(s, join(tmp, 'content'), remote)
+          } finally {
+            rmSync(tmp, { recursive: true, force: true })
+          }
+        }),
+      readRemoteText: (s, p) => invoke('roms:readRemoteText', () => client.shell(s, `cat '${p}'`)),
+    }),
     saves: partial<ElectronAPI['saves']>('saves', {}),
     vita: partial<ElectronAPI['vita']>('vita', {}),
   }

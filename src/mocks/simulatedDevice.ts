@@ -2,6 +2,7 @@ import type { PackageInfo } from '../../electron/main/adb/types'
 import { AdbError } from '../../electron/main/adb/errors'
 import { MOCK_FIXTURES, getUiXmlForContext, resetMockContext } from './fixtures'
 import sources from '../modules/emulators/sources.json'
+import obtainium from '../modules/emulators/obtainium.json'
 import launcherConfig from '../modules/launcher/launcherConfig.json'
 
 /**
@@ -125,7 +126,7 @@ export class SimulatedDevice {
   installApk(apkPath: string): void {
     const m = /[\\/]apk[\\/]([^\\/]+)[\\/]([^\\/]+)[\\/]/.exec(apkPath)
     const id = m?.[1] ?? (apkPath.split(/[\\/]/).pop() ?? '').replace(/\.apk$/i, '')
-    const source = sources.find((s) => s.id === id)
+    const source = [...sources, obtainium].find((s) => s.id === id)
     if (!source) throw commandFailed(`Failure [INSTALL_FAILED_INVALID_APK: ${apkPath}]`)
     this.addPackage(source.packageName, m?.[2] ?? 'sim-1.0')
   }

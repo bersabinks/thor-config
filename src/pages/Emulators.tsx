@@ -35,7 +35,8 @@ export function Emulators() {
         <div>
           <h2>Émulateurs</h2>
           <p className="page-desc">
-            Installe et configure automatiquement MelonDS, Azahar, Dolphin et Cemu.
+            Installe automatiquement WatermelonDS, Azahar, Dolphin, Cemu et PPSSPP, puis Obtainium pour
+            les mises à jour. DuckStation (PS1) n'existe que sur Google Play : à installer à la main.
           </p>
         </div>
         <DeviceStatus />

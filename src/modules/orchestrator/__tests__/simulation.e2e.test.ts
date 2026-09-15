@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { MockAdbClient, MOCK_SERIAL, type MockAdbOptions } from '../../../../electron/main/adb/mockClient'
 import { createSimulatedElectronApi } from '../../../mocks/simulatedElectronApi'
 import sources from '../../emulators/sources.json'
+import { OBTAINIUM_APPS_JSON_REMOTE_PATH, OBTAINIUM_SOURCE } from '../../emulators'
 import {
   buildThorModules,
   makeDefaultPreCheckIpc,
@@ -93,12 +94,26 @@ describe('Orchestrateur en simulation — bout en bout', () => {
 
     expect(res.aborted).toBe(false)
     expect(client.device.settings.get('secure/navigation_mode')).toBe('2')
-    for (const s of sources) {
+    // DuckStation n'est pas installable automatiquement (Google Play uniquement).
+    for (const s of sources.filter((x) => x.sourceType !== 'playstore')) {
       expect(client.device.getPackageInfo(s.packageName), s.packageName).not.toBeNull()
       expect(step(res, 'emulators', `${s.displayName} — Installation`).status).toBe('success')
     }
+    const duck = sources.find((s) => s.sourceType === 'playstore')!
+    expect(step(res, 'emulators', `${duck.displayName} — Installation`).status).toBe('skipped')
+    expect(client.device.getPackageInfo(duck.packageName)).toBeNull()
     // Émulateurs installés → la sauvegarde initiale s'exécute.
     expect(mod(res, 'saves').overallStatus).not.toBe('skipped')
+
+    // Obtainium installé par le même pipeline, alimenté avec la liste des émulateurs.
+    expect(step(res, 'emulators', 'Obtainium — Installation').status).toBe('success')
+    expect(client.device.getPackageInfo(OBTAINIUM_SOURCE.packageName)).not.toBeNull()
+    expect(step(res, 'emulators', 'Obtainium — Liste des émulateurs').status).toBe('success')
+    const appsJson = JSON.parse(client.device.files.get(OBTAINIUM_APPS_JSON_REMOTE_PATH)!.content!)
+    expect(appsJson.apps.map((a: { id: string }) => a.id)).toEqual(
+      sources.filter((s) => s.sourceType !== 'playstore').map((s) => s.packageName)
+    )
+    expect(step(res, 'emulators', 'Obtainium — Import').status).toBe('skipped')
     expect(mod(res, 'prepare').overallStatus).toBe('success')
   })
 })

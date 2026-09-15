@@ -63,14 +63,14 @@ describe('backup', () => {
     device.set(`${ROOT}/a.sav`, 'AAA')
     device.set(`${ROOT}/b.sav`, 'BBB')
 
-    const r = await backup('s1', 'melonds-ds', 'initial', 'B1', ipc, FAST)
+    const r = await backup('s1', 'watermelonds', 'initial', 'B1', ipc, FAST)
 
     expect(r.overallStatus).toBe('success')
     expect(r.manifest!.files).toHaveLength(2)
     expect(r.manifest!.files.every((f) => f.verified)).toBe(true)
     expect(r.manifest!.files.find((f) => f.relPath === 'saves/a.sav')!.sha256).toBe(sha('AAA'))
-    expect(local.get('/backups/melonds-ds/B1/saves/a.sav')).toBe('AAA')
-    expect(local.has('/backups/melonds-ds/B1/manifest.json')).toBe(true)
+    expect(local.get('/backups/watermelonds/B1/saves/a.sav')).toBe('AAA')
+    expect(local.has('/backups/watermelonds/B1/manifest.json')).toBe(true)
   })
 
   it('exclut du manifest un fichier dont le hash device est illisible', async () => {
@@ -78,7 +78,7 @@ describe('backup', () => {
     device.set(`${ROOT}/a.sav`, 'AAA')
     const broken: SavesIpc = { ...ipc, sha256Device: async () => { throw new Error('io') } }
 
-    const r = await backup('s', 'melonds-ds', 'manual', 'B', broken, FAST)
+    const r = await backup('s', 'watermelonds', 'manual', 'B', broken, FAST)
 
     expect(r.overallStatus).toBe('failed')
     expect(r.manifest!.files).toHaveLength(0)
@@ -90,7 +90,7 @@ describe('backup', () => {
     device.set(`${ROOT}/a.sav`, 'AAA')
     const corrupt: SavesIpc = { ...ipc, pullFile: async (_s, _dp, lp) => { local.set(lp, 'WRONG') } }
 
-    const r = await backup('s', 'melonds-ds', 'manual', 'B', corrupt, FAST)
+    const r = await backup('s', 'watermelonds', 'manual', 'B', corrupt, FAST)
 
     expect(r.steps[0].status).toBe('failed_after_retries')
     expect(r.manifest!.files[0].verified).toBe(false)
@@ -102,22 +102,22 @@ describe('restore — garde-fous', () => {
   it('nominal : intégrité OK, snapshot de sécurité, push vérifié', async () => {
     const { ipc, device, local } = makeMemIpc()
     device.set(`${ROOT}/a.sav`, 'AAA')
-    await backup('s', 'melonds-ds', 'initial', 'B1', ipc, FAST)
+    await backup('s', 'watermelonds', 'initial', 'B1', ipc, FAST)
     device.set(`${ROOT}/a.sav`, 'CHANGED') // état courant à écraser
 
-    const r = await restore('s', 'melonds-ds', 'B1', ipc, { ...FAST, safetyBackupId: 'SAFE' })
+    const r = await restore('s', 'watermelonds', 'B1', ipc, { ...FAST, safetyBackupId: 'SAFE' })
 
     expect(r.overallStatus).toBe('success')
     expect(r.safetyBackupId).toBe('SAFE')
     // Données restaurées à l'original.
     expect(device.get(`${ROOT}/a.sav`)).toBe('AAA')
     // Le snapshot de sécurité a bien capté l'état AVANT écrasement.
-    expect(local.get('/backups/melonds-ds/SAFE/saves/a.sav')).toBe('CHANGED')
+    expect(local.get('/backups/watermelonds/SAFE/saves/a.sav')).toBe('CHANGED')
   })
 
   it('manifest absent → échec, aucun push (appareil intact)', async () => {
     const { ipc, pushLog } = makeMemIpc()
-    const r = await restore('s', 'melonds-ds', 'NOPE', ipc, FAST)
+    const r = await restore('s', 'watermelonds', 'NOPE', ipc, FAST)
     expect(r.overallStatus).toBe('failed')
     expect(r.safetyBackupId).toBeNull()
     expect(pushLog).toHaveLength(0)
@@ -125,8 +125,8 @@ describe('restore — garde-fous', () => {
 
   it('manifest corrompu → échec, aucun push', async () => {
     const { ipc, local, pushLog } = makeMemIpc()
-    local.set('/backups/melonds-ds/BAD/manifest.json', '{pas du json')
-    const r = await restore('s', 'melonds-ds', 'BAD', ipc, FAST)
+    local.set('/backups/watermelonds/BAD/manifest.json', '{pas du json')
+    const r = await restore('s', 'watermelonds', 'BAD', ipc, FAST)
     expect(r.overallStatus).toBe('failed')
     expect(pushLog).toHaveLength(0)
   })
@@ -134,11 +134,11 @@ describe('restore — garde-fous', () => {
   it('backup local corrompu (hash ≠ manifest) → ABANDON avant tout push', async () => {
     const { ipc, device, local, pushLog } = makeMemIpc()
     device.set(`${ROOT}/a.sav`, 'AAA')
-    await backup('s', 'melonds-ds', 'initial', 'B1', ipc, FAST)
+    await backup('s', 'watermelonds', 'initial', 'B1', ipc, FAST)
     // On altère le fichier de backup local : il ne correspond plus à son hash.
-    local.set('/backups/melonds-ds/B1/saves/a.sav', 'TAMPERED')
+    local.set('/backups/watermelonds/B1/saves/a.sav', 'TAMPERED')
 
-    const r = await restore('s', 'melonds-ds', 'B1', ipc, { ...FAST, safetyBackupId: 'SAFE' })
+    const r = await restore('s', 'watermelonds', 'B1', ipc, { ...FAST, safetyBackupId: 'SAFE' })
 
     expect(r.overallStatus).toBe('failed')
     expect(r.safetyBackupId).toBeNull()
@@ -151,13 +151,13 @@ describe('restore — garde-fous', () => {
   it('vérification post-push échoue (push corrompu) → étape en échec, snapshot conservé', async () => {
     const { ipc, device } = makeMemIpc()
     device.set(`${ROOT}/a.sav`, 'AAA')
-    await backup('s', 'melonds-ds', 'initial', 'B1', ipc, FAST)
+    await backup('s', 'watermelonds', 'initial', 'B1', ipc, FAST)
     const corruptPush: SavesIpc = {
       ...ipc,
       pushFile: async (_s, _lp, dp) => { device.set(dp, 'CORRUPT') },
     }
 
-    const r = await restore('s', 'melonds-ds', 'B1', corruptPush, { ...FAST, safetyBackupId: 'SAFE' })
+    const r = await restore('s', 'watermelonds', 'B1', corruptPush, { ...FAST, safetyBackupId: 'SAFE' })
 
     const pushStep = r.steps.find((s) => s.label.includes('Restauration vérifiée'))!
     expect(pushStep.status).toBe('failed_after_retries')
@@ -168,11 +168,11 @@ describe('restore — garde-fous', () => {
   it('snapshot de sécurité impossible → ABANDON avant tout push', async () => {
     const { ipc, device, local, pushLog } = makeMemIpc()
     device.set(`${ROOT}/a.sav`, 'AAA')
-    await backup('s', 'melonds-ds', 'initial', 'B1', ipc, FAST)
+    await backup('s', 'watermelonds', 'initial', 'B1', ipc, FAST)
     // sha256Device casse → le snapshot de sécurité ne peut pas se vérifier.
     const flaky: SavesIpc = { ...ipc, sha256Device: async () => { throw new Error('device gone') } }
 
-    const r = await restore('s', 'melonds-ds', 'B1', flaky, { ...FAST, safetyBackupId: 'SAFE' })
+    const r = await restore('s', 'watermelonds', 'B1', flaky, { ...FAST, safetyBackupId: 'SAFE' })
 
     expect(r.overallStatus).toBe('failed')
     expect(r.safetyBackupId).toBeNull()
@@ -189,14 +189,14 @@ describe('migrate', () => {
   it('backup source vérifié puis restore cible → succès', async () => {
     const { ipc, device } = makeMemIpc()
     device.set(`${ROOT}/a.sav`, 'AAA')
-    const r = await migrate('src', 'tgt', 'melonds-ds', 'MIG', ipc, { ...FAST, safetyBackupId: 'SAFE' })
+    const r = await migrate('src', 'tgt', 'watermelonds', 'MIG', ipc, { ...FAST, safetyBackupId: 'SAFE' })
     expect(r.overallStatus).toBe('success')
     expect(device.get(`${ROOT}/a.sav`)).toBe('AAA')
   })
 
   it('source vide → statut empty, pas de restauration', async () => {
     const { ipc, pushLog } = makeMemIpc()
-    const r = await migrate('src', 'tgt', 'melonds-ds', 'MIG', ipc, FAST)
+    const r = await migrate('src', 'tgt', 'watermelonds', 'MIG', ipc, FAST)
     expect(r.overallStatus).toBe('empty')
     expect(pushLog).toHaveLength(0)
   })

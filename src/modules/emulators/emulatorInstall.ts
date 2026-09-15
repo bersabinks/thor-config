@@ -1,5 +1,7 @@
 import { runVerifiedAction, type StepResult } from '../../verification'
-import melondsProfile from './profiles/melonds-ds.json'
+import watermelondsProfile from './profiles/watermelonds.json'
+import ppssppProfile from './profiles/ppsspp.json'
+import duckstationProfile from './profiles/duckstation.json'
 import azaharProfile from './profiles/azahar.json'
 import dolphinProfile from './profiles/dolphin.json'
 import cemuProfile from './profiles/cemu.json'
@@ -7,8 +9,12 @@ import cemuProfile from './profiles/cemu.json'
 export interface EmulatorSource {
   id: string
   displayName: string
-  /** 'github' = release GitHub ; 'fdroid' = dépôt F-Droid (ex. Dolphin, pas de release GitHub). */
-  sourceType: 'github' | 'fdroid'
+  /**
+   * 'github' = release GitHub ; 'fdroid' = dépôt F-Droid (Dolphin, PPSSPP) ;
+   * 'playstore' = distribué uniquement via Google Play → installation
+   * automatique impossible (DuckStation), l'étape est ignorée, pas en échec.
+   */
+  sourceType: 'github' | 'fdroid' | 'playstore'
   packageName: string
   /** Requis pour sourceType 'github'. */
   githubRepo?: string
@@ -16,6 +22,8 @@ export interface EmulatorSource {
   assetPattern?: string
   /** Requis pour sourceType 'fdroid'. */
   fdroidRepo?: string
+  /** Requis pour sourceType 'playstore' : page officielle à ouvrir à la main. */
+  playStoreUrl?: string
 }
 
 export interface ConfigProfile {
@@ -31,18 +39,22 @@ export interface ConfigProfile {
 }
 
 const PROFILES: Record<string, ConfigProfile> = {
-  'melonds-ds': melondsProfile as ConfigProfile,
+  watermelonds: watermelondsProfile as ConfigProfile,
+  ppsspp: ppssppProfile as ConfigProfile,
+  duckstation: duckstationProfile as ConfigProfile,
   azahar: azaharProfile as ConfigProfile,
   dolphin: dolphinProfile as ConfigProfile,
   cemu: cemuProfile as ConfigProfile,
 }
 
+/** Ce dont le process main a besoin pour récupérer l'APK d'une source. */
+export type PrepareApkSource = Pick<
+  EmulatorSource,
+  'id' | 'sourceType' | 'githubRepo' | 'assetPattern' | 'fdroidRepo' | 'packageName'
+>
+
 export interface EmulatorIpc {
-  prepareApk(
-    id: string,
-    githubRepo: string,
-    assetPattern: string
-  ): Promise<{ localPath: string; version: string }>
+  prepareApk(source: PrepareApkSource): Promise<{ localPath: string; version: string }>
   applyConfig(
     serial: string,
     configPath: string,
@@ -59,8 +71,7 @@ export interface EmulatorIpc {
 
 export function makeDefaultIpc(): EmulatorIpc {
   return {
-    prepareApk: (id, repo, pattern) =>
-      window.electronAPI.emulators.prepareApk(id, repo, pattern),
+    prepareApk: (source) => window.electronAPI.emulators.prepareApk(source),
     applyConfig: (serial, path, settings) =>
       window.electronAPI.emulators.applyConfig(serial, path, settings),
     verifyConfig: (serial, path, settings) =>
@@ -97,12 +108,16 @@ function makeSkipped(label: string, reason: string): StepResult {
   }
 }
 
-export async function installEmulator(
+/**
+ * Pipeline commun d'installation d'un APK (émulateur ou outil comme Obtainium) :
+ * téléchargement vérifié puis installation vérifiée par `pm`. Renvoie toujours
+ * 2 étapes ; l'installation est marquée en échec si le téléchargement a échoué.
+ */
+export async function installApp(
   serial: string,
   source: EmulatorSource,
   ipc: EmulatorIpc = makeDefaultIpc(),
-  options: InstallOptions = {},
-  profile: ConfigProfile | undefined = PROFILES[source.id]
+  options: InstallOptions = {}
 ): Promise<StepResult[]> {
   const retryDelayMs = options.retryDelayMs ?? 3000
   const maxRetries = options.maxRetries ?? 2
@@ -110,11 +125,21 @@ export async function installEmulator(
   let localPath = ''
   let version = ''
 
+  // Aucune source téléchargeable : on n'invente pas d'APK, les étapes sont ignorées.
+  if (source.sourceType === 'playstore') {
+    const reason =
+      `${source.displayName} n’est distribué que par Google Play (${source.packageName}) : ` +
+      `installation automatique impossible. À installer à la main depuis ${source.playStoreUrl ?? 'Google Play'}.`
+    results.push(makeSkipped(`${source.displayName} — Téléchargement APK`, reason))
+    results.push(makeSkipped(`${source.displayName} — Installation`, reason))
+    return results
+  }
+
   // ── Étape 1 : Téléchargement APK ──────────────────────────────────────────
   const downloadResult = await runVerifiedAction<string>({
     label: `${source.displayName} — Téléchargement APK`,
     apply: async () => {
-      const r = await ipc.prepareApk(source.id, source.githubRepo ?? '', source.assetPattern ?? '')
+      const r = await ipc.prepareApk(source)
       localPath = r.localPath
       version = r.version
     },
@@ -128,7 +153,6 @@ export async function installEmulator(
 
   if (downloadResult.status !== 'success') {
     results.push(makeFailed(`${source.displayName} — Installation`, 'Téléchargement APK échoué'))
-    results.push(makeFailed(`${source.displayName} — Configuration`, 'Téléchargement APK échoué'))
     return results
   }
 
@@ -145,6 +169,33 @@ export async function installEmulator(
     retryDelayMs,
   })
   results.push(installResult)
+  return results
+}
+
+export async function installEmulator(
+  serial: string,
+  source: EmulatorSource,
+  ipc: EmulatorIpc = makeDefaultIpc(),
+  options: InstallOptions = {},
+  profile: ConfigProfile | undefined = PROFILES[source.id]
+): Promise<StepResult[]> {
+  const retryDelayMs = options.retryDelayMs ?? 3000
+  const maxRetries = options.maxRetries ?? 2
+  const results = await installApp(serial, source, ipc, options)
+
+  if (results[0].status === 'skipped') {
+    results.push(
+      makeSkipped(
+        `${source.displayName} — Configuration`,
+        'Émulateur non installé automatiquement — à configurer après installation manuelle.'
+      )
+    )
+    return results
+  }
+  if (results[0].status !== 'success') {
+    results.push(makeFailed(`${source.displayName} — Configuration`, 'Téléchargement APK échoué'))
+    return results
+  }
 
   // ── Étape 3 : Application du profil de configuration ──────────────────────
   if (!profile) {

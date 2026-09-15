@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { identifySystem, extensionOf } from '../identify'
+import { identifySystem, extensionOf, HEADER_READ_LENGTH } from '../identify'
 
 function header(offset: number, hex: string, len: number): Uint8Array {
   const b = new Uint8Array(len)
@@ -32,11 +32,22 @@ describe('identifySystem — par extension', () => {
     expect(r.reason).toBe('unknown')
   })
 
-  it('.iso sans en-tête → ambigu (gc/wii/ps2)', () => {
+  it('.iso sans en-tête → ambigu (gc/wii/psp/ps2)', () => {
     const r = identifySystem('game.iso')
     expect(r.system).toBeNull()
     expect(r.reason).toBe('ambiguous')
-    expect(r.candidates).toEqual(expect.arrayContaining(['gc', 'wii', 'ps2']))
+    expect(r.candidates).toEqual(expect.arrayContaining(['gc', 'wii', 'psp', 'ps2']))
+  })
+
+  it('.cso → psp, .cue → ps1 (extensions non partagées)', () => {
+    expect(identifySystem('God of War.cso').system?.id).toBe('psp')
+    expect(identifySystem('Metal Gear Solid (Disc 1).cue').system?.id).toBe('ps1')
+  })
+
+  it('.bin sans en-tête → ambigu (ps1/ps2)', () => {
+    const r = identifySystem('game.bin')
+    expect(r.reason).toBe('ambiguous')
+    expect(r.candidates).toEqual(expect.arrayContaining(['ps1', 'ps2']))
   })
 })
 
@@ -61,6 +72,52 @@ describe('identifySystem — par signature (magic)', () => {
 
   it('un en-tête trop court ne plante pas (retombe sur l’extension)', () => {
     const r = identifySystem('game.iso', new Uint8Array(4))
+    expect(r.system).toBeNull()
+    expect(r.reason).toBe('ambiguous')
+  })
+})
+
+describe('identifySystem — Sony (conflits de signature .iso / .bin)', () => {
+  const PSP_GAME = '5053502047414D45'
+  const CD001 = '4344303031'
+
+  it('.iso PSP (systemId « PSP GAME » à 0x8008) → psp, pas ps2', () => {
+    const h = header(0x8008, PSP_GAME, HEADER_READ_LENGTH)
+    // Le CD001 générique est aussi présent dans un ISO PSP réel.
+    for (let i = 0; i < CD001.length / 2; i++) h[0x8001 + i] = parseInt(CD001.slice(i * 2, i * 2 + 2), 16)
+    const r = identifySystem('God of War.iso', h)
+    expect(r.system?.id).toBe('psp')
+    expect(r.method).toBe('magic')
+  })
+
+  it('variante entre guillemets « "PSP GAME" » également reconnue', () => {
+    const r = identifySystem('jeu.iso', header(0x8008, '225053502047414D4522', HEADER_READ_LENGTH))
+    expect(r.system?.id).toBe('psp')
+  })
+
+  it('.iso ISO9660 sans marqueur PSP → ps2 (comportement conservé)', () => {
+    const r = identifySystem('game.iso', header(0x8001, CD001, HEADER_READ_LENGTH))
+    expect(r.system?.id).toBe('ps2')
+  })
+
+  it('.cso : en-tête CISO → psp', () => {
+    expect(identifySystem('God of War.cso', header(0, '4349534F', 64)).system?.id).toBe('psp')
+  })
+
+  it('.ciso GameCube n’est pas capté par la signature CISO du PSP (restreinte au .cso)', () => {
+    const r = identifySystem('Zelda.ciso', header(0, '4349534F', 64))
+    expect(r.system?.id).toBe('gc')
+    expect(r.method).toBe('extension')
+  })
+
+  it('.bin avec synchro CD brute (00 FF×10 00) → ps1', () => {
+    const r = identifySystem('Metal Gear Solid (Disc 1).bin', header(0, '00FFFFFFFFFFFFFFFFFFFFFF00', 64))
+    expect(r.system?.id).toBe('ps1')
+    expect(r.method).toBe('magic')
+  })
+
+  it('la synchro CD ne s’applique qu’au .bin (un .iso 2048 o/secteur ne la porte pas)', () => {
+    const r = identifySystem('game.iso', header(0, '00FFFFFFFFFFFFFFFFFFFFFF00', 64))
     expect(r.system).toBeNull()
     expect(r.reason).toBe('ambiguous')
   })

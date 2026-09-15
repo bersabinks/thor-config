@@ -1,6 +1,11 @@
 import { EMULATOR_GUIDES, THOR_MAX_HARDWARE } from '../modules/orchestrator'
 import { DiagnosticExport } from './DiagnosticExport'
 import {
+  OBTAINIUM_APPS_JSON_REMOTE_PATH,
+  OBTAINIUM_INSTALLED_MESSAGE,
+  OBTAINIUM_SOURCE,
+} from '../modules/emulators'
+import {
   reportToJson,
   reportToMarkdown,
   type ModuleResult,
@@ -47,6 +52,10 @@ function installedGuides(modules: ModuleResult[]) {
 export function FinalReport({ report, modules, meta, onRerunFailed, rerunning, hasFailures }: Props) {
   const { totals } = report
   const guides = installedGuides(modules)
+  const obtainiumInstalled =
+    modules
+      .find((m) => m.moduleId === 'emulators')
+      ?.steps.some((s) => s.label === `${OBTAINIUM_SOURCE.displayName} — Installation` && s.status === 'success') ?? false
 
   const failures = report.perModule.filter((m) => m.failures.length > 0)
 
@@ -153,6 +162,23 @@ export function FinalReport({ report, modules, meta, onRerunFailed, rerunning, h
                 ))}
               </div>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── Gestionnaire de mises à jour ────────────────────────────────── */}
+      {obtainiumInstalled && (
+        <div className="card">
+          <div className="card-header">
+            <h3>Mises à jour des émulateurs</h3>
+          </div>
+          <div className="card-body">
+            <p className="step-label">{OBTAINIUM_INSTALLED_MESSAGE}</p>
+            <p className="hint">
+              Confirmez l’import des émulateurs dans la fenêtre Obtainium ouverte sur la console. Si elle
+              n’apparaît pas : Obtainium → Import/Export → Obtainium Import →{' '}
+              <code>{OBTAINIUM_APPS_JSON_REMOTE_PATH}</code>.
+            </p>
           </div>
         </div>
       )}

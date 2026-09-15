@@ -4,6 +4,15 @@ import { mkdirSync, statSync, writeFileSync } from 'fs'
 import { createHash } from 'crypto'
 import { createReadStream } from 'fs'
 import { getSettings } from '../settings'
+import { parseSha256, selectApkAsset, selectChecksumAsset, type ReleaseAsset } from './releaseAssets'
+import {
+  fdroidApiUrl,
+  fdroidApkUrl,
+  isOfficialFdroidRepo,
+  pickFdroidVersion,
+  type FdroidPackagesResponse,
+} from './fdroid'
+import type { PrepareApkSource } from '../../../src/modules/emulators/emulatorInstall'
 
 export interface ReleaseInfo {
   version: string
@@ -36,33 +45,22 @@ export async function fetchLatestRelease(
     throw new Error(`GitHub API ${resp.status} pour ${githubRepo}: ${await resp.text()}`)
   }
 
-  const data = (await resp.json()) as {
-    tag_name: string
-    assets: { name: string; browser_download_url: string }[]
-  }
+  const data = (await resp.json()) as { tag_name: string; assets: ReleaseAsset[] }
 
-  const pattern = new RegExp(assetPattern, 'i')
-  const apkAsset = data.assets.find((a) => pattern.test(a.name))
+  const apkAsset = selectApkAsset(data.assets, assetPattern)
   if (!apkAsset) {
     throw new Error(
       `Aucun asset correspondant au pattern "${assetPattern}" dans les releases de ${githubRepo}`
     )
   }
 
-  // Cherche un fichier de checksums SHA-256 parmi les assets
-  const checksumAsset = data.assets.find(
-    (a) =>
-      /sha256|checksum|hash/i.test(a.name) &&
-      /\.(txt|sha256sum)$/i.test(a.name)
-  )
+  // Empreinte publiée avec la release (fichier <apk>.sha256 ou fichier de sommes)
+  const checksumAsset = selectChecksumAsset(data.assets, apkAsset.name)
   let sha256: string | undefined
   if (checksumAsset) {
     try {
       const hashResp = await githubFetch(checksumAsset.browser_download_url)
-      const content = await hashResp.text()
-      // Format attendu : "<hash>  <filename>"
-      const match = /([a-f0-9]{64})\s/i.exec(content)
-      sha256 = match?.[1]?.toLowerCase()
+      sha256 = parseSha256(await hashResp.text(), apkAsset.name)
     } catch {
       // Le hash est optionnel, on continue sans
     }
@@ -100,16 +98,43 @@ function isCached(filePath: string): boolean {
   }
 }
 
-export async function prepareApk(
-  id: string,
-  githubRepo: string,
-  assetPattern: string
-): Promise<PrepareApkResult> {
+/** Dernière version publiée sur un dépôt F-Droid (officiel uniquement pour l'instant). */
+export async function fetchFdroidRelease(
+  repoUrl: string,
+  packageName: string
+): Promise<ReleaseInfo> {
+  if (!isOfficialFdroidRepo(repoUrl)) {
+    throw new Error(
+      `Dépôt F-Droid tiers non pris en charge (${repoUrl}) : lecture de index-v2.json à implémenter. ` +
+        `Installez ${packageName} à la main depuis ce dépôt en attendant.`
+    )
+  }
+  const resp = await githubFetch(fdroidApiUrl(packageName))
+  if (!resp.ok) {
+    throw new Error(`F-Droid ${resp.status} pour ${packageName}`)
+  }
+  const data = (await resp.json()) as FdroidPackagesResponse
+  const version = pickFdroidVersion(data)
+  return {
+    version: version.versionName,
+    downloadUrl: fdroidApkUrl(repoUrl, packageName, version.versionCode),
+  }
+}
+
+export async function prepareApk(source: PrepareApkSource): Promise<PrepareApkResult> {
+  const { id, sourceType, packageName } = source
   if (getSettings().simulationMode) {
     return { localPath: `/mock/cache/apk/${id}/sim-1.0/${id}.apk`, version: 'sim-1.0' }
   }
 
-  const release = await fetchLatestRelease(githubRepo, assetPattern)
+  if (sourceType === 'playstore') {
+    throw new Error(`${id} : distribué uniquement via Google Play, aucun APK à télécharger`)
+  }
+
+  const release =
+    sourceType === 'fdroid'
+      ? await fetchFdroidRelease(source.fdroidRepo ?? '', packageName)
+      : await fetchLatestRelease(source.githubRepo ?? '', source.assetPattern ?? '')
   const localPath = getCachePath(id, release.version)
 
   if (!isCached(localPath)) {

@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from 'vitest'
 import {
+  installApp,
   installEmulator,
   type EmulatorIpc,
   type EmulatorSource,
@@ -101,6 +102,24 @@ describe('installEmulator — cas nominal (profil validé)', () => {
       '/sdcard/dolphin-emu/Config/Dolphin.ini',
       expect.any(Object)
     )
+  })
+})
+
+describe('installApp — pipeline commun (sans configuration)', () => {
+  it('renvoie téléchargement + installation, sans toucher à la configuration', async () => {
+    const ipc = makeSuccessIpc()
+    const results = await installApp('mock-serial', SIM_SOURCE, ipc, FAST)
+    expect(results.map((r) => r.label)).toEqual(['Dolphin (dev build) — Téléchargement APK', 'Dolphin (dev build) — Installation'])
+    expect(results.every((r) => r.status === 'success')).toBe(true)
+    expect(ipc.applyConfig).not.toHaveBeenCalled()
+  })
+
+  it('téléchargement en échec : installation en échec, APK jamais installé', async () => {
+    const ipc = makeSuccessIpc()
+    ;(ipc.prepareApk as ReturnType<typeof vi.fn>).mockRejectedValue(new Error('network error'))
+    const results = await installApp('mock-serial', SIM_SOURCE, ipc, FAST)
+    expect(results.map((r) => r.status)).toEqual(['failed_after_retries', 'failed_after_retries'])
+    expect(ipc.installApk).not.toHaveBeenCalled()
   })
 })
 
