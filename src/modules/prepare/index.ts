@@ -1,4 +1,5 @@
 import type { StepResult } from '../../verification'
+import { describeError, parseAdbErrorCode } from '../../../electron/main/adb/errors'
 import { runGestureNavigation } from './steps/gestureNavigation'
 import { runFirmwareUpdate } from './steps/firmwareUpdate'
 import { runAynSettings } from './steps/aynSettings'
@@ -14,26 +15,34 @@ export interface PrepareModuleResult {
   overallStatus: 'success' | 'partial' | 'failed'
 }
 
+function crashStep(label: string, err: unknown): StepResult {
+  const errorCode = parseAdbErrorCode(err)
+  return {
+    label,
+    status: 'failed_after_retries',
+    attempts: 1,
+    lastValue: null,
+    error: describeError(err),
+    ...(errorCode ? { errorCode } : {}),
+    timestamp: Date.now(),
+  }
+}
+
 async function safeRun(
+  label: string,
   fn: () => Promise<StepResult>,
   onStep: (r: StepResult) => void,
   steps: StepResult[]
 ): Promise<void> {
+  let result: StepResult
   try {
-    const result = await fn()
-    steps.push(result)
-    onStep(result)
+    result = await fn()
   } catch (err) {
-    const result: StepResult = {
-      label: fn.name || 'Étape',
-      status: 'failed_after_retries',
-      attempts: 1,
-      lastValue: String(err),
-      timestamp: Date.now(),
-    }
-    steps.push(result)
-    onStep(result)
+    // ex. lecture de la version firmware hors runVerifiedAction, console débranchée
+    result = crashStep(label, err)
   }
+  steps.push(result)
+  onStep(result)
 }
 
 /**
@@ -46,10 +55,10 @@ export async function run(ctx: PrepareRunContext): Promise<PrepareModuleResult> 
   const steps: StepResult[] = []
 
   // ── Étape 1 : Navigation par gestes ──────────────────────────────────
-  await safeRun(() => runGestureNavigation(serial), onStep, steps)
+  await safeRun('Navigation par gestes', () => runGestureNavigation(serial), onStep, steps)
 
   // ── Étape 2 : Mise à jour firmware ───────────────────────────────────
-  await safeRun(() => runFirmwareUpdate(serial), onStep, steps)
+  await safeRun('Mise à jour firmware', () => runFirmwareUpdate(serial), onStep, steps)
 
   // ── Étape 3 : Réglages AYN (ABXY + gâchettes) → 2 sous-étapes ───────
   try {
@@ -59,13 +68,7 @@ export async function run(ctx: PrepareRunContext): Promise<PrepareModuleResult> 
       onStep(r)
     }
   } catch (err) {
-    const result: StepResult = {
-      label: 'AYN Settings',
-      status: 'failed_after_retries',
-      attempts: 1,
-      lastValue: String(err),
-      timestamp: Date.now(),
-    }
+    const result = crashStep('AYN Settings', err)
     steps.push(result)
     onStep(result)
   }

@@ -1,4 +1,5 @@
 import { runVerifiedAction, type StepResult } from '../../verification'
+import { describeError } from '../../../electron/main/adb/errors'
 import { readTitleInfo, type VitaTitleInfo } from './sfo'
 import {
   classifyRoots,
@@ -86,9 +87,7 @@ function joinPath(...parts: string[]): string {
     .join('/')
 }
 
-function errorMessage(err: unknown): string {
-  return err instanceof Error ? err.message : String(err)
-}
+const errorMessage = describeError
 
 function makeStep(
   label: string,

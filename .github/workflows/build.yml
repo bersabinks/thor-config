@@ -3,6 +3,22 @@ name: Build & Release
 on:
   push:
     branches: [main]
+  # Les PR sont vérifiées (typecheck, tests, installeur) mais ne publient rien.
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+# Création des Releases et déplacement du tag latest-test.
+permissions:
+  contents: write
+
+# Deux pushs rapprochés ne doivent pas publier latest-test dans le désordre.
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  INSTALLER_NAME: ThorConfig-Setup.exe
 
 jobs:
   build:
@@ -23,24 +39,51 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run tests
+      - name: Typecheck
+        run: npx tsc --noEmit
+
+      # Aucun appareil sur le runner : les tests passent par MockAdbClient et
+      # déroulent l'orchestrateur complet en mode simulation. Un échec bloque
+      # la publication, pour que latest-test reste un build fonctionnel.
+      - name: Tests (simulation, sans console)
         run: npm test
-        continue-on-error: true
 
       - name: Build (renderer + main)
         run: npm run build
 
       - name: Package Windows installer
-        run: npm run package
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx electron-builder --win --publish never
+
+      # Seul l'installeur NSIS est publié (pas win-unpacked/, 7za.exe ni elevate.exe).
+      - name: Locate installer
+        id: installer
+        shell: bash
+        run: |
+          shopt -s nullglob
+          files=(release/*/ThorConfig-Setup-*.exe)
+          if [ "${#files[@]}" -ne 1 ]; then
+            echo "::error::Installeur introuvable ou ambigu : ${files[*]}"
+            exit 1
+          fi
+          cp "${files[0]}" "release/$INSTALLER_NAME"
+          echo "versioned=${files[0]}" >> "$GITHUB_OUTPUT"
+          echo "stable=release/$INSTALLER_NAME" >> "$GITHUB_OUTPUT"
+
+      - name: Upload installer artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ThorConfig-Setup
+          path: ${{ steps.installer.outputs.versioned }}
+          retention-days: 14
 
       - name: Generate tag name
+        if: github.event_name != 'pull_request'
         id: tag
         shell: bash
-        run: echo "TAG=build-$(date +'%Y-%m-%d-%H%M')" >> "$GITHUB_OUTPUT"
+        run: echo "TAG=build-$(date -u +'%Y-%m-%d-%H%M')" >> "$GITHUB_OUTPUT"
 
       - name: Collect commit messages
+        if: github.event_name != 'pull_request'
         id: commits
         shell: bash
         run: |
@@ -50,11 +93,13 @@ jobs:
           echo "EOF" >> "$GITHUB_OUTPUT"
 
       - name: Create versioned Release
+        if: github.event_name != 'pull_request'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.tag.outputs.TAG }}
+          target_commitish: ${{ github.sha }}
           name: "ThorConfig ${{ steps.tag.outputs.TAG }}"
-          files: release/**/*.exe
+          files: ${{ steps.installer.outputs.versioned }}
           body: |
             ## ThorConfig — build automatique
 
@@ -62,18 +107,45 @@ jobs:
 
             ---
             **Comment tester** : téléchargez le `.exe` ci-dessous et lancez-le. Aucun Node.js requis.
-            Activez le **mode simulation** dans Réglages si vous n'avez pas de console branchée.
+            Prérequis console (débogage USB, platform-tools) : voir la section « Testeur » du README.
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Update latest-test tag
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: latest-test
-          name: "ThorConfig — dernier build (latest-test)"
-          files: release/**/*.exe
-          body: |
-            Ce tag est mis à jour à chaque push sur `main`.
-            Il pointe toujours vers le **dernier build Windows fonctionnel**.
+      # softprops ne déplace pas un tag existant : sans cette étape, latest-test
+      # resterait pointé sur le tout premier commit publié.
+      - name: Move latest-test tag to this commit
+        if: github.event_name != 'pull_request'
+        shell: bash
+        run: |
+          git tag -f latest-test "$GITHUB_SHA"
+          git push -f origin refs/tags/latest-test
 
-            **Lien permanent à partager à ton ami testeur** : télécharge le `.exe` ici.
-          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Publish latest-test release (lien fixe)
+        if: github.event_name != 'pull_request'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BUILD_TAG: ${{ steps.tag.outputs.TAG }}
+        run: |
+          REPO_URL="https://github.com/${GITHUB_REPOSITORY}"
+          cat > latest-notes.md <<EOF
+          Ce tag est republié à chaque push sur \`main\` dont les tests passent : il pointe toujours vers le **dernier build Windows fonctionnel**.
+
+          **Lien direct permanent (à partager au testeur)** :
+          ${REPO_URL}/releases/download/latest-test/${INSTALLER_NAME}
+
+          Build : \`${BUILD_TAG}\` — commit \`${GITHUB_SHA::7}\`.
+          Prérequis console : voir la section « Testeur » du [README](${REPO_URL}#-testeur--tester-sur-une-vraie-console).
+          EOF
+
+          if gh release view latest-test >/dev/null 2>&1; then
+            gh release upload latest-test "release/$INSTALLER_NAME" --clobber
+            gh release edit latest-test --title "ThorConfig — dernier build (latest-test)" --notes-file latest-notes.md
+            # Purge des anciens fichiers (ex. ThorConfig.exe non installable, 7za.exe, elevate.exe).
+            { gh release view latest-test --json assets --jq '.assets[].name' | grep -vx "$INSTALLER_NAME" || true; } |
+              while read -r asset; do
+                gh release delete-asset latest-test "$asset" --yes
+              done
+          else
+            gh release create latest-test "release/$INSTALLER_NAME" --verify-tag \
+              --title "ThorConfig — dernier build (latest-test)" --notes-file latest-notes.md
+          fi

@@ -1,4 +1,5 @@
 import type { StepResult } from '../../verification'
+import { describeError } from '../../../electron/main/adb/errors'
 import type { ModulePhase, ModuleResult, RunContext, ThorModule } from './types'
 import { deriveModuleStatus, makeInfoStep } from './types'
 import { buildReport, type ReportSummary } from './report'
@@ -174,7 +175,7 @@ export async function runOrchestrator(
       result = { ...raw, moduleId: mod.id, displayName: mod.displayName, overallStatus: deriveModuleStatus(raw.steps) }
     } catch (err) {
       // Un module ne devrait pas lever, mais on ne laisse jamais l'orchestrateur planter.
-      const msg = err instanceof Error ? err.message : String(err)
+      const msg = describeError(err)
       const crash: StepResult = {
         label: `${mod.displayName} — Erreur inattendue`,
         status: 'failed_after_retries',

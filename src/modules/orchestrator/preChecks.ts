@@ -1,5 +1,7 @@
 import type { StepResult } from '../../verification'
 import type { AdbDevice } from '../../../electron/main/adb/types'
+import { describeError, parseAdbErrorCode } from '../../../electron/main/adb/errors'
+import type { Guard } from './orchestrator'
 
 /** Sous-ensemble d'ADB nécessaire aux pré-vérifications (injectable pour les tests). */
 export interface PreCheckIpc {
@@ -75,11 +77,14 @@ export async function runPreChecks(
     devices = await ipc.listDevices()
     steps.push(ok('Plate-forme ADB disponible', 'Le binaire adb répond et liste les appareils.'))
   } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err)
+    const msg = describeError(err)
     steps.push(
       ko(
         'Plate-forme ADB disponible',
-        `adb introuvable ou injoignable : ${msg}. Installez les platform-tools Android.`
+        // Les erreurs ADB typées portent déjà l'action à mener.
+        parseAdbErrorCode(err)
+          ? msg
+          : `adb introuvable ou injoignable : ${msg}. Installez les platform-tools Android.`
       )
     )
     return { steps, canProceed: false, serial: null }
@@ -129,11 +134,32 @@ export async function runPreChecks(
       )
     }
   } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err)
-    steps.push(skip('Espace de stockage suffisant', `df a échoué (${msg}) — vérification ignorée.`))
+    steps.push(
+      skip('Espace de stockage suffisant', `df a échoué (${describeError(err)}) — vérification ignorée.`)
+    )
   }
 
   return { steps, canProceed: true, serial: device.serial }
+}
+
+/**
+ * Garde exécutée entre les modules : met l'orchestrateur en pause tant qu'aucune
+ * console autorisée n'est joignable (débranchement en cours de run, popup
+ * d'autorisation USB, adb planté), puis le laisse reprendre seul.
+ */
+export function makeDeviceGuard(ipc: Pick<PreCheckIpc, 'listDevices'>): Guard {
+  return async () => {
+    try {
+      const devices = await ipc.listDevices()
+      if (devices.some((d) => d.state === 'device')) return { ok: true }
+      if (devices.some((d) => d.state === 'unauthorized')) {
+        return { ok: false, reason: 'Débogage USB non autorisé — acceptez la demande sur l’écran de la console.' }
+      }
+      return { ok: false, reason: 'Console déconnectée — reconnectez-la, la configuration reprendra seule.' }
+    } catch (err) {
+      return { ok: false, reason: `ADB injoignable (${describeError(err)}) — la configuration reprendra seule.` }
+    }
+  }
 }
 
 /** IPC réel : réutilise le pont ADB déjà exposé (mocké automatiquement en simulation). */

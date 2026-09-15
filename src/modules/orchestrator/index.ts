@@ -33,6 +33,7 @@ export {
 export {
   runPreChecks,
   makeDefaultPreCheckIpc,
+  makeDeviceGuard,
   parseDfAvailableBytes,
   type PreCheckIpc,
   type PreCheckOptions,

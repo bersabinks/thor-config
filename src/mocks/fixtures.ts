@@ -57,29 +57,22 @@ export const MOCK_FIXTURES: MockFixtures = {
     'ro.sf.lcd_density': '240',
   },
 
-  // Clé = sous-chaîne de la commande shell ; valeur = réponse simulée
-  // Les commandes am start mettent à jour lastLaunchedContext pour que le dump XML soit cohérent
+  // Réponses statiques : clé = sous-chaîne de la commande shell ; valeur = réponse simulée.
+  // Les commandes à état (settings, pm list packages, fichiers, launcher) sont
+  // gérées par SimulatedDevice (simulatedDevice.ts), consulté avant cette table.
   shellResponses: {
     // Prompt 1
     'input keyevent KEYCODE_WAKEUP': '',
     'dumpsys power | grep mWakefulness': 'mWakefulness=Awake',
-    'sha256sum': 'abc123def456  /sdcard/test.rom',
 
     // Prompt 8 — pré-vérification espace disque (df -k /sdcard) : ~85 Gio libres
     'df -k':
       'Filesystem     1K-blocks     Used Available Use% Mounted on\n/dev/fuse      117440512 27262976  90177536  24% /storage/emulated',
 
-    // Navigation par gestes
-    'settings put secure navigation_mode': '',
-    'settings get secure navigation_mode': '2',
-
     // Firmware
-    'getprop ro.build.version.incremental': '20240101.001',
     'am start -a android.settings.SYSTEM_UPDATE_SETTINGS': '',
 
     // AYN Settings
-    'pm list packages | grep ayn': 'package:com.ayn.settings',
-    'pm list packages': 'package:com.ayn.settings\npackage:org.emulator.dolphin\n',
     'monkey -p com.ayn.settings': '',
     'am start -n com.ayn.settings': '',
 
