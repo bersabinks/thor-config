@@ -7,6 +7,7 @@ import { Roms } from './pages/Roms'
 import { Saves } from './pages/Saves'
 import { Vita } from './pages/Vita'
 import { Launcher } from './pages/Launcher'
+import { Utilities } from './pages/Utilities'
 import { Report } from './pages/Report'
 import { Settings } from './pages/Settings'
 import { useSettings } from './store/settings'
@@ -19,6 +20,7 @@ type Page =
   | 'saves'
   | 'vita'
   | 'launcher'
+  | 'utilities'
   | 'report'
   | 'settings'
 
@@ -59,6 +61,8 @@ export function App() {
         return <Vita />
       case 'launcher':
         return <Launcher />
+      case 'utilities':
+        return <Utilities />
       case 'report':
         return <Report />
       case 'settings':

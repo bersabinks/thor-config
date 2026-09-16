@@ -1,4 +1,4 @@
-import { EMULATOR_GUIDES } from '../modules/orchestrator'
+import { EMULATOR_GUIDES, UTILITY_GUIDES } from '../modules/orchestrator'
 import {
   reportToJson,
   reportToMarkdown,
@@ -43,9 +43,22 @@ function installedGuides(modules: ModuleResult[]) {
   )
 }
 
+function installedUtilityGuides(modules: ModuleResult[]) {
+  const utilities = modules.find((m) => m.moduleId === 'utilities')
+  if (!utilities) return []
+  return UTILITY_GUIDES.filter((g) =>
+    utilities.steps.some(
+      (s) =>
+        s.label.startsWith(`${g.displayName} — `) &&
+        (s.status === 'success' || s.status === 'skipped')
+    )
+  )
+}
+
 export function FinalReport({ report, modules, meta, onRerunFailed, rerunning, hasFailures }: Props) {
   const { totals } = report
   const guides = installedGuides(modules)
+  const utilityGuides = installedUtilityGuides(modules)
 
   const failures = report.perModule.filter((m) => m.failures.length > 0)
 
@@ -166,6 +179,34 @@ export function FinalReport({ report, modules, meta, onRerunFailed, rerunning, h
           </div>
           <div className="card-body">
             {guides.map((g) => (
+              <div key={g.id} className="guide-emulator">
+                <div className="guide-emulator__title">{g.displayName}</div>
+                <div className="guide-emulator__intro">{g.intro}</div>
+                <div className="guide-settings">
+                  {g.settings.map((s) => (
+                    <div key={s.path} className="guide-setting">
+                      <span className="guide-setting__path">{s.path}</span>
+                      <span className="guide-setting__value">{s.value}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── Recommandations pour les utilitaires ──────────────────────────── */}
+      {utilityGuides.length > 0 && (
+        <div className="card">
+          <div className="card-header">
+            <h3>Recommandations pour les utilitaires</h3>
+            <p className="card-desc">
+              Conseils d'utilisation et profils recommandés pour les utilitaires installés sur votre AYN Thor Max.
+            </p>
+          </div>
+          <div className="card-body">
+            {utilityGuides.map((g) => (
               <div key={g.id} className="guide-emulator">
                 <div className="guide-emulator__title">{g.displayName}</div>
                 <div className="guide-emulator__intro">{g.intro}</div>

@@ -83,3 +83,37 @@ export const EMULATOR_GUIDES: EmulatorGuide[] = [
 export function guideFor(id: string): EmulatorGuide | undefined {
   return EMULATOR_GUIDES.find((g) => g.id === id)
 }
+
+export interface UtilityGuide {
+  id: string
+  displayName: string
+  intro: string
+  settings: GuideSetting[]
+}
+
+export const UTILITY_GUIDES: UtilityGuide[] = [
+  {
+    id: 'clustertune',
+    displayName: 'ClusterTune',
+    intro: 'Ouvrir l’application ClusterTune ou appuyer sur la tuile du volet des paramètres rapides.',
+    settings: [
+      { path: 'Profil par défaut recommandé', value: 'Équilibré / Safe (optimise température et autonomie)' },
+      { path: 'Profil pour DS / 3DS / PSP', value: 'Équilibré (suffisant pour la pleine vitesse)' },
+      { path: 'Profil pour Switch / PS2 / Wii U', value: 'Performance (puissance CPU maximale requise)' },
+      { path: 'Profil Économie', value: 'À éviter en émulation lourde (risque de saccades)' },
+    ],
+  },
+  {
+    id: 'finalrom',
+    displayName: 'Final ROM',
+    intro: 'Ouvrir Final ROM pour la conversion ou le patch de ROMs directement sur la console.',
+    settings: [
+      { path: 'Dossier de travail des ROMs', value: '/sdcard/ROMs/' },
+      { path: 'Compression recommandée', value: 'Format CHD pour CD/DVD (PS1, PS2, Dreamcast)' },
+    ],
+  },
+]
+
+export function utilityGuideFor(id: string): UtilityGuide | undefined {
+  return UTILITY_GUIDES.find((g) => g.id === id)
+}

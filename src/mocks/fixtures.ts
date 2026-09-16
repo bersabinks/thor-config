@@ -87,6 +87,7 @@ export const MOCK_FIXTURES: MockFixtures = {
     'uiautomator dump': 'UI hierarchy dumped to: /sdcard/window_dump.xml',
     'input tap': '',
     'am start -a android.settings.SETTINGS': '',
+    'cmd statusbar add-tile': '',
   },
 
   installedPackages: {
@@ -96,6 +97,11 @@ export const MOCK_FIXTURES: MockFixtures = {
     'org.azahar_emu.azahar': { packageName: 'org.azahar_emu.azahar', versionName: 'sim-1.0', versionCode: 10000 },
     'org.dolphinemu.dolphinemu': { packageName: 'org.dolphinemu.dolphinemu', versionName: 'sim-1.0', versionCode: 10000 },
     'info.cemu.cemu': { packageName: 'info.cemu.cemu', versionName: 'sim-1.0', versionCode: 10000 },
+
+    // Utilitaires pré-installés en simulation
+    'com.aure.clustertune': { packageName: 'com.aure.clustertune', versionName: 'sim-1.0', versionCode: 10000 },
+    'com.yasome.final_rom': { packageName: 'com.yasome.final_rom', versionName: 'sim-1.0', versionCode: 10000 },
+    'ru.zdevs.zarchiver': { packageName: 'ru.zdevs.zarchiver', versionName: 'sim-1.0', versionCode: 10000 },
   },
 
   commandDelayMs: 200,

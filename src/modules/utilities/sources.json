@@ -1,0 +1,29 @@
+[
+  {
+    "id": "clustertune",
+    "displayName": "ClusterTune",
+    "description": "Gestion thermique et profils CPU/GPU via PServer AYN (sans root).",
+    "sourceType": "github",
+    "githubRepo": "AurelioB/ClusterTune",
+    "assetPattern": "\\.apk$",
+    "packageName": "com.aure.clustertune",
+    "tileService": "com.aure.clustertune/.tile.ClusterTuneTileService"
+  },
+  {
+    "id": "finalrom",
+    "displayName": "Final ROM",
+    "description": "Boîte à outils ROM sur Android (conversion CHD, NSZ/XCZ, patchs, playlists m3u).",
+    "sourceType": "github",
+    "githubRepo": "Yasome/FinalRom",
+    "assetPattern": "\\.apk$",
+    "packageName": "com.yasome.final_rom",
+    "targetDir": "/sdcard/ROMs"
+  },
+  {
+    "id": "zarchiver",
+    "displayName": "ZArchiver",
+    "description": "Gestionnaire d'archives complet (7z, zip, rar) optimisé pour le stockage Android.",
+    "sourceType": "playstore",
+    "packageName": "ru.zdevs.zarchiver"
+  }
+]

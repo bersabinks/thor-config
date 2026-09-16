@@ -17,6 +17,7 @@ import {
   type VitaIpc,
 } from '../vita'
 import { run as runLauncher, makeDefaultLauncherIpc, makeSimulationLauncherIpc } from '../launcher'
+import { run as runUtilities } from '../utilities'
 
 export interface BuildModulesOptions {
   simulation: boolean
@@ -67,7 +68,7 @@ function makeModule(
 
 /**
  * Assemble la liste ordonnée des modules derrière le bouton unique :
- * Préparation → Émulateurs → ROMs → Sauvegardes → PS Vita → Launcher.
+ * Préparation → Émulateurs → ROMs → Sauvegardes → PS Vita → Launcher → Utilitaires.
  *
  * La découverte des fichiers du dossier d'import est faite ici (avant le run) :
  * en réel via roms:listImportFiles, en simulation via les lots d'exemple. ROMs
@@ -180,6 +181,17 @@ export async function buildThorModules(opts: BuildModulesOptions): Promise<ThorM
         serial: ctx.serial,
         onStep,
         ipc: simulation ? makeSimulationLauncherIpc() : makeDefaultLauncherIpc(),
+        options: simulation ? { retryDelayMs: 300 } : undefined,
+      })
+    })
+  )
+
+  // ── 7. Utilitaires (ClusterTune, Final ROM, ZArchiver) ──────────────────────
+  modules.push(
+    makeModule('utilities', 'Utilitaires', async (ctx, onStep) => {
+      await runUtilities({
+        serial: ctx.serial,
+        onStep,
         options: simulation ? { retryDelayMs: 300 } : undefined,
       })
     })

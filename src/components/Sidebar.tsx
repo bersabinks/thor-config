@@ -6,6 +6,7 @@ type Page =
   | 'saves'
   | 'vita'
   | 'launcher'
+  | 'utilities'
   | 'report'
   | 'settings'
 
@@ -22,6 +23,7 @@ const NAV_ITEMS: { id: Page; label: string; icon: string; available: boolean }[]
   { id: 'saves', label: 'Sauvegardes', icon: '💾', available: true },
   { id: 'vita', label: 'PS Vita', icon: '🎯', available: true },
   { id: 'launcher', label: 'Launcher', icon: '🚀', available: true },
+  { id: 'utilities', label: 'Utilitaires', icon: '🛠', available: true },
   { id: 'report', label: 'Rapport final', icon: '📋', available: true },
 ]
 
