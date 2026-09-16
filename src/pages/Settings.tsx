@@ -1,4 +1,5 @@
 import { useSettings } from '../store/settings'
+import { DiagnosticExport } from '../components/DiagnosticExport'
 
 export function Settings() {
   const {
@@ -212,6 +213,21 @@ export function Settings() {
                 </button>
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* ── Diagnostic ── */}
+        <div className="card">
+          <div className="card-header">
+            <h3>Diagnostic</h3>
+            <p className="card-desc">
+              Génère une archive .zip (journal d'audit, logs du jour, <code>adb shell getprop</code>,
+              dernier dump UI Automator) à envoyer au développeur. Son empreinte SHA-256 est affichée
+              pour vérifier que le fichier reçu est intact.
+            </p>
+          </div>
+          <div className="card-body">
+            <DiagnosticExport />
           </div>
         </div>
 

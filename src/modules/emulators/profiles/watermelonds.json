@@ -1,0 +1,12 @@
+{
+  "_confirmed": false,
+  "_todo": "À relever sur la console : WatermelonDS 0.7.0 synchronise sa configuration interne dans melonDualDS.opts, placé dans le dossier de sauvegarde choisi par l'utilisateur (strings.xml : save_internal_config_as_file_summary). Chemin réel et noms de clés inconnus : valeurs cibles ci-dessous (renderer = valeur réelle de video_renderer_values), jamais appliquées tant que _confirmed vaut false.",
+  "configPath": "TODO-dossier-de-sauvegarde/melonDualDS.opts",
+  "settings": {
+    "renderer": "vulkan",
+    "dualScreenPreset": "internal_top_external_bottom",
+    "keepDsAspectRatio": "true",
+    "integerScale": "true",
+    "internalResolution": "4"
+  }
+}

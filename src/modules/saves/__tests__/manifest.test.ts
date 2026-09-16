@@ -18,7 +18,7 @@ function entry(over: Partial<ManifestFileEntry> = {}): ManifestFileEntry {
 describe('manifest — round-trip', () => {
   it('build → serialize → parse conserve les données', () => {
     const m = buildManifest({
-      emulatorId: 'melonds-ds',
+      emulatorId: 'watermelonds',
       serial: 's1',
       createdAt: '2026-01-01',
       kind: 'initial',

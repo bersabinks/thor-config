@@ -4,6 +4,7 @@ import {
   runOrchestrator,
   runPreChecks,
   makeDefaultPreCheckIpc,
+  makeDeviceGuard,
   failedModuleIds,
   mergeResults,
   buildReport,
@@ -61,16 +62,7 @@ function PhaseIcon({ phase }: { phase: ModulePhase }) {
 }
 
 /** Garde exécutée entre les modules : met l'orchestrateur en pause si la console disparaît. */
-const guard: Guard = async () => {
-  try {
-    const devices = await window.electronAPI.adb.listDevices()
-    return devices.some((d) => d.state === 'device')
-      ? { ok: true }
-      : { ok: false, reason: 'Console déconnectée — reconnectez-la, la configuration reprendra seule.' }
-  } catch {
-    return { ok: false, reason: 'ADB injoignable — reconnectez la console pour reprendre.' }
-  }
-}
+const guard: Guard = makeDeviceGuard(makeDefaultPreCheckIpc())
 
 export function OrchestratorModule({ device }: Props) {
   const { simulationMode, importFolder, vitaOutputFolder, romsParallelism } = useSettings()

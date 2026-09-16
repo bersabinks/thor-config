@@ -17,14 +17,24 @@ contextBridge.exposeInMainWorld('electronAPI', {
       ipcRenderer.invoke('adb:getPackageInfo', serial, packageName),
     waitForDevice: (serial: string, timeoutMs?: number) =>
       ipcRenderer.invoke('adb:waitForDevice', serial, timeoutMs),
+    getSetupState: () => ipcRenderer.invoke('adb:getSetupState'),
+    retrySetup: () => ipcRenderer.invoke('adb:retrySetup'),
+    onSetupState: (cb: (state: unknown) => void) => {
+      const listener = (_e: unknown, state: unknown) => cb(state)
+      ipcRenderer.on('adb:setupState', listener)
+      return () => ipcRenderer.removeListener('adb:setupState', listener)
+    },
+  },
+  diagnostics: {
+    export: (auditLogJson: string) => ipcRenderer.invoke('diagnostics:export', auditLogJson),
   },
   settings: {
     get: (key: string) => ipcRenderer.invoke('settings:get', key),
     set: (key: string, value: unknown) => ipcRenderer.invoke('settings:set', key, value),
   },
   emulators: {
-    prepareApk: (id: string, githubRepo: string, assetPattern: string) =>
-      ipcRenderer.invoke('emulators:prepareApk', id, githubRepo, assetPattern),
+    prepareApk: (source: unknown) => ipcRenderer.invoke('emulators:prepareApk', source),
+    latestVersion: (source: unknown) => ipcRenderer.invoke('emulators:latestVersion', source),
     applyConfig: (serial: string, configPath: string, settings: Record<string, string>) =>
       ipcRenderer.invoke('emulators:applyConfig', serial, configPath, settings),
     verifyConfig: (serial: string, configPath: string, settings: Record<string, string>) =>
@@ -88,5 +98,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
     resolvePcOutputDir: (configured: string) =>
       ipcRenderer.invoke('vita:resolvePcOutputDir', configured),
     removeWorkDir: (dir: string) => ipcRenderer.invoke('vita:removeWorkDir', dir),
+    downloadFirmware: (id: string) => ipcRenderer.invoke('vita:downloadFirmware', id),
   },
 })

@@ -23,6 +23,8 @@
     ]
   },
   nsis: {
+    // Nom sans espaces : la CI le republie tel quel sous le tag fixe latest-test.
+    artifactName: "ThorConfig-Setup-${version}.${ext}",
     shortcutName: "${productName}",
     uninstallDisplayName: "${productName}",
     createDesktopShortcut: "always",

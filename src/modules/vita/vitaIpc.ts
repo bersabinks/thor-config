@@ -1,5 +1,62 @@
 import { buildSfo } from './sfo'
 import { VITA_TARGETS, type VitaIpc } from './vitaProcess'
+import { VITA_FIRMWARE_PACKAGES, type VitaFirmwareIpc } from './firmware'
+
+/** IPC réel du firmware Vita3K : téléchargement vérifié côté main + ADB. */
+export function makeDefaultVitaFirmwareIpc(): VitaFirmwareIpc {
+  const adb = window.electronAPI.adb
+  const roms = window.electronAPI.roms
+  return {
+    getPackageInfo: (serial, pkg) => adb.getPackageInfo(serial, pkg),
+    downloadFirmware: (id) => window.electronAPI.vita.downloadFirmware(id),
+    ensureRemoteDir: (serial, dir) => roms.ensureRemoteDir(serial, dir),
+    pushFile: (serial, local, remote) => adb.pushFile(serial, local, remote),
+    sha256Device: (serial, remote) => roms.sha256Device(serial, remote),
+  }
+}
+
+export interface SimulationVitaFirmwareOptions {
+  /** Vita3K présent sur la console simulée (défaut true). */
+  vita3kInstalled?: boolean
+}
+
+/** Firmware en simulation : aucun téléchargement, hash officiels, console en mémoire. */
+export function makeSimulationVitaFirmwareIpc(
+  opts: SimulationVitaFirmwareOptions = {}
+): VitaFirmwareIpc & { pushed: string[] } {
+  const installed = opts.vita3kInstalled ?? true
+  const local = new Map<string, string>()
+  const device = new Map<string, string>()
+  const pushed: string[] = []
+
+  return {
+    pushed,
+    async getPackageInfo(_serial, pkg) {
+      return installed && pkg === VITA_TARGETS.vita3kPackageName ? { versionName: 'sim-1.0' } : null
+    },
+    async downloadFirmware(id) {
+      const pkg = VITA_FIRMWARE_PACKAGES.find((p) => p.id === id)
+      if (!pkg) throw new Error(`Paquet firmware inconnu : ${id}`)
+      const localPath = `sim://firmware/${id}/${pkg.fileName}`
+      local.set(localPath, pkg.sha256)
+      return { localPath, sha256: pkg.sha256, fromCache: false }
+    },
+    async ensureRemoteDir() {
+      /* no-op */
+    },
+    async pushFile(_serial, localPath, remotePath) {
+      const sha = local.get(localPath)
+      if (!sha) throw new Error(`local : absent ${localPath}`)
+      device.set(remotePath, sha)
+      pushed.push(remotePath)
+    },
+    async sha256Device(_serial, remotePath) {
+      const sha = device.get(remotePath)
+      if (!sha) throw new Error(`sha256sum: ${remotePath}: No such file or directory`)
+      return sha
+    },
+  }
+}
 
 /** IPC réel : archives et fichiers locaux côté main, opérations ADB existantes. */
 export function makeDefaultVitaIpc(): VitaIpc {

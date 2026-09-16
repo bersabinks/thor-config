@@ -57,29 +57,22 @@ export const MOCK_FIXTURES: MockFixtures = {
     'ro.sf.lcd_density': '240',
   },
 
-  // Clé = sous-chaîne de la commande shell ; valeur = réponse simulée
-  // Les commandes am start mettent à jour lastLaunchedContext pour que le dump XML soit cohérent
+  // Réponses statiques : clé = sous-chaîne de la commande shell ; valeur = réponse simulée.
+  // Les commandes à état (settings, pm list packages, fichiers, launcher) sont
+  // gérées par SimulatedDevice (simulatedDevice.ts), consulté avant cette table.
   shellResponses: {
     // Prompt 1
     'input keyevent KEYCODE_WAKEUP': '',
     'dumpsys power | grep mWakefulness': 'mWakefulness=Awake',
-    'sha256sum': 'abc123def456  /sdcard/test.rom',
 
     // Prompt 8 — pré-vérification espace disque (df -k /sdcard) : ~85 Gio libres
     'df -k':
       'Filesystem     1K-blocks     Used Available Use% Mounted on\n/dev/fuse      117440512 27262976  90177536  24% /storage/emulated',
 
-    // Navigation par gestes
-    'settings put secure navigation_mode': '',
-    'settings get secure navigation_mode': '2',
-
     // Firmware
-    'getprop ro.build.version.incremental': '20240101.001',
     'am start -a android.settings.SYSTEM_UPDATE_SETTINGS': '',
 
     // AYN Settings
-    'pm list packages | grep ayn': 'package:com.ayn.settings',
-    'pm list packages': 'package:com.ayn.settings\npackage:org.emulator.dolphin\n',
     'monkey -p com.ayn.settings': '',
     'am start -n com.ayn.settings': '',
 
@@ -93,10 +86,21 @@ export const MOCK_FIXTURES: MockFixtures = {
   installedPackages: {
     // Émulateurs pré-installés en simulation (version correspond à prepareApk sim-1.0)
     // Les clés DOIVENT correspondre aux packageName de sources.json (cf. sources.test.ts).
-    'me.magnum.melonds': { packageName: 'me.magnum.melonds', versionName: 'sim-1.0', versionCode: 10000 },
+    // WatermelonDS 0.7.0 : applicationId relevé dans le manifeste de l'APK de release.
+    'me.magnum.melondualds': { packageName: 'me.magnum.melondualds', versionName: 'sim-1.0', versionCode: 10000 },
     'org.azahar_emu.azahar': { packageName: 'org.azahar_emu.azahar', versionName: 'sim-1.0', versionCode: 10000 },
     'org.dolphinemu.dolphinemu': { packageName: 'org.dolphinemu.dolphinemu', versionName: 'sim-1.0', versionCode: 10000 },
     'info.cemu.cemu': { packageName: 'info.cemu.cemu', versionName: 'sim-1.0', versionCode: 10000 },
+    'org.ppsspp.ppsspp': { packageName: 'org.ppsspp.ppsspp', versionName: 'sim-1.0', versionCode: 10000 },
+    // DuckStation : présent sur une console « déjà configurée » (installé via Google Play),
+    // jamais installé par ThorConfig.
+    'com.github.stenzek.duckstation': {
+      packageName: 'com.github.stenzek.duckstation',
+      versionName: 'sim-1.0',
+      versionCode: 10000,
+    },
+    // Gestionnaire de mises à jour (src/modules/emulators/obtainium.json)
+    'dev.imranr.obtainium': { packageName: 'dev.imranr.obtainium', versionName: 'sim-1.0', versionCode: 10000 },
 
     // Utilitaires pré-installés en simulation
     'com.aure.clustertune': { packageName: 'com.aure.clustertune', versionName: 'sim-1.0', versionCode: 10000 },

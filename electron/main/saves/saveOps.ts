@@ -24,7 +24,9 @@ function resolveLocal(virtualPath: string): string {
 }
 
 export async function listDeviceFiles(serial: string, deviceDir: string): Promise<string[]> {
-  const out = await getAdbClient().shell(serial, `find '${deviceDir}' -type f 2>/dev/null`)
+  // Dossier absent (émulateur jamais lancé) → find sort en code 1, que le client
+  // réel transforme en erreur : `|| true` le ramène à « aucune sauvegarde ».
+  const out = await getAdbClient().shell(serial, `find '${deviceDir}' -type f 2>/dev/null || true`)
   return out
     .split('\n')
     .map((l) => l.trim())

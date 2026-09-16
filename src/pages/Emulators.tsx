@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { DeviceStatus } from '../components/DeviceStatus'
 import { ExecutionLog } from '../components/ExecutionLog'
 import { EmulatorsModule } from '../components/EmulatorsModule'
+import { EmulatorUpdates } from '../components/EmulatorUpdates'
 import type { AdbDevice } from '../../electron/main/adb/types'
 import { useSettings } from '../store/settings'
 
@@ -35,7 +36,8 @@ export function Emulators() {
         <div>
           <h2>Émulateurs</h2>
           <p className="page-desc">
-            Installe et configure automatiquement MelonDS, Azahar, Dolphin et Cemu.
+            Installe automatiquement WatermelonDS, Azahar, Dolphin, Cemu et PPSSPP, puis Obtainium pour
+            les mises à jour. DuckStation (PS1) n'existe que sur Google Play : à installer à la main.
           </p>
         </div>
         <DeviceStatus />
@@ -43,6 +45,7 @@ export function Emulators() {
 
       <div className="page-content page-content--fill">
         <EmulatorsModule device={device} />
+        <EmulatorUpdates device={device} />
         <ExecutionLog />
       </div>
     </div>

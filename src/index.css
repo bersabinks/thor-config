@@ -878,6 +878,62 @@ code {
 }
 .guide-setting__path { color: var(--text-muted); }
 .guide-setting__value { color: var(--text); font-weight: 600; text-align: right; }
+.guide-thor {
+  margin-top: 8px;
+  padding: 8px 10px;
+  border-left: 3px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.guide-thor__title { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; }
+.guide-thor__text { font-size: 12px; color: var(--text-muted); margin: 0 0 4px 10px; line-height: 1.45; }
+.guide-thor__shot { margin: 6px 0 0; }
+.guide-thor__shot img { max-width: 100%; border-radius: 6px; border: 1px solid var(--border); }
+
+/* ── Indicateur Zero-Setup ADB ───────────────── */
+.adb-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+}
+.adb-badge--busy { color: var(--warning); border-color: rgba(245,158,11,0.3); background: rgba(245,158,11,0.1); }
+.adb-badge--ok { color: var(--success); border-color: rgba(34,197,94,0.3); background: rgba(34,197,94,0.08); }
+.adb-badge--error { color: var(--error); border-color: rgba(239,68,68,0.3); background: rgba(239,68,68,0.08); }
+.adb-badge__retry {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* ── Mises à jour des émulateurs ─────────────── */
+.update-list { display: flex; flex-direction: column; gap: 6px; }
+.update-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto auto;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 10px;
+  border-radius: 6px;
+  background: rgba(255,255,255,0.03);
+}
+.update-row__name { font-size: 13px; font-weight: 600; }
+.update-row__version { white-space: nowrap; }
+
+/* ── Pack de diagnostic ──────────────────────── */
+.diagnostic-export { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
+.diagnostic-result { display: flex; flex-direction: column; gap: 2px; }
+.hash { word-break: break-all; user-select: all; }
 
 /* ── Liste des échecs ────────────────────────── */
 .failure-item {

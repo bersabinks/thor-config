@@ -37,7 +37,9 @@ function headerWithMagic(offset: number, hex: string, totalLen: number): Uint8Ar
 }
 
 const GC_MAGIC = headerWithMagic(28, 'C2339F3D', 64)
-const PS2_MAGIC = headerWithMagic(32769, '4344303031', 0x8010)
+const PS2_MAGIC = headerWithMagic(32769, '4344303031', 0x8020)
+const PSP_MAGIC = headerWithMagic(32776, '5053502047414D45', 0x8020) // systemId « PSP GAME »
+const PS1_MAGIC = headerWithMagic(0, '00FFFFFFFFFFFFFFFFFFFFFF00', 64) // synchro CD brute 2352
 const EMPTY = new Uint8Array(0)
 
 const SIM_SAMPLES: Sample[] = [
@@ -46,6 +48,9 @@ const SIM_SAMPLES: Sample[] = [
   { path: 'Final Fantasy X (USA) (Disc 1).iso', header: PS2_MAGIC }, // ps2 + multi-disque
   { path: 'Final Fantasy X (USA) (Disc 2).iso', header: PS2_MAGIC },
   { path: 'Wii Sports (USA).wbfs', header: EMPTY }, // wii par extension
+  { path: 'God of War (USA).iso', header: PSP_MAGIC }, // psp par signature (.iso ambigu)
+  { path: 'Metal Gear Solid (USA) (Disc 1).bin', header: PS1_MAGIC }, // ps1 + multi-disque
+  { path: 'Metal Gear Solid (USA) (Disc 2).bin', header: PS1_MAGIC },
 ]
 
 export const SIMULATION_SAMPLE_FILES = SIM_SAMPLES.map((s) => s.path)

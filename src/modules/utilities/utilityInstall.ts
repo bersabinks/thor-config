@@ -25,8 +25,17 @@ export interface UtilityIpc {
 
 export function makeDefaultIpc(): UtilityIpc {
   return {
+    // Les utilitaires téléchargés le sont tous via GitHub (le cas Play Store
+    // retourne avant d'atteindre prepareApk). packageName n'est lu par le main
+    // que pour les sources F-Droid, d'où la chaîne vide ici.
     prepareApk: (id, repo, pattern) =>
-      window.electronAPI.emulators.prepareApk(id, repo, pattern),
+      window.electronAPI.emulators.prepareApk({
+        id,
+        sourceType: 'github',
+        githubRepo: repo,
+        assetPattern: pattern,
+        packageName: '',
+      }),
     installApk: (serial, path) => window.electronAPI.adb.installApk(serial, path),
     getPackageInfo: (serial, pkg) => window.electronAPI.adb.getPackageInfo(serial, pkg),
     shell: (serial, cmd) => window.electronAPI.adb.shell(serial, cmd),

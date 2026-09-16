@@ -1,0 +1,11 @@
+{
+  "_verified": "2026-09-15 — dépôt, asset et packageName relevés sur ImranR98/Obtainium v1.6.17 : applicationId dev.imranr.obtainium (flavor normal ; le flavor fdroid ajoute .fdroid), asset arm64 app-arm64-v8a-release.apk accompagné de app-arm64-v8a-release.apk.sha256.",
+  "_importNote": "Obtainium stocke ses apps dans Android/data/dev.imranr.obtainium/files/app_data (inaccessible par ADB sans root) et ne lit aucun apps.json à un chemin fixe. Import officiel : lien obtainium://apps/<JSON> (dialogue de confirmation) ou Import/Export → sélecteur de fichier.",
+  "id": "obtainium",
+  "displayName": "Obtainium",
+  "sourceType": "github",
+  "githubRepo": "ImranR98/Obtainium",
+  "assetPattern": "^app-arm64-v8a-release\\.apk$",
+  "packageName": "dev.imranr.obtainium",
+  "appsJsonRemotePath": "/sdcard/Download/thorconfig-obtainium-apps.json"
+}

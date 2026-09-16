@@ -1,5 +1,9 @@
 import type { AdbDevice, PackageInfo } from '../../electron/main/adb/types'
 import type { PrepareApkResult } from '../../electron/main/emulators/source'
+import type { PrepareApkSource } from '../modules/emulators/emulatorInstall'
+import type { AdbSetupState } from '../../electron/main/adb/platformTools'
+import type { DiagnosticPackResult } from '../../electron/main/diagnostics/diagnosticPack'
+import type { FirmwareDownloadResult } from '../../electron/main/vita/firmwareDownload'
 
 export interface ElectronAPI {
   adb: {
@@ -12,13 +16,23 @@ export interface ElectronAPI {
     uninstallApk(serial: string, packageName: string): Promise<void>
     getPackageInfo(serial: string, packageName: string): Promise<PackageInfo | null>
     waitForDevice(serial: string, timeoutMs?: number): Promise<void>
+    /** Zero-Setup ADB : état courant, relance, abonnement aux changements. */
+    getSetupState(): Promise<AdbSetupState>
+    retrySetup(): Promise<AdbSetupState>
+    onSetupState(cb: (state: AdbSetupState) => void): () => void
+  }
+  diagnostics: {
+    /** Ouvre la boîte « Enregistrer sous » ; null si annulé. */
+    export(auditLogJson: string): Promise<DiagnosticPackResult | null>
   }
   settings: {
     get(key: string): Promise<unknown>
     set(key: string, value: unknown): Promise<void>
   }
   emulators: {
-    prepareApk(id: string, githubRepo: string, assetPattern: string): Promise<PrepareApkResult>
+    prepareApk(source: PrepareApkSource): Promise<PrepareApkResult>
+    /** Dernière version publiée (GitHub/F-Droid), sans téléchargement. */
+    latestVersion(source: PrepareApkSource): Promise<{ version: string }>
     applyConfig(serial: string, configPath: string, settings: Record<string, string>): Promise<void>
     verifyConfig(
       serial: string,
@@ -67,6 +81,7 @@ export interface ElectronAPI {
     copyLocal(sourcePath: string, destPath: string): Promise<void>
     resolvePcOutputDir(configured: string): Promise<string>
     removeWorkDir(workDir: string): Promise<void>
+    downloadFirmware(id: string): Promise<FirmwareDownloadResult>
   }
 }
 

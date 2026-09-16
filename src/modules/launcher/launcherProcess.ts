@@ -1,4 +1,5 @@
 import { runVerifiedAction, type StepResult } from '../../verification'
+import { describeError } from '../../../electron/main/adb/errors'
 import {
   isPackageListed,
   parseCount,
@@ -48,9 +49,7 @@ export const LAUNCHER_COMMANDS = {
   countFiles: (dir: string) => `find '${dir}' -type f 2>/dev/null | wc -l`,
 }
 
-function errorMessage(err: unknown): string {
-  return err instanceof Error ? err.message : String(err)
-}
+const errorMessage = describeError
 
 function makeStep(
   label: string,

@@ -33,6 +33,7 @@ export {
 export {
   runPreChecks,
   makeDefaultPreCheckIpc,
+  makeDeviceGuard,
   parseDfAvailableBytes,
   type PreCheckIpc,
   type PreCheckOptions,
@@ -41,12 +42,16 @@ export {
 
 export {
   EMULATOR_GUIDES,
+  MANUAL_INSTALL_NOTE,
+  THOR_MAX_HARDWARE,
   guideFor,
   UTILITY_GUIDES,
   utilityGuideFor,
   type EmulatorGuide,
   type UtilityGuide,
   type GuideSetting,
+  type GuideScreenshot,
+  type ThorMaxTuning,
 } from './emulatorGuide'
 
 export { buildThorModules, type BuildModulesOptions } from './thorModules'

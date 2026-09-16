@@ -3,6 +3,13 @@ import systemMapJson from './systemMap.json'
 export interface MagicSignature {
   offset: number
   hex: string
+  /**
+   * Restreint la signature à ces extensions. Nécessaire quand une même suite
+   * d'octets appartient à plusieurs formats : « CISO » est à la fois l'en-tête
+   * d'un .cso PSP et d'un .ciso GameCube, la synchro CD brute est commune à
+   * toutes les images 2352 o/secteur.
+   */
+  extensions?: string[]
 }
 
 export interface SystemDef {
@@ -11,14 +18,21 @@ export interface SystemDef {
   folder: string
   extensions: string[]
   chd: boolean
+  /** Jeux livrés sur plusieurs disques → playlists .m3u (CD-ROM : PS1, PS2). */
+  multiDisc?: boolean
   magic: MagicSignature[]
 }
 
+/**
+ * L'ORDRE COMPTE : la première signature qui matche gagne. Les systèmes aux
+ * signatures spécifiques (PSP) doivent précéder ceux aux signatures génériques
+ * (PS2 = marqueur ISO9660 CD001, présent dans tout disque de données).
+ */
 export const SYSTEMS = systemMapJson as SystemDef[]
 
 /** Nombre d'octets d'en-tête à lire pour couvrir toutes les signatures connues
- *  (la plus lointaine est le "CD001" ISO9660 de la PS2 à l'offset 0x8001). */
-export const HEADER_READ_LENGTH = 0x8010
+ *  (la plus lointaine est le systemId « "PSP GAME" » à 0x8008 + 10 octets). */
+export const HEADER_READ_LENGTH = 0x8020
 
 export type IdentificationMethod = 'magic' | 'extension' | 'none'
 
@@ -47,7 +61,8 @@ function hexAt(header: Uint8Array, offset: number, byteLen: number): string | nu
   return out.toUpperCase()
 }
 
-function magicMatches(header: Uint8Array, sig: MagicSignature): boolean {
+function magicMatches(header: Uint8Array, sig: MagicSignature, ext: string): boolean {
+  if (sig.extensions && !sig.extensions.includes(ext)) return false
   const byteLen = sig.hex.length / 2
   const actual = hexAt(header, sig.offset, byteLen)
   return actual !== null && actual === sig.hex.toUpperCase()
@@ -65,15 +80,16 @@ function magicMatches(header: Uint8Array, sig: MagicSignature): boolean {
  *     'unknown' (extension inconnue).
  */
 export function identifySystem(filename: string, header?: Uint8Array): Identification {
+  const ext = extensionOf(filename)
+
   if (header && header.length > 0) {
     for (const system of SYSTEMS) {
-      if (system.magic.some((sig) => magicMatches(header, sig))) {
+      if (system.magic.some((sig) => magicMatches(header, sig, ext))) {
         return { system, method: 'magic' }
       }
     }
   }
 
-  const ext = extensionOf(filename)
   if (!ext) return { system: null, method: 'none', reason: 'unknown' }
 
   const byExt = SYSTEMS.filter((s) => s.extensions.includes(ext))

@@ -1,4 +1,5 @@
 import { ExecutionLog } from '../components/ExecutionLog'
+import { DiagnosticExport } from '../components/DiagnosticExport'
 import { useAuditLog } from '../store/auditLog'
 import { tally } from '../modules/orchestrator'
 
@@ -58,6 +59,19 @@ export function Report() {
                 </div>
               </>
             )}
+          </div>
+        </div>
+
+        <div className="card">
+          <div className="card-header">
+            <h3>Diagnostic</h3>
+            <p className="card-desc">
+              Archive à envoyer au développeur en cas de problème : journal d'audit, logs de
+              l'application du jour, propriétés de la console et dernier écran analysé.
+            </p>
+          </div>
+          <div className="card-body">
+            <DiagnosticExport />
           </div>
         </div>
 

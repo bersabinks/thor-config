@@ -12,7 +12,7 @@ interface Props {
 }
 
 const EMULATORS = [
-  { id: 'melonds-ds', name: 'MelonDS' },
+  { id: 'watermelonds', name: 'WatermelonDS' },
   { id: 'azahar', name: 'Azahar' },
   { id: 'dolphin', name: 'Dolphin' },
   { id: 'cemu', name: 'Cemu' },
@@ -29,7 +29,7 @@ interface HistoryEntry {
 
 export function SavesModule({ device }: Props) {
   const { simulationMode } = useSettings()
-  const [emulatorId, setEmulatorId] = useState('melonds-ds')
+  const [emulatorId, setEmulatorId] = useState('watermelonds')
   const [runStatus, setRunStatus] = useState<RunStatus>('idle')
   const [steps, setSteps] = useState<StepResult[]>([])
   const [lastBackupId, setLastBackupId] = useState<string | null>(null)

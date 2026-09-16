@@ -1,4 +1,12 @@
-import { EMULATOR_GUIDES, UTILITY_GUIDES } from '../modules/orchestrator'
+import { EMULATOR_GUIDES, MANUAL_INSTALL_NOTE, THOR_MAX_HARDWARE, UTILITY_GUIDES } from '../modules/orchestrator'
+import sources from '../modules/emulators/sources.json'
+import type { EmulatorSource } from '../modules/emulators/emulatorInstall'
+import { DiagnosticExport } from './DiagnosticExport'
+import {
+  OBTAINIUM_APPS_JSON_REMOTE_PATH,
+  OBTAINIUM_INSTALLED_MESSAGE,
+  OBTAINIUM_SOURCE,
+} from '../modules/emulators'
 import {
   reportToJson,
   reportToMarkdown,
@@ -59,6 +67,18 @@ export function FinalReport({ report, modules, meta, onRerunFailed, rerunning, h
   const { totals } = report
   const guides = installedGuides(modules)
   const utilityGuides = installedUtilityGuides(modules)
+  // Émulateurs dont l'installation a été ignorée faute de source téléchargeable.
+  const manualInstall = (sources as EmulatorSource[]).filter(
+    (s) =>
+      s.sourceType === 'playstore' &&
+      modules
+        .find((m) => m.moduleId === 'emulators')
+        ?.steps.some((step) => step.label === `${s.displayName} — Installation` && step.status === 'skipped')
+  )
+  const obtainiumInstalled =
+    modules
+      .find((m) => m.moduleId === 'emulators')
+      ?.steps.some((s) => s.label === `${OBTAINIUM_SOURCE.displayName} — Installation` && s.status === 'success') ?? false
 
   const failures = report.perModule.filter((m) => m.failures.length > 0)
 
@@ -115,6 +135,9 @@ export function FinalReport({ report, modules, meta, onRerunFailed, rerunning, h
               </button>
             )}
           </div>
+          <div style={{ marginTop: 12 }}>
+            <DiagnosticExport />
+          </div>
         </div>
       </div>
 
@@ -166,6 +189,40 @@ export function FinalReport({ report, modules, meta, onRerunFailed, rerunning, h
         </div>
       )}
 
+      {/* ── Gestionnaire de mises à jour ────────────────────────────────── */}
+      {obtainiumInstalled && (
+        <div className="card">
+          <div className="card-header">
+            <h3>Mises à jour des émulateurs</h3>
+          </div>
+          <div className="card-body">
+            <p className="step-label">{OBTAINIUM_INSTALLED_MESSAGE}</p>
+            <p className="hint">
+              Confirmez l’import des émulateurs dans la fenêtre Obtainium ouverte sur la console. Si elle
+              n’apparaît pas : Obtainium → Import/Export → Obtainium Import →{' '}
+              <code>{OBTAINIUM_APPS_JSON_REMOTE_PATH}</code>.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* ── Émulateurs à installer à la main ────────────────────────────── */}
+      {manualInstall.length > 0 && (
+        <div className="card">
+          <div className="card-header">
+            <h3>Installation manuelle requise</h3>
+          </div>
+          <div className="card-body">
+            <p className="step-label">{MANUAL_INSTALL_NOTE}</p>
+            <p className="hint">
+              Sur la console : Google Play → rechercher «{' '}
+              {manualInstall.map((s) => s.displayName.replace(/\s*\(.*\)$/, '')).join(', ')} » → Installer.
+              Les réglages recommandés sont dans la fiche ci-dessous.
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* ── Guide de configuration guidée des émulateurs ────────────────── */}
       {guides.length > 0 && (
         <div className="card">
@@ -175,6 +232,11 @@ export function FinalReport({ report, modules, meta, onRerunFailed, rerunning, h
               Les réglages des émulateurs vivent dans <code>/data/data/…</code> et ne sont pas
               modifiables par ADB sans root (confirmé par enquête). À faire une fois, à la main, dans
               chaque émulateur installé — les valeurs ci-dessous correspondent aux profils cibles.
+            </p>
+            <p className="card-desc">
+              Réglages AYN Thor Max : {THOR_MAX_HARDWARE.soc} / {THOR_MAX_HARDWARE.gpu}, écran
+              principal {THOR_MAX_HARDWARE.mainScreen}.
+              {!THOR_MAX_HARDWARE.verifiedOnHardware && ' Valeurs recommandées, encore à valider sur la console.'}
             </p>
           </div>
           <div className="card-body">
@@ -188,6 +250,32 @@ export function FinalReport({ report, modules, meta, onRerunFailed, rerunning, h
                       <span className="guide-setting__path">{s.path}</span>
                       <span className="guide-setting__value">{s.value}</span>
                     </div>
+                  ))}
+                </div>
+
+                <div className="guide-thor">
+                  <div className="guide-thor__title">Spécifique AYN Thor Max</div>
+                  <div className="guide-setting">
+                    <span className="guide-setting__path">Pilote graphique</span>
+                    <span className="guide-setting__value">
+                      {g.thor.gpuDriver.applicable ? `Turnip (${THOR_MAX_HARDWARE.gpu})` : 'Non applicable'}
+                    </span>
+                  </div>
+                  <p className="guide-thor__text">{g.thor.gpuDriver.instructions}</p>
+                  <div className="guide-setting">
+                    <span className="guide-setting__path">Résolution interne recommandée</span>
+                    <span className="guide-setting__value">{g.thor.internalResolution.value}</span>
+                  </div>
+                  <p className="guide-thor__text">{g.thor.internalResolution.rationale}</p>
+                  <div className="guide-setting">
+                    <span className="guide-setting__path">Gâchettes analogiques L2/R2</span>
+                  </div>
+                  <p className="guide-thor__text">{g.thor.triggers}</p>
+                  {g.screenshots.map((shot) => (
+                    <figure key={shot.src} className="guide-thor__shot">
+                      <img src={shot.src} alt={shot.caption} />
+                      <figcaption className="hint">{shot.caption}</figcaption>
+                    </figure>
                   ))}
                 </div>
               </div>

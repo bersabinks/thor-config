@@ -3,6 +3,8 @@ import { dirname, isAbsolute, join, relative, resolve } from 'path'
 import { mkdirSync, readFileSync, writeFileSync } from 'fs'
 import * as archive from './archive'
 import { TITLE_ID_RE } from '../../../src/modules/vita/sfo'
+import firmwareJson from '../../../src/modules/vita/vitaFirmware.json'
+import { downloadVerifiedFile, type FirmwareDownloadResult } from './firmwareDownload'
 
 function vitaCacheRoot(): string {
   return join(app.getPath('userData'), 'cache', 'vita')
@@ -68,6 +70,16 @@ export async function resolvePcOutputDir(configured: string): Promise<string> {
   const dir = configured || join(app.getPath('documents'), 'ThorConfig', 'PSVita')
   mkdirSync(dir, { recursive: true })
   return dir
+}
+
+/**
+ * Télécharge un paquet firmware Vita3K. Le renderer ne transmet qu'un id : URL,
+ * taille et SHA-256 viennent du JSON embarqué, jamais de l'appelant.
+ */
+export async function downloadFirmware(id: string): Promise<FirmwareDownloadResult> {
+  const pkg = firmwareJson.packages.find((p) => p.id === id)
+  if (!pkg) throw new Error(`Paquet firmware inconnu : ${id}`)
+  return downloadVerifiedFile(pkg, join(vitaCacheRoot(), 'firmware'))
 }
 
 /** Supprime un dossier de travail — refusé en dehors du cache PS Vita. */

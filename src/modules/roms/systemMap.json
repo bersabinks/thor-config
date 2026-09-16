@@ -43,11 +43,37 @@
     "magic": [{ "offset": 0, "hex": "57555830" }]
   },
   {
+    "_note": "PSP AVANT PS2 : la signature PS2 (CD001 à 0x8001) est le marqueur ISO9660 générique, présent aussi dans un ISO PSP. Les signatures PSP sont spécifiques (systemId « PSP GAME » à 0x8008, vérifié dans PPSSPP Core/Loaders.cpp) et doivent donc être testées en premier.",
+    "id": "psp",
+    "displayName": "Sony PlayStation Portable",
+    "folder": "psp",
+    "extensions": [".iso", ".cso"],
+    "chd": false,
+    "multiDisc": false,
+    "magic": [
+      { "offset": 32776, "hex": "5053502047414D45" },
+      { "offset": 32776, "hex": "225053502047414D4522" },
+      { "offset": 0, "hex": "4349534F", "extensions": [".cso"] }
+    ]
+  },
+  {
+    "_note": "CD001 est le marqueur ISO9660 générique : il ne distingue pas la PS2 d'un autre disque de données (PSP, PS1 en .iso). Conservé en dernier recours, après les signatures spécifiques.",
     "id": "ps2",
     "displayName": "Sony PlayStation 2",
     "folder": "ps2",
     "extensions": [".iso", ".bin"],
     "chd": true,
+    "multiDisc": true,
     "magic": [{ "offset": 32769, "hex": "4344303031" }]
+  },
+  {
+    "_note": "Image CD brute 2352 o/secteur : chaque secteur commence par la synchro 00 FF×10 00. Restreinte au .bin car c'est le conteneur brut ; un .bin PS2 brut (rare, jeux CD) tomberait aussi dessus — voir README/TODO.",
+    "id": "ps1",
+    "displayName": "Sony PlayStation",
+    "folder": "psx",
+    "extensions": [".bin", ".cue", ".chd"],
+    "chd": true,
+    "multiDisc": true,
+    "magic": [{ "offset": 0, "hex": "00FFFFFFFFFFFFFFFFFFFFFF00", "extensions": [".bin"] }]
   }
 ]
