@@ -15,6 +15,7 @@ import {
   type ReportSummary,
 } from '../modules/orchestrator'
 import { FinalReport } from './FinalReport'
+import { TesterChecklist } from './TesterChecklist'
 import { useAuditLog } from '../store/auditLog'
 import { useSettings } from '../store/settings'
 import type { AdbDevice } from '../../electron/main/adb/types'
@@ -39,6 +40,7 @@ const MODULE_STEPS: { id: string; name: string }[] = [
   { id: 'saves', name: 'Sauvegardes' },
   { id: 'vita', name: 'PS Vita' },
   { id: 'launcher', name: 'Launcher' },
+  { id: 'utilities', name: 'Utilitaires' },
 ]
 
 const PHASE_LABEL: Record<ModulePhase, string> = {
@@ -156,12 +158,14 @@ export function OrchestratorModule({ device }: Props) {
 
   return (
     <>
+      <TesterChecklist device={device} defaultExpanded={!device || device.state === 'unauthorized'} />
+
       <div className="card">
         <div className="card-header">
           <h3>Configurer ma console</h3>
           <p className="card-desc">
             Un seul bouton enchaîne, dans l'ordre et en les vérifiant : Préparation → Émulateurs →
-            ROMs → Sauvegardes → PS Vita → Launcher. Si la console se déconnecte en cours de route,
+            ROMs → Sauvegardes → PS Vita → Launcher → Utilitaires. Si la console se déconnecte en cours de route,
             l'orchestrateur se met en pause et reprend automatiquement — sans refaire ce qui est déjà
             terminé.
           </p>

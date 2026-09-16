@@ -1,5 +1,6 @@
 type Page =
   | 'configure'
+  | 'guide'
   | 'home'
   | 'emulators'
   | 'roms'
@@ -17,6 +18,7 @@ interface SidebarProps {
 
 const NAV_ITEMS: { id: Page; label: string; icon: string; available: boolean }[] = [
   { id: 'configure', label: 'Configurer ma console', icon: '⚡', available: true },
+  { id: 'guide', label: 'Guide & Checklist', icon: '📖', available: true },
   { id: 'home', label: 'Préparation', icon: '⚙', available: true },
   { id: 'emulators', label: 'Émulateurs', icon: '🎮', available: true },
   { id: 'roms', label: 'ROMs', icon: '💿', available: true },

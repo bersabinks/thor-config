@@ -274,7 +274,3 @@ export const UTILITY_GUIDES: UtilityGuide[] = [
     ],
   },
 ]
-
-export function utilityGuideFor(id: string): UtilityGuide | undefined {
-  return UTILITY_GUIDES.find((g) => g.id === id)
-}

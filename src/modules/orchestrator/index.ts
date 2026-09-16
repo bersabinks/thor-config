@@ -46,7 +46,6 @@ export {
   THOR_MAX_HARDWARE,
   guideFor,
   UTILITY_GUIDES,
-  utilityGuideFor,
   type EmulatorGuide,
   type UtilityGuide,
   type GuideSetting,

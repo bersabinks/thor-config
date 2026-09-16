@@ -2,6 +2,7 @@
   "name": "thor-config",
   "version": "1.0.0",
   "description": "Application de configuration automatique pour AYN Thor Max",
+  "author": "ThorConfig Team",
   "main": "out/main/index.js",
   "scripts": {
     "dev": "electron-vite dev",

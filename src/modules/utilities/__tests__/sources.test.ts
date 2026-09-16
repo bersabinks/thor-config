@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import sourcesJson from '../sources.json'
 import { MOCK_FIXTURES } from '../../../mocks/fixtures'
+import { UTILITY_GUIDES } from '../../orchestrator/emulatorGuide'
 import type { UtilitySource } from '../utilityInstall'
 
 interface ExpectedUtility {
@@ -91,6 +92,35 @@ describe('utilities/sources.json — validation du manifest', () => {
         MOCK_FIXTURES.installedPackages[src.packageName],
         `packageName "${src.packageName}" (${src.id}) absent des fixtures du mock`
       ).toBeDefined()
+    }
+  })
+})
+
+describe('UTILITY_GUIDES — couplage à sources.json et contenu', () => {
+  it('chaque guide correspond à un utilitaire existant de sources.json', () => {
+    for (const guide of UTILITY_GUIDES) {
+      const src = entries.find((s) => s.id === guide.id)
+      expect(src, `guide "${guide.id}" sans entrée correspondante dans sources.json`).toBeDefined()
+      // FinalReport associe un guide à ses étapes via « <displayName> — … » :
+      // toute divergence de displayName ferait disparaître le guide du rapport.
+      expect(guide.displayName).toBe(src?.displayName)
+    }
+  })
+
+  it('chaque guide a un displayName non vide et au moins un réglage', () => {
+    for (const guide of UTILITY_GUIDES) {
+      expect(guide.displayName.length, guide.id).toBeGreaterThan(0)
+      expect(guide.settings.length, guide.id).toBeGreaterThan(0)
+    }
+  })
+
+  it('chaque guide a une intro non vide et des réglages complets (path + value)', () => {
+    for (const guide of UTILITY_GUIDES) {
+      expect(guide.intro.length, guide.id).toBeGreaterThan(0)
+      for (const s of guide.settings) {
+        expect(s.path, guide.id).toBeTruthy()
+        expect(s.value, guide.id).toBeTruthy()
+      }
     }
   })
 })

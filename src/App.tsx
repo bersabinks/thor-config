@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Sidebar } from './components/Sidebar'
 import { Configure } from './pages/Configure'
+import { Guide } from './pages/Guide'
 import { Home } from './pages/Home'
 import { Emulators } from './pages/Emulators'
 import { Roms } from './pages/Roms'
@@ -14,6 +15,7 @@ import { useSettings } from './store/settings'
 
 type Page =
   | 'configure'
+  | 'guide'
   | 'home'
   | 'emulators'
   | 'roms'
@@ -49,6 +51,8 @@ export function App() {
     switch (activePage) {
       case 'configure':
         return <Configure />
+      case 'guide':
+        return <Guide />
       case 'home':
         return <Home />
       case 'emulators':
