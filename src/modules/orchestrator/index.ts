@@ -42,6 +42,7 @@ export {
 
 export {
   EMULATOR_GUIDES,
+  MANUAL_INSTALL_NOTE,
   THOR_MAX_HARDWARE,
   guideFor,
   type EmulatorGuide,

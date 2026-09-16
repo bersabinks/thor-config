@@ -916,6 +916,20 @@ code {
   cursor: pointer;
 }
 
+/* ── Mises à jour des émulateurs ─────────────── */
+.update-list { display: flex; flex-direction: column; gap: 6px; }
+.update-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto auto;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 10px;
+  border-radius: 6px;
+  background: rgba(255,255,255,0.03);
+}
+.update-row__name { font-size: 13px; font-weight: 600; }
+.update-row__version { white-space: nowrap; }
+
 /* ── Pack de diagnostic ──────────────────────── */
 .diagnostic-export { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
 .diagnostic-result { display: flex; flex-direction: column; gap: 2px; }

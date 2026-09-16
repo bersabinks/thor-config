@@ -31,6 +31,8 @@ export interface ElectronAPI {
   }
   emulators: {
     prepareApk(source: PrepareApkSource): Promise<PrepareApkResult>
+    /** Dernière version publiée (GitHub/F-Droid), sans téléchargement. */
+    latestVersion(source: PrepareApkSource): Promise<{ version: string }>
     applyConfig(serial: string, configPath: string, settings: Record<string, string>): Promise<void>
     verifyConfig(
       serial: string,

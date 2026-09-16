@@ -9,7 +9,7 @@ import {
   writeDiagnosticPack,
 } from '../diagnostics/diagnosticPack'
 import { getSettings, setSettings } from '../settings'
-import { prepareApk } from '../emulators/source'
+import { fetchLatestVersion, prepareApk } from '../emulators/source'
 import { applyConfig, verifyConfig } from '../emulators/configApplier'
 import * as romOps from '../roms/romOps'
 import { startImportWatcher, stopImportWatcher } from '../roms/importWatcher'
@@ -83,6 +83,10 @@ export function registerIpcHandlers(): void {
 
   ipcMain.handle('emulators:prepareApk', (_e, source: Parameters<typeof prepareApk>[0]) =>
     prepareApk(source)
+  )
+
+  ipcMain.handle('emulators:latestVersion', (_e, source: Parameters<typeof fetchLatestVersion>[0]) =>
+    fetchLatestVersion(source)
   )
 
   ipcMain.handle(

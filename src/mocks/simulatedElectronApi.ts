@@ -58,6 +58,7 @@ export function createSimulatedElectronApi(
     },
     emulators: {
       prepareApk: async ({ id }) => ({ localPath: `/mock/cache/apk/${id}/sim-1.0/${id}.apk`, version: 'sim-1.0' }),
+      latestVersion: async () => ({ version: 'sim-1.0' }),
       applyConfig: async () => {},
       verifyConfig: async (_serial, _path, expected) => ({ ...expected }),
     },

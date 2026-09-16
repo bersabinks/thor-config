@@ -34,6 +34,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   },
   emulators: {
     prepareApk: (source: unknown) => ipcRenderer.invoke('emulators:prepareApk', source),
+    latestVersion: (source: unknown) => ipcRenderer.invoke('emulators:latestVersion', source),
     applyConfig: (serial: string, configPath: string, settings: Record<string, string>) =>
       ipcRenderer.invoke('emulators:applyConfig', serial, configPath, settings),
     verifyConfig: (serial: string, configPath: string, settings: Record<string, string>) =>

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { DeviceStatus } from '../components/DeviceStatus'
 import { ExecutionLog } from '../components/ExecutionLog'
 import { EmulatorsModule } from '../components/EmulatorsModule'
+import { EmulatorUpdates } from '../components/EmulatorUpdates'
 import type { AdbDevice } from '../../electron/main/adb/types'
 import { useSettings } from '../store/settings'
 
@@ -44,6 +45,7 @@ export function Emulators() {
 
       <div className="page-content page-content--fill">
         <EmulatorsModule device={device} />
+        <EmulatorUpdates device={device} />
         <ExecutionLog />
       </div>
     </div>

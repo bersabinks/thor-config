@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { EMULATOR_GUIDES, THOR_MAX_HARDWARE, guideFor } from '../emulatorGuide'
+import { EMULATOR_GUIDES, MANUAL_INSTALL_NOTE, THOR_MAX_HARDWARE, guideFor } from '../emulatorGuide'
 import sources from '../../emulators/sources.json'
 
 describe('EMULATOR_GUIDES', () => {
@@ -58,11 +58,27 @@ describe('EMULATOR_GUIDES', () => {
     expect(Object.keys(ppsspp).some((p) => /Texture scaling/.test(p))).toBe(true)
     expect(guideFor('ppsspp')!.thor.triggers).toMatch(/L2\/R2/)
 
-    const duck = Object.fromEntries(guideFor('duckstation')!.settings.map((s) => [s.path, s.value]))
+    const duckGuide = guideFor('duckstation')!
+    const duck = Object.fromEntries(duckGuide.settings.map((s) => [s.path, s.value]))
     expect(duck['Settings → Graphics → GPU Renderer']).toBe('Vulkan')
-    expect(duck['Settings → Graphics → Internal resolution']).toBe('3×')
+    expect(duck['Settings → Graphics → Internal resolution (upscaling)']).toMatch(/3×/)
     expect(duck['Settings → Graphics → PGXP geometry correction']).toBe('Activé')
+    expect(duck['Settings → Graphics → Widescreen hack']).toMatch(/^Désactivé/)
     expect(Object.keys(duck).some((p) => /Multitap/.test(p))).toBe(true)
+
+    // L'installation manuelle est la première étape de la fiche.
+    expect(duckGuide.intro).toMatch(/Google Play Store/)
+    expect(duckGuide.settings[0].path).toMatch(/^1\. Installation/)
+    expect(duckGuide.settings[0].value).toMatch(/Google Play/)
+    // Dual Analog : gâchettes analogiques de la Thor.
+    expect(duck['Settings → Controllers → Controller 1']).toMatch(/Analog Controller/)
+    expect(duckGuide.thor.triggers).toMatch(/L2\/R2/)
+  })
+
+  it('la note du rapport final annonce l’installation manuelle', () => {
+    expect(MANUAL_INSTALL_NOTE).toBe(
+      'DuckStation non installable automatiquement — installation manuelle via Google Play requise'
+    )
   })
 
   it('WatermelonDS : réglages Thor Max avec les libellés réels de l’application', () => {
@@ -78,7 +94,9 @@ describe('EMULATOR_GUIDES', () => {
   it('la résolution recommandée ne contredit pas le réglage listé dans la fiche', () => {
     for (const guide of EMULATOR_GUIDES) {
       const listed = guide.settings.find((s) => /Internal resolution/i.test(s.path))
-      if (listed) expect(listed.value, guide.id).toBe(guide.thor.internalResolution.value)
+      // Préfixe : le réglage listé peut préciser une alternative (« 3× (4× sur les
+      // jeux 2D) »), mais doit commencer par la valeur recommandée.
+      if (listed) expect(listed.value, guide.id).toMatch(new RegExp(`^${guide.thor.internalResolution.value}`))
     }
   })
 

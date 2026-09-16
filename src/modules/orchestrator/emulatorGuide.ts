@@ -181,11 +181,19 @@ export const EMULATOR_GUIDES: EmulatorGuide[] = [
     displayName: 'DuckStation (PS1)',
     // Non installé par ThorConfig (Google Play uniquement) : libellés issus de la
     // documentation communautaire, à confirmer sur la console.
-    intro: 'À installer depuis Google Play, puis Settings (libellés à confirmer sur la console).',
+    intro:
+      'Installe DuckStation depuis le Google Play Store sur ta console (cherche « DuckStation »), puis reviens ici. ' +
+      'Libellés des réglages à confirmer sur la console (le code Android n’est pas public).',
     settings: [
+      {
+        path: '1. Installation (obligatoire, manuelle)',
+        value: 'Google Play → rechercher « DuckStation » → Installer',
+      },
       { path: 'Settings → Graphics → GPU Renderer', value: 'Vulkan' },
-      { path: 'Settings → Graphics → Internal resolution', value: '3×' },
+      { path: 'Settings → Graphics → Internal resolution (upscaling)', value: '3× (4× sur les jeux 2D)' },
       { path: 'Settings → Graphics → PGXP geometry correction', value: 'Activé' },
+      { path: 'Settings → Graphics → Widescreen hack', value: 'Désactivé (casse certains jeux)' },
+      { path: 'Settings → Controllers → Controller 1', value: 'Analog Controller (DualShock) — sticks + L2/R2 analogiques' },
       { path: 'Settings → Controllers → Multitap', value: 'Désactivé (sauf jeu 3-4 joueurs)' },
     ],
     thor: {
@@ -196,10 +204,10 @@ export const EMULATOR_GUIDES: EmulatorGuide[] = [
       internalResolution: {
         value: '3×',
         rationale:
-          '3× ≈ 1120×896 à partir des 320×240 de la PS1 : proche de la définition de l’écran, sans coût notable pour l’Adreno 740. PGXP corrige en plus le tremblement des polygones.',
+          '3× ≈ 1120×896 à partir des 320×240 de la PS1 : proche de la définition de l’écran, sans coût notable pour l’Adreno 740. 4× passe sans peine sur les jeux 2D. PGXP corrige en plus le tremblement des polygones ; le Widescreen hack, lui, déforme ou casse les jeux non prévus pour le 16/9 — à laisser désactivé.',
       },
       triggers:
-        'La manette PS1 numérique n’a pas de gâchettes analogiques : L2/R2 sont mappés en boutons. Activer le mode Analog controller (DualShock) dans les réglages de manette pour les jeux qui le gèrent.',
+        'Manette en mode Analog Controller (DualShock) : les gâchettes AYN en mode Analog alimentent L2/R2 en axes, indispensables pour les jeux de course (Gran Turismo…). En mode Digital, L2/R2 restent de simples boutons.',
     },
     screenshots: [],
   },
@@ -228,6 +236,10 @@ export const EMULATOR_GUIDES: EmulatorGuide[] = [
     screenshots: [],
   },
 ]
+
+/** Affiché dans le rapport final pour les émulateurs non installables par ADB. */
+export const MANUAL_INSTALL_NOTE =
+  'DuckStation non installable automatiquement — installation manuelle via Google Play requise'
 
 export function guideFor(id: string): EmulatorGuide | undefined {
   return EMULATOR_GUIDES.find((g) => g.id === id)

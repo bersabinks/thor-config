@@ -1,4 +1,6 @@
-import { EMULATOR_GUIDES, THOR_MAX_HARDWARE } from '../modules/orchestrator'
+import { EMULATOR_GUIDES, MANUAL_INSTALL_NOTE, THOR_MAX_HARDWARE } from '../modules/orchestrator'
+import sources from '../modules/emulators/sources.json'
+import type { EmulatorSource } from '../modules/emulators/emulatorInstall'
 import { DiagnosticExport } from './DiagnosticExport'
 import {
   OBTAINIUM_APPS_JSON_REMOTE_PATH,
@@ -52,6 +54,14 @@ function installedGuides(modules: ModuleResult[]) {
 export function FinalReport({ report, modules, meta, onRerunFailed, rerunning, hasFailures }: Props) {
   const { totals } = report
   const guides = installedGuides(modules)
+  // Émulateurs dont l'installation a été ignorée faute de source téléchargeable.
+  const manualInstall = (sources as EmulatorSource[]).filter(
+    (s) =>
+      s.sourceType === 'playstore' &&
+      modules
+        .find((m) => m.moduleId === 'emulators')
+        ?.steps.some((step) => step.label === `${s.displayName} — Installation` && step.status === 'skipped')
+  )
   const obtainiumInstalled =
     modules
       .find((m) => m.moduleId === 'emulators')
@@ -178,6 +188,23 @@ export function FinalReport({ report, modules, meta, onRerunFailed, rerunning, h
               Confirmez l’import des émulateurs dans la fenêtre Obtainium ouverte sur la console. Si elle
               n’apparaît pas : Obtainium → Import/Export → Obtainium Import →{' '}
               <code>{OBTAINIUM_APPS_JSON_REMOTE_PATH}</code>.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* ── Émulateurs à installer à la main ────────────────────────────── */}
+      {manualInstall.length > 0 && (
+        <div className="card">
+          <div className="card-header">
+            <h3>Installation manuelle requise</h3>
+          </div>
+          <div className="card-body">
+            <p className="step-label">{MANUAL_INSTALL_NOTE}</p>
+            <p className="hint">
+              Sur la console : Google Play → rechercher «{' '}
+              {manualInstall.map((s) => s.displayName.replace(/\s*\(.*\)$/, '')).join(', ')} » → Installer.
+              Les réglages recommandés sont dans la fiche ci-dessous.
             </p>
           </div>
         </div>

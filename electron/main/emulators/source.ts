@@ -8,8 +8,11 @@ import { parseSha256, selectApkAsset, selectChecksumAsset, type ReleaseAsset } f
 import {
   fdroidApiUrl,
   fdroidApkUrl,
+  fdroidIndexUrl,
   isOfficialFdroidRepo,
+  pickApkFromIndexV2,
   pickFdroidVersion,
+  type FdroidIndexV2,
   type FdroidPackagesResponse,
 } from './fdroid'
 import type { PrepareApkSource } from '../../../src/modules/emulators/emulatorInstall'
@@ -98,27 +101,49 @@ function isCached(filePath: string): boolean {
   }
 }
 
-/** Dernière version publiée sur un dépôt F-Droid (officiel uniquement pour l'instant). */
+/**
+ * Dernière version publiée sur un dépôt F-Droid, sans client F-Droid :
+ * API JSON pour le dépôt officiel, index-v2.json (avec SHA-256) pour les
+ * dépôts tiers comme celui de Dolphin.
+ */
 export async function fetchFdroidRelease(
   repoUrl: string,
   packageName: string
 ): Promise<ReleaseInfo> {
-  if (!isOfficialFdroidRepo(repoUrl)) {
-    throw new Error(
-      `Dépôt F-Droid tiers non pris en charge (${repoUrl}) : lecture de index-v2.json à implémenter. ` +
-        `Installez ${packageName} à la main depuis ce dépôt en attendant.`
-    )
+  if (!repoUrl) throw new Error(`fdroidRepo manquant pour ${packageName}`)
+
+  if (isOfficialFdroidRepo(repoUrl)) {
+    const resp = await githubFetch(fdroidApiUrl(packageName))
+    if (!resp.ok) {
+      throw new Error(`F-Droid ${resp.status} pour ${packageName}`)
+    }
+    const data = (await resp.json()) as FdroidPackagesResponse
+    const version = pickFdroidVersion(data)
+    return {
+      version: version.versionName,
+      downloadUrl: fdroidApkUrl(repoUrl, packageName, version.versionCode),
+    }
   }
-  const resp = await githubFetch(fdroidApiUrl(packageName))
+
+  const indexUrl = fdroidIndexUrl(repoUrl)
+  const resp = await githubFetch(indexUrl)
   if (!resp.ok) {
-    throw new Error(`F-Droid ${resp.status} pour ${packageName}`)
+    throw new Error(`Dépôt F-Droid injoignable (HTTP ${resp.status}) : ${indexUrl}`)
   }
-  const data = (await resp.json()) as FdroidPackagesResponse
-  const version = pickFdroidVersion(data)
-  return {
-    version: version.versionName,
-    downloadUrl: fdroidApkUrl(repoUrl, packageName, version.versionCode),
+  const apk = pickApkFromIndexV2((await resp.json()) as FdroidIndexV2, repoUrl, packageName)
+  return { version: apk.version, downloadUrl: apk.downloadUrl, sha256: apk.sha256 }
+}
+
+/** Dernière version disponible, sans rien télécharger (écran « Mises à jour »). */
+export async function fetchLatestVersion(source: PrepareApkSource): Promise<{ version: string }> {
+  if (source.sourceType === 'playstore') {
+    throw new Error(`${source.id} : version publiée non consultable (Google Play)`)
   }
+  const release =
+    source.sourceType === 'fdroid'
+      ? await fetchFdroidRelease(source.fdroidRepo ?? '', source.packageName)
+      : await fetchLatestRelease(source.githubRepo ?? '', source.assetPattern ?? '')
+  return { version: release.version }
 }
 
 export async function prepareApk(source: PrepareApkSource): Promise<PrepareApkResult> {
