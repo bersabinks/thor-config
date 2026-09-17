@@ -120,7 +120,7 @@ export function TesterChecklist({ device, defaultExpanded = true }: Props) {
             {/* Étape 3 */}
             <div className={`prepare-step ${isAuthorized ? 'prepare-step--success' : isUnauthorized ? 'prepare-step--failed' : ''}`}>
               <div className="step-icon-wrap">
-                <span className="step-num">${isAuthorized ? '✓' : '3'}</span>
+                <span className="step-num">{isAuthorized ? '✓' : '3'}</span>
               </div>
               <div className="step-text">
                 <span className="step-label">Brancher le câble USB et autoriser le PC</span>

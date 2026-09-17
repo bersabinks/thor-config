@@ -41,8 +41,8 @@ export function Guide() {
         <DeviceStatus />
       </div>
 
-      <div className="page-content page-content--fill">
-        <div style={{ flex: 1, overflowY: 'auto', paddingRight: 8 }}>
+      <div className="page-content">
+        <div>
           <TesterChecklist device={device} defaultExpanded={true} />
 
           <div className="card" style={{ marginBottom: 20 }}>

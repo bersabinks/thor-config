@@ -25,7 +25,7 @@ export function Report() {
         </div>
       </div>
 
-      <div className="page-content page-content--fill">
+      <div className="page-content">
         <div className="card">
           <div className="card-header">
             <h3>Score de session</h3>

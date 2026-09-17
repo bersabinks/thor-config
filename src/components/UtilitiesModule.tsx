@@ -55,7 +55,9 @@ export function UtilitiesModule({ device }: Props) {
         <h3>Utilitaires AYN Thor Max</h3>
         <p className="card-desc">
           Installe <strong>ClusterTune</strong> (gestion des fréquences CPU/GPU sans root) avec activation de la tuile rapide,
-          <strong> Final ROM</strong> (boîte à outils ROM sur console) et vérifie <strong>ZArchiver</strong>.
+          <strong> Final ROM</strong> (boîte à outils ROM sur console), et vérifie <strong>ZArchiver</strong> ainsi que{' '}
+          <strong>GameHub</strong> (jeux PC/Steam) — ces deux derniers ne sont distribués que par le Play Store et
+          restent à installer à la main.
         </p>
       </div>
 

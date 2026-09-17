@@ -42,7 +42,7 @@ export function Configure() {
         <DeviceStatus />
       </div>
 
-      <div className="page-content page-content--fill">
+      <div className="page-content">
         {simulationMode ? (
           <div className="mode-banner mode-banner--sim">
             <div className="mode-banner-info">

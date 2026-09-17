@@ -205,6 +205,25 @@ Obtainium Import → `Download/thorconfig-obtainium-apps.json`.
   playlists m3u). Le dossier `/sdcard/ROMs/` est préparé automatiquement.
 - **ZArchiver** — gestionnaire d'archives complet (7z, zip, rar). Détecté automatiquement, sinon renvoi
   vers sa page Play Store sur la console.
+- **GameHub (Jeux Steam)** — exécution native des jeux PC/Steam sur la console via Proton/Turnip
+  (compte Steam requis). Distribué uniquement par Google Play (`com.xiaoji.egggame`) : l'étape est
+  marquée « ignorée » et la fiche Play Store est ouverte sur la console. Si le Play Store répond
+  « élément introuvable », récupérez l'APK sur [gamehub.xiaoji.com](https://gamehub.xiaoji.com/)
+  (miroir : [gamehublite/gamehub-oss](https://github.com/gamehublite/gamehub-oss)).
+
+#### GameHub — réglages recommandés sur Thor Max
+
+> ⚠️ **Connexion Steam : uniquement par QR code** depuis l'application Steam mobile.
+> Ne saisissez jamais votre identifiant et votre mot de passe en clair dans GameHub.
+
+| Réglage | Valeur recommandée |
+|---|---|
+| **Stockage** | Stockage interne uniquement (pas de MicroSD), prévoir **50+ Go** libres |
+| **Résolution** | **1280x720 (720p)** — compromis netteté/performances sur l'OLED 6″ |
+| **Compatibilité** | **Proton 10.0 arm64x2** / preset Translation « Extreme » (rétrograder si plantage) |
+| **Pilote GPU** | **Turnip 26.0.0 R2** (à télécharger dans l'onglet pilotes de GameHub) |
+| **Réglages console** | Mode **High Performance** + Ventilateur **Smart** + écran haut **120 Hz** |
+| **Alternative** | Jeux incompatibles ou clavier/souris : streaming **Moonlight/Sunshine** |
 
 **Recommandé en installation manuelle — AB Download Manager (ABDM)** : gestionnaire de téléchargements
 multi-thread rapide et moderne ([GitHub](https://github.com/amir1376/ab-download-manager)), pratique pour

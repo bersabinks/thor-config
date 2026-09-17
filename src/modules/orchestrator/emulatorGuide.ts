@@ -273,4 +273,39 @@ export const UTILITY_GUIDES: UtilityGuide[] = [
       { path: 'Compression recommandée', value: 'Format CHD pour CD/DVD (PS1, PS2, Dreamcast)' },
     ],
   },
+  {
+    id: 'gamehub',
+    displayName: 'GameHub (Jeux Steam)',
+    intro:
+      'Installer depuis le Play Store ; si le Play Store répond « élément introuvable », ' +
+      'récupérer l’APK sur https://gamehub.xiaoji.com/ (miroir : https://github.com/gamehublite/gamehub-oss). ' +
+      'Connexion Steam IMPÉRATIVEMENT par QR code depuis l’application Steam mobile : ' +
+      'ne jamais saisir identifiant et mot de passe en clair dans GameHub.',
+    settings: [
+      {
+        path: 'Stockage',
+        value: 'Stockage interne uniquement (pas de MicroSD), prévoir 50+ Go libres',
+      },
+      {
+        path: 'Résolution',
+        value: '1280x720 (720p) — compromis netteté/performances sur l’OLED 6″',
+      },
+      {
+        path: 'Compatibilité',
+        value: 'Proton 10.0 arm64x2 / preset Translation « Extreme » (rétrograder si plantage)',
+      },
+      {
+        path: 'Pilote GPU',
+        value: 'Turnip 26.0.0 R2 (à télécharger dans l’onglet pilotes de GameHub)',
+      },
+      {
+        path: 'Réglages console',
+        value: 'Mode High Performance + Ventilateur Smart + écran haut 120 Hz',
+      },
+      {
+        path: 'Alternative',
+        value: 'Jeux incompatibles ou clavier/souris : streaming Moonlight/Sunshine',
+      },
+    ],
+  },
 ]

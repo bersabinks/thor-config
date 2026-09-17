@@ -11,6 +11,7 @@ interface ExpectedUtility {
   githubRepo?: string
   tileService?: string
   targetDir?: string
+  playStoreUrl?: string
 }
 
 const EXPECTED: Record<string, ExpectedUtility> = {
@@ -33,13 +34,24 @@ const EXPECTED: Record<string, ExpectedUtility> = {
     sourceType: 'playstore',
     packageName: 'ru.zdevs.zarchiver',
   },
+  gamehub: {
+    displayName: 'GameHub (Jeux Steam)',
+    sourceType: 'playstore',
+    packageName: 'com.xiaoji.egggame',
+    playStoreUrl: 'https://play.google.com/store/apps/details?id=com.xiaoji.egggame',
+  },
 }
 
 const entries = sourcesJson as UtilitySource[]
 
 describe('utilities/sources.json — validation du manifest', () => {
-  it('contient exactement les 3 utilitaires attendus', () => {
-    expect(entries.map((s) => s.id).sort()).toEqual(['clustertune', 'finalrom', 'zarchiver'])
+  it('contient exactement les 4 utilitaires attendus', () => {
+    expect(entries.map((s) => s.id).sort()).toEqual([
+      'clustertune',
+      'finalrom',
+      'gamehub',
+      'zarchiver',
+    ])
   })
 
   for (const [id, exp] of Object.entries(EXPECTED)) {
@@ -83,6 +95,15 @@ describe('utilities/sources.json — validation du manifest', () => {
           expect(src?.targetDir).toBe(exp.targetDir)
         })
       }
+
+      if (exp.playStoreUrl) {
+        // Même contrat que DuckStation côté émulateurs : l'URL alimente le
+        // message de l'étape ignorée, elle doit pointer sur le bon package.
+        it('a une playStoreUrl cohérente avec le packageName', () => {
+          expect(src?.playStoreUrl).toBe(exp.playStoreUrl)
+          expect(src?.playStoreUrl).toContain(exp.packageName)
+        })
+      }
     })
   }
 
@@ -122,5 +143,38 @@ describe('UTILITY_GUIDES — couplage à sources.json et contenu', () => {
         expect(s.value, guide.id).toBeTruthy()
       }
     }
+  })
+
+  describe('GameHub', () => {
+    const guide = UTILITY_GUIDES.find((g) => g.id === 'gamehub')
+
+    it('a une fiche de guide', () => {
+      expect(guide).toBeDefined()
+    })
+
+    it('renvoie vers l’APK officiel quand le Play Store ne trouve pas l’app', () => {
+      expect(guide?.intro).toContain('gamehub.xiaoji.com')
+    })
+
+    it('impose la connexion Steam par QR code (jamais d’identifiants en clair)', () => {
+      expect(guide?.intro).toContain('QR code')
+    })
+
+    it('documente pilote GPU, résolution, compatibilité, stockage et alternative', () => {
+      const paths = guide?.settings.map((s) => s.path) ?? []
+      expect(paths).toEqual([
+        'Stockage',
+        'Résolution',
+        'Compatibilité',
+        'Pilote GPU',
+        'Réglages console',
+        'Alternative',
+      ])
+      const byPath = Object.fromEntries((guide?.settings ?? []).map((s) => [s.path, s.value]))
+      expect(byPath['Pilote GPU']).toContain('Turnip 26.0.0 R2')
+      expect(byPath['Résolution']).toContain('1280x720')
+      expect(byPath['Compatibilité']).toContain('Proton 10.0 arm64x2')
+      expect(byPath['Alternative']).toContain('Moonlight')
+    })
   })
 })

@@ -35,7 +35,7 @@ export function Utilities() {
         <div>
           <h2>Utilitaires</h2>
           <p className="page-desc">
-            Installe et configure les applications utilitaires recommandées pour la AYN Thor Max (ClusterTune, Final ROM, ZArchiver).
+            Installe et configure les applications utilitaires recommandées pour la AYN Thor Max (ClusterTune, Final ROM, ZArchiver, GameHub).
           </p>
         </div>
         <DeviceStatus />

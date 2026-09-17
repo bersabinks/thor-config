@@ -252,6 +252,8 @@ html, body, #root {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px 16px;
   flex-shrink: 0;
   padding: 24px 28px 16px;
   border-bottom: 1px solid var(--border);
@@ -279,12 +281,30 @@ html, body, #root {
   gap: 16px;
 }
 
-/* Pages "app" (Préparation, Émulateurs, …) : cadre fixe qui ne défile pas
-   lui-même. Seule la carte principale défile en interne, ce qui garde l'en-tête
-   de page et le bouton d'action toujours visibles quelle que soit la hauteur
-   de fenêtre ou la longueur de la liste. */
+/* RÈGLE CRITIQUE — ne pas supprimer.
+   .card porte `overflow: hidden` (coins arrondis) : en CSS flexbox, un élément
+   qui est un conteneur de défilement voit sa taille minimale automatique
+   (`min-height: auto`) résolue à 0. Sans `flex-shrink: 0`, les cartes se font
+   donc ÉCRASER pour tenir dans la hauteur de fenêtre et coupent leur contenu
+   au lieu de laisser la page défiler — c'est ce qui rendait les boutons
+   d'action inatteignables sous 1080p. Les enfants gardent leur hauteur
+   naturelle ; c'est .page-content qui défile. */
+.page-content > * {
+  flex-shrink: 0;
+}
+
+/* Pages "app" (Préparation, Émulateurs, …) : la carte principale s'étire pour
+   remplir la hauteur disponible et défile en interne, ce qui garde l'en-tête de
+   page et le bouton d'action visibles sur les grands écrans. Quand la fenêtre
+   est trop basse pour la hauteur plancher de la carte, .page-content défile
+   normalement : plus rien n'est coupé. */
 .page-content--fill {
-  overflow: hidden;
+  overflow-y: auto;
+}
+
+/* La carte principale est le seul enfant autorisé à s'étirer. */
+.page-content--fill > .card--fill {
+  flex: 1 0 auto;
 }
 
 /* ── Device Status ─────────────────────────── */
@@ -375,7 +395,8 @@ html, body, #root {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  flex-wrap: wrap;
+  gap: 12px 16px;
   padding: 12px 18px;
   border-radius: var(--radius);
   margin-bottom: 16px;
@@ -427,6 +448,9 @@ html, body, #root {
   border: 1px solid var(--border);
   border-radius: var(--radius);
   overflow: hidden;
+  /* cf. « RÈGLE CRITIQUE » plus haut : overflow:hidden annule la taille
+     minimale automatique en flex, donc on la rétablit explicitement. */
+  flex-shrink: 0;
 }
 
 .card-header {
@@ -454,19 +478,29 @@ html, body, #root {
 }
 
 /* Carte principale qui remplit la hauteur disponible : elle devient une colonne
-   flex dont seul le corps défile ; en-tête et pied restent fixes. */
+   flex dont seul le corps défile ; en-tête et pied restent fixes.
+   Le couple `flex-shrink: 0` + `max-height: 100%` est la clé du responsive,
+   sans aucune valeur en dur :
+   — la carte ne rétrécit JAMAIS en dessous de son contenu, donc son en-tête et
+     son pied (le bouton d'action) ne peuvent pas être rognés ;
+   — elle ne dépasse jamais la zone visible, donc sur un grand écran la liste
+     défile à l'intérieur de la carte et le bouton reste épinglé en bas ;
+   — sur une fenêtre trop basse, le reste de la page (journal d'exécution)
+     déborde et c'est .page-content qui défile : tout reste atteignable. */
 .card--fill {
   display: flex;
   flex-direction: column;
-  flex: 1 1 auto;
+  flex: 1 0 auto;
   min-height: 0;
+  max-height: 100%;
 }
 
 /* Corps de card à liste longue — défile en interne, sans hauteur en dur.
-   La hauteur réelle vient de la chaîne flex (min-height: 0 à chaque niveau). */
+   Le plancher (une ligne + ses marges) alimente le `min-content` de .card--fill
+   pour qu'il reste toujours un début de liste visible. */
 .card-body--scroll {
   flex: 1 1 auto;
-  min-height: 0;
+  min-height: 72px;
   overflow-y: auto;
 }
 
@@ -532,14 +566,15 @@ html, body, #root {
   display: flex;
   flex-direction: column;
   max-height: 340px;
+  min-height: 160px;
+  flex-shrink: 0;
 }
 
-/* Dans un cadre fixe, le journal cède la place à la carte principale :
-   il rétrécit (avec défilement interne de .log-body) plutôt que de pousser
-   le bouton hors écran sur les fenêtres basses. */
+/* Le journal garde une hauteur lisible et ne s'écrase jamais : il est plafonné
+   par max-height et défile en interne via .log-body. */
 .page-content--fill .execution-log {
-  flex: 0 1 auto;
-  min-height: 120px;
+  flex: 0 0 auto;
+  min-height: 160px;
 }
 
 .log-header {
@@ -613,6 +648,8 @@ html, body, #root {
 
 .log-label {
   flex: 1;
+  min-width: 0;
+  word-break: break-word;
 }
 
 .log-meta {
@@ -839,8 +876,14 @@ code {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px 12px;
   padding: 10px 0;
   border-bottom: 1px solid var(--border);
+}
+
+.settings-row-label {
+  min-width: 0;
 }
 
 .settings-row:last-child {
@@ -926,7 +969,10 @@ code {
 .btn-hero {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 10px;
+  max-width: 100%;
+  text-align: center;
   padding: 14px 28px;
   font-size: 16px;
   font-weight: 700;
@@ -1060,7 +1106,8 @@ code {
 .guide-setting {
   display: flex;
   justify-content: space-between;
-  gap: 12px;
+  flex-wrap: wrap;
+  gap: 4px 12px;
   font-size: 12.5px;
   padding: 5px 10px;
   border-radius: 6px;
@@ -1110,7 +1157,7 @@ code {
 .update-list { display: flex; flex-direction: column; gap: 6px; }
 .update-row {
   display: grid;
-  grid-template-columns: 1fr auto auto auto;
+  grid-template-columns: minmax(0, 1fr) auto auto auto;
   align-items: center;
   gap: 10px;
   padding: 7px 10px;
@@ -1135,3 +1182,136 @@ code {
 }
 .failure-item__label { font-size: 13px; font-weight: 600; }
 .failure-item__error { font-size: 11.5px; color: var(--text-muted); margin-top: 2px; }
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Responsive — l'application doit rester utilisable de 1280×720 (et du
+   minimum fenêtre 800×500 déclaré dans electron/main/index.ts) jusqu'aux
+   grands écrans. Règle de fond : on ne masque jamais de contenu, on réduit
+   les marges puis on laisse .page-content défiler.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Fenêtres peu hautes (laptops 720p / 768p) ───────────────────────────── */
+@media (max-height: 820px) {
+  .page-header {
+    padding: 16px 24px 12px;
+  }
+
+  .page-header h2 {
+    font-size: 18px;
+  }
+
+  .page-content {
+    padding: 14px 24px;
+    gap: 12px;
+  }
+
+  .card-header {
+    padding: 12px 16px 10px;
+  }
+
+  .card-body {
+    padding: 12px 16px;
+    gap: 10px;
+  }
+
+  .card-footer {
+    padding: 10px 16px;
+  }
+
+  /* Le journal prend moins de place pour laisser respirer la carte d'action. */
+  .execution-log {
+    max-height: 240px;
+    min-height: 130px;
+  }
+
+  .page-content--fill .execution-log {
+    min-height: 130px;
+  }
+
+
+  .sidebar-logo {
+    padding: 12px 16px 10px;
+  }
+
+  .nav-item {
+    padding: 7px 16px;
+  }
+}
+
+/* ── Fenêtres très basses (proche du minimum 500 px) ─────────────────────── */
+@media (max-height: 620px) {
+  .page-header {
+    padding: 12px 20px 10px;
+  }
+
+  .page-content {
+    padding: 12px 20px;
+  }
+
+  .execution-log {
+    max-height: 200px;
+    min-height: 110px;
+  }
+
+  .page-content--fill .execution-log {
+    min-height: 110px;
+  }
+
+
+  .btn-hero {
+    padding: 10px 20px;
+    font-size: 15px;
+  }
+}
+
+/* ── Fenêtres étroites ───────────────────────────────────────────────────── */
+@media (max-width: 1150px) {
+  .sidebar {
+    width: 186px;
+    min-width: 186px;
+  }
+
+  .nav-item {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+
+  .page-header,
+  .page-content {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+}
+
+@media (max-width: 920px) {
+  .sidebar {
+    width: 158px;
+    min-width: 158px;
+  }
+
+  .nav-item {
+    gap: 8px;
+    font-size: 12.5px;
+  }
+
+  .page-header,
+  .page-content {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  /* Les lignes à 4 colonnes repassent sur deux niveaux plutôt que déborder. */
+  .update-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    row-gap: 6px;
+  }
+
+  .settings-row {
+    align-items: flex-start;
+  }
+
+  .mode-banner-action {
+    white-space: normal;
+  }
+}

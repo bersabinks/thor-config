@@ -10,6 +10,12 @@ export interface UtilitySource {
   assetPattern?: string
   tileService?: string
   targetDir?: string
+  /**
+   * Requis pour sourceType 'playstore' : page officielle à ouvrir à la main.
+   * Même contrat que EmulatorSource.playStoreUrl (cf. DuckStation) — l'URL est
+   * reprise telle quelle dans le message de l'étape ignorée.
+   */
+  playStoreUrl?: string
 }
 
 export interface UtilityIpc {
@@ -113,7 +119,8 @@ export async function installUtility(
     results.push(
       makeSkipped(
         `${source.displayName} — Installation Play Store`,
-        `Application propriétaire Play Store. Page ouverte sur la console (${source.packageName}) ou à installer manuellement.`
+        `Application propriétaire Play Store. Page ouverte sur la console (${source.packageName}) ` +
+          `ou à installer manuellement depuis ${source.playStoreUrl ?? 'Google Play'}.`
       )
     )
     return results

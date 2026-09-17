@@ -106,6 +106,8 @@ export const MOCK_FIXTURES: MockFixtures = {
     'com.aure.clustertune': { packageName: 'com.aure.clustertune', versionName: 'sim-1.0', versionCode: 10000 },
     'com.yasome.final_rom': { packageName: 'com.yasome.final_rom', versionName: 'sim-1.0', versionCode: 10000 },
     'ru.zdevs.zarchiver': { packageName: 'ru.zdevs.zarchiver', versionName: 'sim-1.0', versionCode: 10000 },
+    // GameHub : distribué par Google Play uniquement, jamais installé par ThorConfig.
+    'com.xiaoji.egggame': { packageName: 'com.xiaoji.egggame', versionName: 'sim-1.0', versionCode: 10000 },
   },
 
   commandDelayMs: 200,

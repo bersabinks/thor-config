@@ -1,6 +1,8 @@
 import { EMULATOR_GUIDES, MANUAL_INSTALL_NOTE, THOR_MAX_HARDWARE, UTILITY_GUIDES } from '../modules/orchestrator'
 import sources from '../modules/emulators/sources.json'
+import utilitySources from '../modules/utilities/sources.json'
 import type { EmulatorSource } from '../modules/emulators/emulatorInstall'
+import type { UtilitySource } from '../modules/utilities/utilityInstall'
 import { DiagnosticExport } from './DiagnosticExport'
 import {
   OBTAINIUM_APPS_JSON_REMOTE_PATH,
@@ -51,6 +53,23 @@ function installedGuides(modules: ModuleResult[]) {
   )
 }
 
+/**
+ * Utilitaires Play Store (GameHub, ZArchiver) qui n'ont pas pu être installés
+ * par ADB : même traitement que DuckStation côté émulateurs — on les remonte
+ * dans « Installation manuelle requise » avec leur page officielle.
+ */
+function manualUtilities(modules: ModuleResult[]) {
+  const utilities = modules.find((m) => m.moduleId === 'utilities')
+  if (!utilities) return []
+  return (utilitySources as UtilitySource[]).filter(
+    (u) =>
+      u.sourceType === 'playstore' &&
+      utilities.steps.some(
+        (s) => s.label.startsWith(`${u.displayName} — `) && s.status === 'skipped'
+      )
+  )
+}
+
 function installedUtilityGuides(modules: ModuleResult[]) {
   const utilities = modules.find((m) => m.moduleId === 'utilities')
   if (!utilities) return []
@@ -67,6 +86,7 @@ export function FinalReport({ report, modules, meta, onRerunFailed, rerunning, h
   const { totals } = report
   const guides = installedGuides(modules)
   const utilityGuides = installedUtilityGuides(modules)
+  const manualUtils = manualUtilities(modules)
   // Émulateurs dont l'installation a été ignorée faute de source téléchargeable.
   const manualInstall = (sources as EmulatorSource[]).filter(
     (s) =>
@@ -206,19 +226,39 @@ export function FinalReport({ report, modules, meta, onRerunFailed, rerunning, h
         </div>
       )}
 
-      {/* ── Émulateurs à installer à la main ────────────────────────────── */}
-      {manualInstall.length > 0 && (
+      {/* ── Applications à installer à la main ──────────────────────────── */}
+      {(manualInstall.length > 0 || manualUtils.length > 0) && (
         <div className="card">
           <div className="card-header">
             <h3>Installation manuelle requise</h3>
           </div>
           <div className="card-body">
-            <p className="step-label">{MANUAL_INSTALL_NOTE}</p>
-            <p className="hint">
-              Sur la console : Google Play → rechercher «{' '}
-              {manualInstall.map((s) => s.displayName.replace(/\s*\(.*\)$/, '')).join(', ')} » → Installer.
-              Les réglages recommandés sont dans la fiche ci-dessous.
-            </p>
+            {manualInstall.length > 0 && (
+              <>
+                <p className="step-label">{MANUAL_INSTALL_NOTE}</p>
+                <p className="hint">
+                  Sur la console : Google Play → rechercher «{' '}
+                  {manualInstall.map((s) => s.displayName.replace(/\s*\(.*\)$/, '')).join(', ')} » → Installer.
+                  Les réglages recommandés sont dans la fiche ci-dessous.
+                </p>
+              </>
+            )}
+
+            {manualUtils.map((u) => (
+              <div key={u.id} className="guide-setting">
+                <span className="guide-setting__path">{u.displayName}</span>
+                <span className="guide-setting__value">
+                  Google Play → <code>{u.packageName}</code>
+                </span>
+              </div>
+            ))}
+
+            {manualUtils.some((u) => u.playStoreUrl) && (
+              <p className="hint">
+                Si le Play Store répond « élément introuvable », récupérez l'APK sur le site officiel de
+                l'application — les liens et les réglages conseillés sont dans les fiches ci-dessous.
+              </p>
+            )}
           </div>
         </div>
       )}

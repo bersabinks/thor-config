@@ -20,6 +20,15 @@
     "targetDir": "/sdcard/ROMs"
   },
   {
+    "_verified": "2026-09-17 — distribué par Google Play (com.xiaoji.egggame) ; APK de repli sur https://gamehub.xiaoji.com/ (miroir https://github.com/gamehublite/gamehub-oss) quand le Play Store répond « élément introuvable ». Aucune release GitHub officielle installable par ADB : étape ignorée, jamais en échec.",
+    "id": "gamehub",
+    "displayName": "GameHub (Jeux Steam)",
+    "description": "Exécution native des jeux PC/Steam via Proton/Turnip (nécessite compte Steam).",
+    "sourceType": "playstore",
+    "packageName": "com.xiaoji.egggame",
+    "playStoreUrl": "https://play.google.com/store/apps/details?id=com.xiaoji.egggame"
+  },
+  {
     "id": "zarchiver",
     "displayName": "ZArchiver",
     "description": "Gestionnaire d'archives complet (7z, zip, rar) optimisé pour le stockage Android.",
