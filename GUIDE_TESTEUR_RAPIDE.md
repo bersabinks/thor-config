@@ -24,43 +24,38 @@ Sur ta **AYN Thor Max** :
 
 ---
 
-## 📁 Étape 3 : Où placer le dossier de ROMs de test sur ton PC ?
+## 🔴 Étape 3 : BASCULER THORCONFIG EN MODE RÉEL (Très important !)
 
-1. Décompresse ou copie le dossier **`ThorRomsTest`** où tu veux sur ton PC (par exemple sur ton **Bureau**, ou dans `C:\ThorRomsTest`).
-2. Ce dossier de test ne pèse que **~8 Go** et contient **un seul jeu par console** pour tester rapidement le déploiement sans saturer ta connexion ni attendre des heures :
-   - **Nintendo DS** : *Super Mario 64 DS* (16 Mo)
-   - **Nintendo 3DS** : *Captain Toad : Treasure Tracker* (512 Mo)
-   - **Sony PSP** : *Need for Speed : Most Wanted 5-1-0* (179 Mo)
-   - **Sony PS1** : *Dragon Ball : Final Bout* (65 Mo)
-   - **Sony PS2** : *Jak and Daxter : The Precursor Legacy* (855 Mo)
-   - **Nintendo Wii** : *Super Paper Mario* (387 Mo)
-   - **Nintendo Wii U** : *The Legend of Zelda : The Wind Waker HD* (838 Mo)
-   - **Nintendo Switch** : *Mario Tennis Aces* (2.2 Go)
-   - **Sony PS Vita** : *Adventures of Mana* (508 Mo)
-   - **Microsoft Xbox** : *Jet Set Radio Future* (2.4 Go)
+Par défaut, l'application démarre en mode simulation (pour les développeurs sans console).  
+**Pour que l'application communique réellement avec ta console physique :**
+
+1. Ouvre **ThorConfig** sur ton PC.
+2. Dans le menu de gauche, clique sur **Réglages**.
+3. Tout en haut, **décoche l'interrupteur « Activer le mode simulation »**.
+4. Regarde en haut à gauche : le badge orange `SIMULATION` disparaît et le statut passe au vert : **AYN Thor Max (Connecté)**.
 
 ---
 
-## 🚀 Étape 4 : Lancer et utiliser ThorConfig
+## 📁 Étape 4 : Lancer le test des ROMs (Dossier ThorRomsTest)
 
-1. Ouvre l'application **`ThorConfig.exe`** sur ton PC.
-2. En haut à gauche, vérifie que ta console est bien détectée avec son numéro de série (si l'app est en « Mode simulation », désactive-le dans les **Réglages** pour passer sur ta vraie console).
-3. Va dans le menu **ROMs** (barre latérale à gauche).
-4. Clique sur le bouton **« Choisir un dossier d'import »** et sélectionne ton dossier **`ThorRomsTest`**.
-5. **L'application gère tout automatiquement** :
-   - Elle analyse chaque jeu (format, signature, console associée).
-   - Elle crée les dossiers nécessaires sur ta console dans `/sdcard/ROMs/<console>/`.
-   - Elle transfère les fichiers via USB avec une vérification de sécurité (SHA-256) pour garantir qu'aucun jeu n'est endommagé.
-   - Tu peux suivre la barre de progression et le statut en temps réel.
+1. Décompresse le dossier **`ThorRomsTest`** sur ton PC (par exemple sur ton Bureau).
+   *(Ce pack léger de ~8 Go contient 1 jeu par console pour tester rapidement le déploiement sans attendre des heures).*
+2. Dans ThorConfig, va sur l'onglet **ROMs** (menu de gauche).
+3. Clique sur le bouton **« Choisir un dossier d'import »** et sélectionne ton dossier **`ThorRomsTest`**.
+4. **ThorConfig prend le relais automatiquement** :
+   - Il identifie chaque console (Switch, PS2, Xbox, Wii, N3DS, PSP, etc.).
+   - Il crée les dossiers sur ta console dans `/sdcard/ROMs/<console>/`.
+   - Il transfère les jeux et vérifie leur intégrité (SHA-256).
+   - Suis la barre de progression jusqu'à la fin.
 
 ---
 
-## 🕹️ Étape 5 : Vérification sur la console
+## 🕹️ Étape 5 : Vérification sur ta console
 
 Une fois le transfert marqué comme terminé dans ThorConfig :
 1. Prends ta console en main.
-2. Ouvre ton lanceur de jeux (ES-DE / Daijishō) ou directement l'émulateur correspondant (ex. Dolphin, NetherSX2 / AetherSX2, PPSSPP, MelonDS, Citra/Azahar, Vita3K, Yuzu/Citron).
-3. Lance un ou deux jeux de test pour vérifier :
+2. Ouvre ton lanceur de jeux (ES-DE / Daijishō) ou directement les émulateurs (ex. Dolphin, NetherSX2, PPSSPP, MelonDS, Azahar, Vita3K, Yuzu/Citron).
+3. Lance 1 ou 2 jeux de test pour vérifier :
    - Est-ce que le jeu démarre correctement ?
    - Les boutons et joysticks répondent-ils bien ?
    - Le son et l'image sont-ils fluides ?
@@ -71,12 +66,12 @@ Une fois le transfert marqué comme terminé dans ThorConfig :
 
 ### ✅ À FAIRE :
 - Laisser le câble branché et le PC tranquille pendant le transfert.
-- Envoyer une **capture d'écran** ou le rapport de ThorConfig si une étape affiche une erreur rouge.
+- Envoyer une **capture d'écran** ou le rapport de ThorConfig s'il y a une erreur rouge.
 - Prendre une photo/courte vidéo de l'écran de la console si un jeu refuse de se lancer.
 
 ### ❌ À NE PAS FAIRE :
-- **Ne débranche JAMAIS le câble USB** pendant un transfert de fichier en cours.
-- **Ne laisse pas la console s'éteindre ou se mettre en veille prolongée** pendant le processus.
+- **Ne débranche JAMAIS le câble USB** pendant un transfert en cours.
+- **Ne laisse pas la console se mettre en veille prolongée** pendant le processus.
 - **Ne copie pas manuellement les fichiers à la main** : laisse ThorConfig faire le travail pour tester que l'automatisation fonctionne bien.
 
 Merci énormément pour ton test ! 🚀
