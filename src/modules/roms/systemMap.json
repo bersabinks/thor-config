@@ -75,5 +75,13 @@
     "chd": true,
     "multiDisc": true,
     "magic": [{ "offset": 0, "hex": "00FFFFFFFFFFFFFFFFFFFFFF00", "extensions": [".bin"] }]
+  },
+  {
+    "id": "switch",
+    "displayName": "Nintendo Switch",
+    "folder": "switch",
+    "extensions": [".nsp", ".xci"],
+    "chd": false,
+    "magic": []
   }
 ]
