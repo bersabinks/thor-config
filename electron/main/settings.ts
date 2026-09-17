@@ -4,6 +4,7 @@ import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs'
 
 export interface AppSettings {
   simulationMode: boolean
+  customAdbPath: string
   aynAbxyLayout: 'Xbox' | 'Nintendo'
   aynTriggerMode: 'Analog' | 'Digital'
   firmwareUpdateWaitSeconds: number
@@ -15,6 +16,7 @@ export interface AppSettings {
 
 const DEFAULT_SETTINGS: AppSettings = {
   simulationMode: true,
+  customAdbPath: '',
   aynAbxyLayout: 'Xbox',
   aynTriggerMode: 'Analog',
   firmwareUpdateWaitSeconds: 30,

@@ -2,6 +2,7 @@ import { create } from 'zustand'
 
 interface SettingsStore {
   simulationMode: boolean
+  customAdbPath: string
   aynAbxyLayout: 'Xbox' | 'Nintendo'
   aynTriggerMode: 'Analog' | 'Digital'
   firmwareUpdateWaitSeconds: number
@@ -11,6 +12,7 @@ interface SettingsStore {
   loaded: boolean
   load: () => Promise<void>
   setSimulationMode: (value: boolean) => Promise<void>
+  setCustomAdbPath: (value: string) => Promise<void>
   setAynAbxyLayout: (value: 'Xbox' | 'Nintendo') => Promise<void>
   setAynTriggerMode: (value: 'Analog' | 'Digital') => Promise<void>
   setFirmwareUpdateWaitSeconds: (value: number) => Promise<void>
@@ -25,6 +27,7 @@ async function persist(key: string, value: unknown) {
 
 export const useSettings = create<SettingsStore>((set) => ({
   simulationMode: true,
+  customAdbPath: '',
   aynAbxyLayout: 'Xbox',
   aynTriggerMode: 'Analog',
   firmwareUpdateWaitSeconds: 30,
@@ -34,9 +37,10 @@ export const useSettings = create<SettingsStore>((set) => ({
   loaded: false,
 
   load: async () => {
-    const [simMode, abxy, trigger, fwWait, importFolder, parallelism, vitaOutputFolder] =
+    const [simMode, customAdb, abxy, trigger, fwWait, importFolder, parallelism, vitaOutputFolder] =
       await Promise.all([
         window.electronAPI.settings.get('simulationMode'),
+        window.electronAPI.settings.get('customAdbPath'),
         window.electronAPI.settings.get('aynAbxyLayout'),
         window.electronAPI.settings.get('aynTriggerMode'),
         window.electronAPI.settings.get('firmwareUpdateWaitSeconds'),
@@ -46,6 +50,7 @@ export const useSettings = create<SettingsStore>((set) => ({
       ])
     set({
       simulationMode: simMode !== false,
+      customAdbPath: (customAdb as string) ?? '',
       aynAbxyLayout: (abxy as 'Xbox' | 'Nintendo') ?? 'Xbox',
       aynTriggerMode: (trigger as 'Analog' | 'Digital') ?? 'Analog',
       firmwareUpdateWaitSeconds: (fwWait as number) ?? 30,
@@ -59,6 +64,11 @@ export const useSettings = create<SettingsStore>((set) => ({
   setSimulationMode: async (value) => {
     await persist('simulationMode', value)
     set({ simulationMode: value })
+  },
+
+  setCustomAdbPath: async (value) => {
+    await persist('customAdbPath', value)
+    set({ customAdbPath: value })
   },
 
   setAynAbxyLayout: async (value) => {

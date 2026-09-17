@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Sidebar } from './components/Sidebar'
+import { Sidebar, type Page } from './components/Sidebar'
 import { Configure } from './pages/Configure'
 import { Guide } from './pages/Guide'
 import { Home } from './pages/Home'
@@ -12,19 +12,6 @@ import { Utilities } from './pages/Utilities'
 import { Report } from './pages/Report'
 import { Settings } from './pages/Settings'
 import { useSettings } from './store/settings'
-
-type Page =
-  | 'configure'
-  | 'guide'
-  | 'home'
-  | 'emulators'
-  | 'roms'
-  | 'saves'
-  | 'vita'
-  | 'launcher'
-  | 'utilities'
-  | 'report'
-  | 'settings'
 
 function ComingSoon({ name }: { name: string }) {
   return (
@@ -50,7 +37,7 @@ export function App() {
   function renderPage() {
     switch (activePage) {
       case 'configure':
-        return <Configure />
+        return <Configure onNavigate={setActivePage} />
       case 'guide':
         return <Guide />
       case 'home':

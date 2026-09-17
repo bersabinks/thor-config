@@ -4,6 +4,7 @@ import { DiagnosticExport } from '../components/DiagnosticExport'
 export function Settings() {
   const {
     simulationMode, setSimulationMode,
+    customAdbPath, setCustomAdbPath,
     aynAbxyLayout, setAynAbxyLayout,
     aynTriggerMode, setAynTriggerMode,
     firmwareUpdateWaitSeconds, setFirmwareUpdateWaitSeconds,
@@ -11,6 +12,11 @@ export function Settings() {
     romsParallelism, setRomsParallelism,
     vitaOutputFolder, setVitaOutputFolder,
   } = useSettings()
+
+  async function handlePickAdbPath() {
+    const file = await window.electronAPI.adb.pickAdbPath()
+    if (file) await setCustomAdbPath(file)
+  }
 
   async function handlePickImportFolder() {
     const folder = await window.electronAPI.roms.pickImportFolder()
@@ -32,6 +38,55 @@ export function Settings() {
       </div>
 
       <div className="page-content">
+
+        {/* ── Chemin ADB personnalisé ── */}
+        <div className="card">
+          <div className="card-header">
+            <h3>Chemin ADB personnalisé</h3>
+            <p className="card-desc">
+              Chemin complet vers l'exécutable <code>adb.exe</code>. Ce chemin est persisté et utilisé
+              en priorité absolue sur toute autre détection automatique (WinGet, PATH, binaire interne).
+            </p>
+          </div>
+          <div className="card-body">
+            <div className="settings-row adb-input-row">
+              <div className="adb-input-wrap">
+                <input
+                  type="text"
+                  className="adb-path-input"
+                  placeholder="Ex. C:\platform-tools\adb.exe ou coller le chemin WinGet"
+                  value={customAdbPath}
+                  onChange={(e) => setCustomAdbPath(e.target.value)}
+                />
+              </div>
+              <div className="adb-input-actions">
+                <button
+                  type="button"
+                  className="btn-ghost btn-sm"
+                  onClick={handlePickAdbPath}
+                  title="Parcourir vos dossiers pour sélectionner adb.exe"
+                >
+                  Parcourir…
+                </button>
+                {customAdbPath && (
+                  <button
+                    type="button"
+                    className="btn-ghost btn-sm"
+                    onClick={() => setCustomAdbPath('')}
+                    title="Effacer le chemin personnalisé et revenir à la détection automatique"
+                  >
+                    Effacer
+                  </button>
+                )}
+              </div>
+            </div>
+            <p className="hint">
+              {customAdbPath
+                ? '✓ Chemin ADB personnalisé actif — utilisé en priorité 1 pour toutes les commandes ADB.'
+                : 'Laisser vide pour la détection automatique (WinGet, ThorConfig interne, PATH, Chocolatey, Android SDK).'}
+            </p>
+          </div>
+        </div>
 
         {/* ── Mode simulation ── */}
         <div className="card">

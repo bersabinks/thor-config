@@ -37,13 +37,23 @@ export function getAdbSetupState(): AdbSetupState {
   return state
 }
 
+function getCustomPath(): string | undefined {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const { getSettings } = require('../settings')
+    return getSettings()?.customAdbPath
+  } catch {
+    return undefined
+  }
+}
+
 /** Lance (ou rejoint) la vérification/installation d'adb. */
 export function startAdbSetup(): Promise<AdbSetupState> {
   if (running) return running
 
   const installDir = internalPlatformToolsDir()
   if (process.platform !== 'win32' || !installDir) {
-    const found = detectAdb()
+    const found = detectAdb(process.env, undefined, undefined, getCustomPath())
     publish(
       found && found.source !== 'internal'
         ? { phase: 'system', path: found.path, source: found.source }
@@ -53,7 +63,7 @@ export function startAdbSetup(): Promise<AdbSetupState> {
   }
 
   running = ensurePlatformTools(
-    { detect: () => detectAdb(), installDir, extractZip: extractArchive, verifyAdb },
+    { detect: () => detectAdb(process.env, undefined, undefined, getCustomPath()), installDir, extractZip: extractArchive, verifyAdb },
     publish
   ).finally(() => {
     running = null

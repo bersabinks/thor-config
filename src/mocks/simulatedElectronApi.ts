@@ -47,6 +47,8 @@ export function createSimulatedElectronApi(
       waitForDevice: (s, t) => invoke('adb:waitForDevice', () => client.waitForDevice(s, t)),
       getSetupState: async () => ({ phase: 'system', path: 'adb', source: 'path' }),
       retrySetup: async () => ({ phase: 'system', path: 'adb', source: 'path' }),
+      getAdbInfo: async () => ({ found: true, path: 'adb', source: 'path' }),
+      pickAdbPath: async () => 'adb',
       onSetupState: () => () => {},
     },
     diagnostics: partial<ElectronAPI['diagnostics']>('diagnostics', {}),

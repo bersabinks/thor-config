@@ -5,6 +5,12 @@ import type { AdbSetupState } from '../../electron/main/adb/platformTools'
 import type { DiagnosticPackResult } from '../../electron/main/diagnostics/diagnosticPack'
 import type { FirmwareDownloadResult } from '../../electron/main/vita/firmwareDownload'
 
+export interface AdbInfo {
+  found: boolean
+  path: string | null
+  source: string | null
+}
+
 export interface ElectronAPI {
   adb: {
     listDevices(): Promise<AdbDevice[]>
@@ -19,6 +25,8 @@ export interface ElectronAPI {
     /** Zero-Setup ADB : état courant, relance, abonnement aux changements. */
     getSetupState(): Promise<AdbSetupState>
     retrySetup(): Promise<AdbSetupState>
+    getAdbInfo(): Promise<AdbInfo>
+    pickAdbPath(): Promise<string | null>
     onSetupState(cb: (state: AdbSetupState) => void): () => void
   }
   diagnostics: {

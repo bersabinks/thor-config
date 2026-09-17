@@ -1,6 +1,7 @@
 import { app, BrowserWindow, dialog, ipcMain } from 'electron'
 import { join } from 'path'
 import { getAdbClient } from '../adb/factory'
+import { detectAdb } from '../adb/adbPath'
 import { getAdbSetupState, startAdbSetup } from '../adb/platformToolsService'
 import { readTodayLog } from '../diagnostics/appLog'
 import {
@@ -54,6 +55,30 @@ export function registerIpcHandlers(): void {
   // ── Zero-Setup ADB ─────────────────────────────────────────────────────────
   ipcMain.handle('adb:getSetupState', () => getAdbSetupState())
   ipcMain.handle('adb:retrySetup', () => startAdbSetup())
+  ipcMain.handle('adb:getAdbInfo', () => {
+    const { customAdbPath } = getSettings()
+    const loc = detectAdb(process.env, undefined, undefined, customAdbPath)
+    if (!loc) {
+      return { found: false, path: null, source: null }
+    }
+    return { found: true, path: loc.path, source: loc.source }
+  })
+  ipcMain.handle('adb:pickAdbPath', async (e) => {
+    const win = BrowserWindow.fromWebContents(e.sender)
+    const options: Electron.OpenDialogOptions = {
+      title: 'Sélectionner l’exécutable adb.exe',
+      properties: ['openFile'],
+      filters: [
+        { name: 'Exécutable ADB', extensions: process.platform === 'win32' ? ['exe'] : ['*'] },
+        { name: 'Tous les fichiers', extensions: ['*'] },
+      ],
+    }
+    const { canceled, filePaths } = win
+      ? await dialog.showOpenDialog(win, options)
+      : await dialog.showOpenDialog(options)
+    if (canceled || filePaths.length === 0) return null
+    return filePaths[0]
+  })
 
   // ── Pack de diagnostic ─────────────────────────────────────────────────────
   ipcMain.handle('diagnostics:export', async (e, auditLogJson: string) => {

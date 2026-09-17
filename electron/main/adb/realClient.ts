@@ -25,7 +25,15 @@ export class RealAdbClient implements AdbClient {
 
   /** Exécute adb ; tout échec est converti en AdbError typée (voir errors.ts). */
   private run(args: string[], timeoutMs: number): Promise<string> {
-    const bin = this.adbPath ?? resolveAdbPath()
+    let custom: string | undefined
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const { getSettings } = require('../settings')
+      custom = getSettings()?.customAdbPath
+    } catch {
+      // ignore
+    }
+    const bin = this.adbPath ?? resolveAdbPath(process.env, undefined, undefined, custom)
     return new Promise((resolve, reject) => {
       execFile(
         bin,

@@ -1,6 +1,6 @@
 import { useSettings } from '../store/settings'
 
-type Page =
+export type Page =
   | 'configure'
   | 'guide'
   | 'home'
