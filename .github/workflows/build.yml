@@ -95,21 +95,16 @@ jobs:
       - name: Create versioned Release
         if: github.event_name != 'pull_request'
         continue-on-error: true
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ steps.tag.outputs.TAG }}
-          target_commitish: ${{ github.sha }}
-          name: "ThorConfig ${{ steps.tag.outputs.TAG }}"
-          files: ${{ steps.installer.outputs.versioned }}
-          body: |
-            ## ThorConfig — build automatique
-
-            ${{ steps.commits.outputs.MESSAGES }}
-
-            ---
-            **Comment tester** : téléchargez le `.exe` ci-dessous et lancez-le. Aucun Node.js requis.
-            Prérequis console (débogage USB, platform-tools) : voir la section « Testeur » du README.
-          token: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ steps.tag.outputs.TAG }}
+          FILE: ${{ steps.installer.outputs.versioned }}
+        run: |
+          gh release create "$TAG" "$FILE" \
+            --target "$GITHUB_SHA" \
+            --title "ThorConfig $TAG" \
+            --notes "${{ steps.commits.outputs.MESSAGES }}"
 
       # softprops ne déplace pas un tag existant : sans cette étape, latest-test
       # resterait pointé sur le tout premier commit publié.
