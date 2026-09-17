@@ -24,15 +24,18 @@ Sur ta **AYN Thor Max** :
 
 ---
 
-## 🔴 Étape 3 : BASCULER THORCONFIG EN MODE RÉEL (Très important !)
+## 🔴 Étape 3 : BASCULER THORCONFIG EN MODE RÉEL (Ultra simple en 1 clic !)
 
-Par défaut, l'application démarre en mode simulation (pour les développeurs sans console).  
-**Pour que l'application communique réellement avec ta console physique :**
+Par défaut lors du premier lancement, l'application démarre en mode simulation (pour les tests virtuels sans console).  
+**Pour que l'application communique réellement avec ta console physique AYN Thor Max :**
 
-1. Ouvre **ThorConfig** sur ton PC.
-2. Dans le menu de gauche, clique sur **Réglages**.
-3. Tout en haut, **décoche l'interrupteur « Activer le mode simulation »**.
-4. Regarde en haut à gauche : le badge orange `SIMULATION` disparaît et le statut passe au vert : **AYN Thor Max (Connecté)**.
+Tu as **3 façons instantanées** de désactiver la simulation (choisis celle que tu veux) :
+- **Méthode 1 (Le plus direct)** : Sur la page principale, clique sur le gros bouton bleu **« ⚡ Passer en Mode Réel (Console USB) »**.
+- **Méthode 2** : Clique directement sur le badge orange **`🧪 SIMULATION · Passer en Réel ➜`** tout en haut à droite !
+- **Méthode 3** : Tout en bas du menu de gauche, dans le bloc *Mode de travail*, clique sur le bouton **`⚡ Réel`**.
+
+Dès que le mode réel est activé :
+Le statut passe au vert : **AYN Thor Max (Connecté)** ! Tout est prêt pour configurer ta console.
 
 ---
 

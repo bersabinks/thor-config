@@ -44,7 +44,7 @@ export function DeviceStatus() {
   const [device, setDevice] = useState<AdbDevice | null>(null)
   const [adbError, setAdbError] = useState<{ message: string; code: AdbErrorCode | null } | null>(null)
   const [setup, setSetup] = useState<AdbSetupState | null>(null)
-  const { simulationMode } = useSettings()
+  const { simulationMode, setSimulationMode } = useSettings()
 
   useEffect(() => {
     let active = true
@@ -113,8 +113,24 @@ export function DeviceStatus() {
           }}
         />
       )}
-      {simulationMode && (
-        <span className="sim-badge">SIMULATION</span>
+      {simulationMode ? (
+        <button
+          type="button"
+          className="sim-badge sim-badge--clickable"
+          onClick={() => setSimulationMode(false)}
+          title="Mode Simulation actif. Cliquez ici pour désactiver la simulation et configurer votre console AYN Thor Max branchée en USB."
+        >
+          🧪 SIMULATION · Passer en Réel ➜
+        </button>
+      ) : (
+        <button
+          type="button"
+          className="real-badge real-badge--clickable"
+          onClick={() => setSimulationMode(true)}
+          title="Mode Réel actif (ADB USB). Cliquez ici pour basculer en mode simulation (test virtuel)."
+        >
+          ⚡ MODE RÉEL
+        </button>
       )}
     </div>
   )

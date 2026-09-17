@@ -1,3 +1,5 @@
+import { useSettings } from '../store/settings'
+
 type Page =
   | 'configure'
   | 'guide'
@@ -30,6 +32,8 @@ const NAV_ITEMS: { id: Page; label: string; icon: string; available: boolean }[]
 ]
 
 export function Sidebar({ activePage, onNavigate }: SidebarProps) {
+  const { simulationMode, setSimulationMode } = useSettings()
+
   return (
     <aside className="sidebar">
       <div className="sidebar-logo">
@@ -54,6 +58,33 @@ export function Sidebar({ activePage, onNavigate }: SidebarProps) {
       </nav>
 
       <div className="sidebar-footer">
+        <div className="sidebar-mode-box">
+          <div className="sidebar-mode-box-header">
+            <span>Mode de travail</span>
+            <span className={simulationMode ? 'badge-sim-dot' : 'badge-real-dot'}>
+              {simulationMode ? 'Simu' : 'Réel'}
+            </span>
+          </div>
+          <div className="sidebar-mode-switch">
+            <button
+              type="button"
+              className={`sidebar-mode-btn ${simulationMode ? 'active-sim' : ''}`}
+              onClick={() => setSimulationMode(true)}
+              title="Activer le mode simulation (console virtuelle)"
+            >
+              🧪 Simu
+            </button>
+            <button
+              type="button"
+              className={`sidebar-mode-btn ${!simulationMode ? 'active-real' : ''}`}
+              onClick={() => setSimulationMode(false)}
+              title="Activer le mode réel (console AYN Thor USB)"
+            >
+              ⚡ Réel
+            </button>
+          </div>
+        </div>
+
         <button
           className={`nav-item ${activePage === 'settings' ? 'nav-item--active' : ''}`}
           onClick={() => onNavigate('settings')}
