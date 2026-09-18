@@ -182,7 +182,13 @@ export async function setupObtainium(
       await ipc.writeRemoteText(serial, path, content)
     },
     check: async () => (await ipc.readRemoteText(serial, path)).trim(),
-    expected: (read) => read === content.trim(),
+    expected: (read) => {
+      try {
+        return JSON.stringify(JSON.parse(read)) === JSON.stringify(JSON.parse(content))
+      } catch {
+        return read.replace(/\r\n/g, '\n').trim() === content.replace(/\r\n/g, '\n').trim()
+      }
+    },
     expectedDescription: `${path} identique au fichier généré`,
     ...retry,
   })

@@ -39,12 +39,31 @@ export type IdentificationMethod = 'magic' | 'extension' | 'none'
 export interface Identification {
   system: SystemDef | null
   method: IdentificationMethod
-  /** Renseigné quand system est null : 'unknown' (extension inconnue) ou
-   *  'ambiguous' (extension partagée par plusieurs systèmes, magic non concluant). */
-  reason?: 'unknown' | 'ambiguous'
+  /** Renseigné quand system est null : 'unknown' (extension inconnue),
+   *  'ambiguous' (extension partagée), ou 'ignored' (fichiers doc/métadonnées). */
+  reason?: 'unknown' | 'ambiguous' | 'ignored'
   /** Systèmes candidats quand l'extension est ambiguë (ex. .iso → gc/wii/ps2). */
   candidates?: string[]
 }
+
+export const IGNORED_EXTENSIONS = new Set([
+  '.txt',
+  '.nfo',
+  '.url',
+  '.md',
+  '.json',
+  '.xml',
+  '.log',
+  '.pdf',
+  '.png',
+  '.jpg',
+  '.jpeg',
+  '.bmp',
+  '.db',
+  '.ini',
+  '.ds_store',
+  '.gitkeep',
+])
 
 export function extensionOf(filename: string): string {
   const base = filename.split(/[\\/]/).pop() ?? filename
@@ -82,6 +101,10 @@ function magicMatches(header: Uint8Array, sig: MagicSignature, ext: string): boo
 export function identifySystem(filename: string, header?: Uint8Array): Identification {
   const ext = extensionOf(filename)
 
+  if (ext && IGNORED_EXTENSIONS.has(ext)) {
+    return { system: null, method: 'none', reason: 'ignored' }
+  }
+
   if (header && header.length > 0) {
     for (const system of SYSTEMS) {
       if (system.magic.some((sig) => magicMatches(header, sig, ext))) {
@@ -97,6 +120,23 @@ export function identifySystem(filename: string, header?: Uint8Array): Identific
     return { system: byExt[0], method: 'extension' }
   }
   if (byExt.length > 1) {
+    const lower = filename.toLowerCase()
+    if (/(?:^|[\W_])(wii)(?:[\W_]|$)/i.test(lower) && byExt.some((s) => s.id === 'wii')) {
+      return { system: byExt.find((s) => s.id === 'wii')!, method: 'extension' }
+    }
+    if (/(?:^|[\W_])(gc|gamecube)(?:[\W_]|$)/i.test(lower) && byExt.some((s) => s.id === 'gc')) {
+      return { system: byExt.find((s) => s.id === 'gc')!, method: 'extension' }
+    }
+    if (/(?:^|[\W_])ps2(?:[\W_]|$)/i.test(lower) && byExt.some((s) => s.id === 'ps2')) {
+      return { system: byExt.find((s) => s.id === 'ps2')!, method: 'extension' }
+    }
+
+    // Format RVZ (exclusif à Dolphin) : si non spécifié, orienter vers le dossier wii pour Dolphin
+    if (ext === '.rvz') {
+      const wiiSys = byExt.find((s) => s.id === 'wii')
+      if (wiiSys) return { system: wiiSys, method: 'extension' }
+    }
+
     return {
       system: null,
       method: 'none',

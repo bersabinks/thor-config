@@ -128,10 +128,35 @@ export async function fetchFdroidRelease(
   const indexUrl = fdroidIndexUrl(repoUrl)
   const resp = await githubFetch(indexUrl)
   if (!resp.ok) {
+    if (packageName === 'org.dolphinemu.dolphinemu') {
+      try {
+        return await fetchDolphinOfficialRelease()
+      } catch {
+        // En cas d'échec du fallback, lever l'erreur F-Droid
+      }
+    }
     throw new Error(`Dépôt F-Droid injoignable (HTTP ${resp.status}) : ${indexUrl}`)
   }
   const apk = pickApkFromIndexV2((await resp.json()) as FdroidIndexV2, repoUrl, packageName)
   return { version: apk.version, downloadUrl: apk.downloadUrl, sha256: apk.sha256 }
+}
+
+/** Fallback officiel pour Dolphin via son API de mise à jour beta. */
+export async function fetchDolphinOfficialRelease(): Promise<ReleaseInfo> {
+  const resp = await githubFetch('https://dolphin-emu.org/update/latest/beta')
+  if (!resp.ok) {
+    throw new Error(`Dolphin API ${resp.status}`)
+  }
+  const data = (await resp.json()) as {
+    shortrev: string
+    artifacts: Array<{ system: string; url: string }>
+  }
+  const android = data.artifacts?.find((a) => a.system === 'Android')
+  if (!android) throw new Error('Aucun artifact Android dans la release Dolphin')
+  return {
+    version: data.shortrev,
+    downloadUrl: android.url,
+  }
 }
 
 /** Dernière version disponible, sans rien télécharger (écran « Mises à jour »). */

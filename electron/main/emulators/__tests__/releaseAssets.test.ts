@@ -39,6 +39,14 @@ describe('sélection des assets de release', () => {
   it('fichier de sommes générique toujours reconnu', () => {
     expect(selectChecksumAsset([asset('x.apk'), asset('SHA256SUMS.txt')], 'x.apk')?.name).toBe('SHA256SUMS.txt')
   })
+
+  it('Azahar : un fichier .tar.xz.sha256sum n’est pas retenu comme checksum de l’APK', () => {
+    const assets = [
+      asset('azahar-android-vanilla-2126.1.1.apk'),
+      asset('azahar-unified-source-2126.1.1.tar.xz.sha256sum'),
+    ]
+    expect(selectChecksumAsset(assets, 'azahar-android-vanilla-2126.1.1.apk')).toBeUndefined()
+  })
 })
 
 describe('parseSha256', () => {

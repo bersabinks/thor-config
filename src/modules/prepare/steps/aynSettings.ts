@@ -12,13 +12,20 @@ type AbxyLayout = 'Xbox' | 'Nintendo'
 type TriggerMode = 'Analog' | 'Digital'
 
 async function findAynPackage(serial: string): Promise<string | null> {
-  const output = await window.electronAPI.adb.shell(serial, 'pm list packages | grep ayn')
-  for (const hint of labels.packageHints) {
-    if (output.includes(hint)) return hint
+  try {
+    const output = await window.electronAPI.adb.shell(serial, 'pm list packages || true')
+    const pkgs = output
+      .split(/\r?\n/)
+      .map((l) => l.replace(/^package:/, '').trim())
+      .filter(Boolean)
+    for (const hint of labels.packageHints) {
+      if (pkgs.includes(hint)) return hint
+    }
+    const found = pkgs.find((p) => /ayn|gamepad/i.test(p))
+    return found ?? null
+  } catch {
+    return null
   }
-  // Extraire le premier package trouvé dans la liste
-  const match = /package:(\S+)/.exec(output)
-  return match?.[1] ?? null
 }
 
 async function launchAynSettings(serial: string): Promise<void> {
@@ -63,6 +70,30 @@ async function checkOption(serial: string, label: string): Promise<boolean> {
  */
 export async function runAynSettings(serial: string): Promise<StepResult[]> {
   const { aynAbxyLayout, aynTriggerMode } = useSettings.getState()
+  const pkg = await findAynPackage(serial)
+
+  if (!pkg) {
+    const note =
+      'Application AYN Settings dédiée introuvable sur ce firmware (réglages manette gérés par le système Android). Vérifier manuellement dans Paramètres > Manette si nécessaire.'
+    return [
+      {
+        label: `AYN Settings — Layout ABXY : ${aynAbxyLayout}`,
+        status: 'skipped',
+        attempts: 0,
+        lastValue: null,
+        note,
+        timestamp: Date.now(),
+      },
+      {
+        label: `AYN Settings — Mode gâchettes : ${aynTriggerMode}`,
+        status: 'skipped',
+        attempts: 0,
+        lastValue: null,
+        note,
+        timestamp: Date.now(),
+      },
+    ]
+  }
 
   const abxyLabel = labels.abxyLabels[aynAbxyLayout as AbxyLayout]
   const triggerLabel = labels.triggerLabels[aynTriggerMode as TriggerMode]

@@ -91,13 +91,17 @@ export async function chdmanConvert(localPath: string): Promise<string> {
   return out
 }
 
+function escapeShellArg(arg: string): string {
+  return arg.replace(/'/g, "'\\''")
+}
+
 export async function ensureRemoteDir(serial: string, remoteDir: string): Promise<void> {
-  await getAdbClient().shell(serial, `mkdir -p '${remoteDir}'`)
+  await getAdbClient().shell(serial, `mkdir -p '${escapeShellArg(remoteDir)}'`)
 }
 
 /** sha256 du fichier sur l'appareil, via `adb shell sha256sum`. */
 export async function sha256Device(serial: string, remotePath: string): Promise<string> {
-  const out = await getAdbClient().shell(serial, `sha256sum '${remotePath}'`)
+  const out = await getAdbClient().shell(serial, `sha256sum '${escapeShellArg(remotePath)}'`)
   const m = /([a-f0-9]{64})/i.exec(out)
   return m ? m[1].toLowerCase() : ''
 }
@@ -124,5 +128,5 @@ export async function writeRemoteText(
 }
 
 export async function readRemoteText(serial: string, remotePath: string): Promise<string> {
-  return getAdbClient().shell(serial, `cat '${remotePath}'`)
+  return getAdbClient().shell(serial, `cat '${escapeShellArg(remotePath)}'`)
 }

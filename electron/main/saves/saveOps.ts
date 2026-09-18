@@ -33,20 +33,24 @@ export async function listDeviceFiles(serial: string, deviceDir: string): Promis
     .filter((l) => l.startsWith('/'))
 }
 
+function escapeShellArg(arg: string): string {
+  return arg.replace(/'/g, "'\\''")
+}
+
 export async function sha256Device(serial: string, devicePath: string): Promise<string> {
-  const out = await getAdbClient().shell(serial, `sha256sum '${devicePath}'`)
+  const out = await getAdbClient().shell(serial, `sha256sum '${escapeShellArg(devicePath)}'`)
   const m = /([a-f0-9]{64})/i.exec(out)
   return m ? m[1].toLowerCase() : ''
 }
 
 export async function deviceFileSize(serial: string, devicePath: string): Promise<number> {
-  const out = await getAdbClient().shell(serial, `wc -c < '${devicePath}'`)
+  const out = await getAdbClient().shell(serial, `wc -c < '${escapeShellArg(devicePath)}'`)
   const n = parseInt(out.trim(), 10)
   return Number.isFinite(n) ? n : 0
 }
 
 export async function ensureRemoteDir(serial: string, deviceDir: string): Promise<void> {
-  await getAdbClient().shell(serial, `mkdir -p '${deviceDir}'`)
+  await getAdbClient().shell(serial, `mkdir -p '${escapeShellArg(deviceDir)}'`)
 }
 
 export async function pullFile(

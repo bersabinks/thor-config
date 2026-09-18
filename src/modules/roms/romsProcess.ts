@@ -1,5 +1,5 @@
 import { runVerifiedAction, type StepResult } from '../../verification'
-import { identifySystem, HEADER_READ_LENGTH, type SystemDef } from './identify'
+import { identifySystem, HEADER_READ_LENGTH, type SystemDef, extensionOf } from './identify'
 
 export interface RomsIpc {
   /** Lit les `length` premiers octets d'un fichier local (pour la signature). */
@@ -68,6 +68,16 @@ export async function processRom(
   const system: SystemDef | null = ident.system
 
   if (!system) {
+    if (ident.reason === 'ignored') {
+      steps.push(
+        makeSkipped(
+          `${name} — Identification`,
+          `Fichier ignoré (documentation ou métadonnée ${extensionOf(filePath)})`
+        )
+      )
+      return { file: name, system: null, steps }
+    }
+
     steps.push({
       label: `${name} — Identification`,
       status: 'failed_after_retries',

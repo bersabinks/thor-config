@@ -32,6 +32,22 @@ describe('identifySystem — par extension', () => {
     expect(r.reason).toBe('unknown')
   })
 
+  it('fichiers métadonnées / documentation (.txt, .nfo, .url) → ignored', () => {
+    expect(identifySystem('GUIDE_TESTEUR.txt').reason).toBe('ignored')
+    expect(identifySystem('info.nfo').reason).toBe('ignored')
+    expect(identifySystem('link.url').reason).toBe('ignored')
+  })
+
+  it('.rvz sans tag → wii par défaut (dossier Dolphin)', () => {
+    const r = identifySystem('Super Paper Mario.rvz')
+    expect(r.system?.id).toBe('wii')
+  })
+
+  it('.rvz avec tag gc → gc', () => {
+    const r = identifySystem('Super Mario Sunshine (gc).rvz')
+    expect(r.system?.id).toBe('gc')
+  })
+
   it('.iso sans en-tête → ambigu (gc/wii/psp/ps2)', () => {
     const r = identifySystem('game.iso')
     expect(r.system).toBeNull()

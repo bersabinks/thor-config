@@ -42,7 +42,7 @@ describe('processRom — nominal', () => {
   })
 })
 
-describe('processRom — identification impossible', () => {
+describe('processRom — identification impossible ou ignorée', () => {
   it('échoue proprement et ne transfère pas', async () => {
     const ipc = makeIpc()
     const res = await processRom('serial', 'notes.xyz', ipc, FAST)
@@ -50,6 +50,17 @@ describe('processRom — identification impossible', () => {
     expect(res.system).toBeNull()
     expect(res.steps).toHaveLength(1)
     expect(res.steps[0].status).toBe('failed_after_retries')
+    expect(ipc.pushRom).not.toHaveBeenCalled()
+  })
+
+  it('ignore proprement les fichiers documentation/métadonnées (skipped)', async () => {
+    const ipc = makeIpc()
+    const res = await processRom('serial', 'GUIDE_TESTEUR.txt', ipc, FAST)
+
+    expect(res.system).toBeNull()
+    expect(res.steps).toHaveLength(1)
+    expect(res.steps[0].status).toBe('skipped')
+    expect(res.steps[0].note).toMatch(/ignoré/i)
     expect(ipc.pushRom).not.toHaveBeenCalled()
   })
 })
