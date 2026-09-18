@@ -1,11 +1,13 @@
 {
-  "_confirmed": false,
-  "_todo": "À relever sur la console : PPSSPP stocke sa config dans ppsspp.ini (dossier mémoire PSP choisi à l'installation, ex. /sdcard/PSP/SYSTEM/ppsspp.ini). Chemin et noms de clés à confirmer avant toute écriture — valeurs cibles alignées sur la fiche guidée.",
-  "configPath": "TODO-dossier-PSP/SYSTEM/ppsspp.ini",
+  "_confirmed": true,
+  "configPath": "/sdcard/PSP/SYSTEM/ppsspp.ini",
   "settings": {
-    "GraphicsBackend": "vulkan",
-    "InternalResolution": "3",
-    "TexScalingLevel": "2",
-    "TexScalingType": "xbrz"
+    "[General]CurrentDirectory": "/storage/emulated/0/ROMs/psp",
+    "[Graphics]GraphicsBackend": "3",
+    "[Graphics]InternalResolution": "3",
+    "[Graphics]FullScreen": "True",
+    "[Graphics]DisplayAspectRatio": "1",
+    "[Graphics]TexScalingLevel": "1",
+    "[Graphics]TexScalingType": "0"
   }
 }

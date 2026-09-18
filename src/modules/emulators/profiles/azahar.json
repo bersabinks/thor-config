@@ -1,12 +1,12 @@
 {
+  "_confirmed": true,
   "configPath": "/sdcard/azahar/config.ini",
-  "_confirmed": false,
   "settings": {
-    "graphics_api": "vulkan",
-    "resolution_factor": "4",
-    "async_shader_compilation": "1",
-    "use_new_3ds": "1",
-    "layout_option": "1",
-    "async_presentation": "1"
+    "[Data Storage]game_directory": "/storage/emulated/0/ROMs/3ds",
+    "[Renderer]graphics_api": "vulkan",
+    "[Renderer]resolution_factor": "3",
+    "[Renderer]async_shader_compilation": "1",
+    "[Layout]layout_option": "1",
+    "[Core]use_new_3ds": "1"
   }
 }

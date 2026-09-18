@@ -1,14 +1,12 @@
 {
+  "_confirmed": true,
   "configPath": "/sdcard/dolphin-emu/Config/Dolphin.ini",
-  "_confirmed": false,
   "settings": {
-    "InternalResolution": "4",
-    "AspectRatio": "0",
-    "UseExtendedAccessibilitySettings": "False",
-    "ExternalDisplayResolution": "Auto",
-    "BorderLeft": "0",
-    "BorderRight": "0",
-    "HotkeyScreenSwap": "Button_Select",
-    "GCPad1Type": "6"
+    "[General]ISOPaths": "2",
+    "[General]ISOPath0": "/storage/emulated/0/ROMs/gc",
+    "[General]ISOPath1": "/storage/emulated/0/ROMs/wii",
+    "[Core]GFXBackend": "Vulkan",
+    "[Display]InternalResolution": "3",
+    "[Display]AspectRatio": "0"
   }
 }

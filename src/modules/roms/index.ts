@@ -1,6 +1,8 @@
 import { runVerifiedAction, type StepResult } from '../../verification'
 import { processRom, type RomsIpc, type ProcessOptions, type ProcessResult } from './romsProcess'
 import { groupMultiDisc, generateM3u, m3uFileName } from './grouping'
+import { isBiosFile, selectBiosFiles } from '../bios/biosDetect'
+import { runBios, type BiosIpc } from '../bios/biosProcess'
 
 export interface RomsRunContext {
   serial: string
@@ -18,9 +20,10 @@ export interface RomsModuleResult {
 }
 
 /**
- * Traite une file de fichiers ROM avec une limite de parallélisme, puis génère
- * les playlists .m3u pour les jeux multi-disques. Chaque StepResult est remonté
- * via onStep au fur et à mesure.
+ * Traite une file de fichiers ROM et BIOS avec une limite de parallélisme.
+ * Les BIOS / firmwares sont détectés et déployés vers /sdcard/BIOS/ et /sdcard/ROMs/bios/,
+ * puis les ROMs de jeux sont classées par système et les playlists .m3u générées.
+ * Chaque StepResult est remonté via onStep au fur et à mesure.
  */
 export async function run(ctx: RomsRunContext): Promise<RomsModuleResult> {
   const { serial, files, onStep, ipc } = ctx
@@ -29,12 +32,34 @@ export async function run(ctx: RomsRunContext): Promise<RomsModuleResult> {
   const steps: StepResult[] = []
   const processed: ProcessResult[] = []
 
-  // ── File de traitement avec pool de workers (limite le débit USB) ──────────
+  // ── 1. Déploiement des BIOS & firmwares si présents ───────────────────────
+  const biosCandidates = selectBiosFiles(files)
+  const gameFiles = files.filter((f) => !isBiosFile(f))
+
+  if (biosCandidates.length > 0) {
+    const biosIpc: BiosIpc = {
+      sha256Local: (path) => ipc.sha256Local(path),
+      sha256Device: (serial, path) => ipc.sha256Device(serial, path),
+      ensureRemoteDir: (serial, dir) => ipc.ensureRemoteDir(serial, dir),
+      pushFile: (serial, localPath, remotePath) => ipc.pushRom(serial, localPath, remotePath),
+    }
+    const biosSteps = await runBios({
+      serial,
+      candidates: biosCandidates,
+      onStep,
+      ipc: biosIpc,
+      maxRetries: ctx.options?.maxRetries,
+      retryDelayMs: ctx.options?.retryDelayMs,
+    })
+    steps.push(...biosSteps)
+  }
+
+  // ── 2. File de traitement ROMs avec pool de workers (limite le débit USB) ──
   let cursor = 0
   async function worker(): Promise<void> {
-    while (cursor < files.length) {
+    while (cursor < gameFiles.length) {
       const i = cursor++
-      const res = await processRom(serial, files[i], ipc, ctx.options)
+      const res = await processRom(serial, gameFiles[i], ipc, ctx.options)
       processed[i] = res
       for (const s of res.steps) {
         steps.push(s)
@@ -43,11 +68,11 @@ export async function run(ctx: RomsRunContext): Promise<RomsModuleResult> {
     }
   }
   await Promise.all(
-    Array.from({ length: Math.min(parallelism, Math.max(files.length, 1)) }, worker)
+    Array.from({ length: Math.min(parallelism, Math.max(gameFiles.length, 1)) }, worker)
   )
 
-  // ── Playlists .m3u pour les groupes multi-disques ──────────────────────────
-  for (const group of groupMultiDisc(files)) {
+  // ── 3. Playlists .m3u pour les groupes multi-disques ──────────────────────
+  for (const group of groupMultiDisc(gameFiles)) {
     const member = processed.find((p) => p && group.files.includes(p.file))
     const folder = member?.system?.folder
     if (!folder) continue // aucun disque du groupe n'a pu être identifié

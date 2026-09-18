@@ -64,4 +64,32 @@ describe('run — lot de simulation', () => {
     // Identification OK + transfert KO → statut mixte 'partial'.
     expect(res.overallStatus).toBe('partial')
   })
+
+  it('détecte et déploie les fichiers BIOS automatiquement sans perturber le tri des ROMs', async () => {
+    const ipc = makeSimulationRomsIpc()
+    ipc.sha256Local = vi.fn().mockResolvedValue('deadbeef')
+    ipc.sha256Device = vi.fn().mockResolvedValue('deadbeef')
+    const pushed: { local: string; remote: string }[] = []
+    ipc.pushRom = vi.fn().mockImplementation(async (_s, local, remote) => {
+      pushed.push({ local, remote })
+    })
+
+    const res = await run({
+      serial: 'sim',
+      files: ['scph1001.bin', 'Mario Kart DS (USA).nds'],
+      onStep: () => {},
+      ipc,
+      options: FAST,
+    })
+
+    // Le BIOS scph1001.bin a généré des étapes BIOS
+    const biosSteps = res.steps.filter((s) => s.label.includes('scph1001.bin'))
+    expect(biosSteps.length).toBeGreaterThanOrEqual(2) // /sdcard/BIOS et /sdcard/ROMs/bios
+    expect(biosSteps.every((s) => s.status === 'success')).toBe(true)
+
+    // Le jeu a été traité normalement
+    const gameStep = res.steps.find((s) => s.label.includes('Mario Kart DS'))
+    expect(gameStep).toBeDefined()
+  })
 })
+

@@ -9,6 +9,9 @@ import {
 } from './adbParsers'
 import configJson from './launcherConfig.json'
 
+import type { PrepareApkSource } from '../emulators/emulatorInstall'
+import type { PrepareApkResult } from '../../../electron/main/emulators/source'
+
 export interface LauncherConfig {
   id: string
   displayName: string
@@ -21,6 +24,8 @@ export const LAUNCHER_CONFIG: LauncherConfig = configJson
 
 export interface LauncherIpc {
   shell(serial: string, cmd: string): Promise<string>
+  prepareApk?: (source: PrepareApkSource) => Promise<PrepareApkResult>
+  installApk?: (serial: string, apkPath: string) => Promise<void>
 }
 
 export interface LauncherOptions {
@@ -107,22 +112,40 @@ export async function configureLauncher(
   const pkg = cfg.packageName
   const steps: StepResult[] = []
 
-  // ── 1. Présence (aucune source APK vérifiée : détection uniquement) ─────────
+  // ── 1. Présence (installation automatique si absent) ───────────────────────
   const presence = await runVerifiedAction<boolean>({
     label: `${name} — Présence du launcher`,
-    apply: async () => {},
+    apply: async () => {
+      const isInstalled = isPackageListed(
+        await ipc.shell(serial, LAUNCHER_COMMANDS.listPackage(pkg)),
+        pkg
+      )
+      if (isInstalled) return
+
+      if (ipc.prepareApk && ipc.installApk) {
+        const prep = await ipc.prepareApk({
+          id: 'cocoon',
+          sourceType: 'github',
+          githubRepo: 'inssekt/CocoonFE',
+          assetPattern: '\\.apk$',
+          packageName: pkg,
+        })
+        await ipc.installApk(serial, prep.localPath)
+      }
+    },
     check: async () => isPackageListed(await ipc.shell(serial, LAUNCHER_COMMANDS.listPackage(pkg)), pkg),
     expected: (listed) => listed,
     expectedDescription: `package ${pkg} listé par pm list packages`,
     ...retry,
   })
   const installed = presence.status === 'success'
+  const hasAutoInstall = Boolean(ipc.prepareApk && ipc.installApk)
   steps.push(
     installed
-      ? { ...presence, note: 'Détecté sur la console (aucune source APK officielle vérifiée : pas d’installation automatique).' }
+      ? { ...presence, note: hasAutoInstall ? 'Détecté ou installé avec succès sur la console.' : 'Détecté sur la console (aucune source APK officielle vérifiée : pas d’installation automatique).' }
       : {
           ...presence,
-          error: `${pkg} absent de la console : aucune source APK officielle vérifiée, installation automatique impossible. ${presence.error ?? ''}`.trim(),
+          error: `${pkg} absent de la console : ${hasAutoInstall ? "échec d'installation automatique." : "aucune source APK officielle vérifiée, installation automatique impossible."} ${presence.error ?? ''}`.trim(),
         }
   )
 

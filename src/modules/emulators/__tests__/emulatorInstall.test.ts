@@ -41,11 +41,11 @@ const UNCONFIRMED_PROFILE: ConfigProfile = {
   settings: DOLPHIN_SETTINGS,
 }
 
-function makeSuccessIpc(version = 'sim-1.0'): EmulatorIpc {
+function makeSuccessIpc(version = 'sim-1.0', expectedSettings?: Record<string, string>): EmulatorIpc {
   return {
     prepareApk: vi.fn().mockResolvedValue({ localPath: `/mock/cache/dolphin/${version}.apk`, version }),
     applyConfig: vi.fn().mockResolvedValue(undefined),
-    verifyConfig: vi.fn().mockResolvedValue({ ...DOLPHIN_SETTINGS }),
+    verifyConfig: vi.fn().mockImplementation((_s, _p, settings) => Promise.resolve({ ...(expectedSettings ?? settings) })),
     installApk: vi.fn().mockResolvedValue(undefined),
     getPackageInfo: vi.fn().mockResolvedValue({ versionName: version, versionCode: 10000, packageName: SIM_SOURCE.packageName }),
   }
@@ -222,15 +222,15 @@ describe('installEmulator — profil non validé (skipped)', () => {
     expect(ipc.applyConfig).not.toHaveBeenCalled()
   })
 
-  it("le profil réel embarqué (dolphin.json) n'est pas confirmé → config ignorée", async () => {
+  it("le profil réel embarqué (dolphin.json) est confirmé → config appliquée et vérifiée", async () => {
     const ipc = makeSuccessIpc()
     // Pas de profil injecté → utilise le vrai profil chargé depuis dolphin.json.
     const results = await installEmulator('mock-serial', SIM_SOURCE, ipc, FAST)
 
     const config = results.find((r) => r.label.includes('Configuration'))!
-    expect(config.status).toBe('skipped')
-    expect(config.status).not.toBe('success')
-    expect(ipc.applyConfig).not.toHaveBeenCalled()
+    expect(config.status).toBe('success')
+    expect(ipc.applyConfig).toHaveBeenCalled()
+    expect(ipc.verifyConfig).toHaveBeenCalled()
   })
 
   it("téléchargement + installation réussissent alors que la config est ignorée", async () => {

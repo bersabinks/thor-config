@@ -1,8 +1,12 @@
 import { LAUNCHER_CONFIG, type LauncherIpc } from './launcherProcess'
 
-/** IPC réel : commandes `adb shell` via le process main. */
+/** IPC réel : commandes `adb shell` et installation APK via le process main. */
 export function makeDefaultLauncherIpc(): LauncherIpc {
-  return { shell: (serial, cmd) => window.electronAPI.adb.shell(serial, cmd) }
+  return {
+    shell: (serial, cmd) => window.electronAPI.adb.shell(serial, cmd),
+    prepareApk: (source) => window.electronAPI.emulators.prepareApk(source),
+    installApk: (serial, apkPath) => window.electronAPI.adb.installApk(serial, apkPath),
+  }
 }
 
 // ── Simulation : console Android à état, sans appareil ────────────────────────
