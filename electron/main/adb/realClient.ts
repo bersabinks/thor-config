@@ -111,7 +111,7 @@ export class RealAdbClient implements AdbClient {
   }
 
   async installApk(serial: string, apkPath: string): Promise<void> {
-    await this.run(['-s', serial, 'install', '-r', apkPath], ADB_TIMEOUTS.install)
+    await this.run(['-s', serial, 'install', '-r', '-g', apkPath], ADB_TIMEOUTS.install)
   }
 
   async uninstallApk(serial: string, packageName: string): Promise<void> {
