@@ -64,18 +64,28 @@ export class RealAdbClient implements AdbClient {
 
   async listDevices(): Promise<AdbDevice[]> {
     const output = await this.run(['devices', '-l'], ADB_TIMEOUTS.listDevices)
-    return output
-      .split(/\r?\n/)
-      .slice(1)
-      .filter((line) => line.includes('\t') && !line.startsWith('*'))
-      .map((line) => {
-        const tabIdx = line.indexOf('\t')
-        const serial = line.slice(0, tabIdx).trim()
-        const rest = line.slice(tabIdx + 1).trim()
+    const devices: AdbDevice[] = []
+    for (const rawLine of output.split(/\r?\n/)) {
+      const line = rawLine.trim()
+      if (!line || line.startsWith('*') || line.startsWith('List of devices attached')) {
+        continue
+      }
+      // Matche : <serial> <state> [attributs optionnels...]
+      // Les colonnes d'adb devices -l sont séparées par des espaces (padding %-22s) ou des tabulations
+      const match = line.match(/^(\S+)\s+(device|offline|unauthorized|authorizing)(?:\s+(.*))?$/)
+      if (match) {
+        const serial = match[1]
+        const state = match[2] as AdbDevice['state']
+        const rest = match[3] ?? ''
         const modelMatch = rest.match(/model:(\S+)/)
-        const state = rest.startsWith('device') ? 'device' : rest.startsWith('offline') ? 'offline' : 'unauthorized'
-        return { serial, model: modelMatch?.[1]?.replace(/_/g, ' ') ?? 'Unknown', state }
-      })
+        devices.push({
+          serial,
+          model: modelMatch?.[1]?.replace(/_/g, ' ') ?? 'Unknown',
+          state: state === 'device' ? 'device' : state === 'offline' ? 'offline' : 'unauthorized',
+        })
+      }
+    }
+    return devices
   }
 
   async getDeviceProps(serial: string): Promise<Record<string, string>> {

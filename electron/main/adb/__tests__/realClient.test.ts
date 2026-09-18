@@ -70,6 +70,19 @@ describe('RealAdbClient — exécution', () => {
       { serial: 'R5CT2', model: 'Unknown', state: 'unauthorized' },
     ])
   })
+
+  it('listDevices parse correctement la sortie réelle avec padding d’espaces et logs du daemon', async () => {
+    adbReplies(() => ({
+      stdout:
+        '* daemon not running; starting now at tcp:5037\r\n' +
+        '* daemon started successfully\r\n' +
+        'List of devices attached\r\n' +
+        'c35b322a              device product:odin2 model:AYN_Thor device:odin2 transport_id:1\r\n',
+    }))
+    await expect(client.listDevices()).resolves.toEqual([
+      { serial: 'c35b322a', model: 'AYN Thor', state: 'device' },
+    ])
+  })
 })
 
 describe('RealAdbClient — erreurs normalisées', () => {
