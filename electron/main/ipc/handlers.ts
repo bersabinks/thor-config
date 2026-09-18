@@ -1,5 +1,6 @@
 import { app, BrowserWindow, dialog, ipcMain } from 'electron'
 import { join } from 'path'
+import { execFile } from 'child_process'
 import { getAdbClient } from '../adb/factory'
 import { detectAdb } from '../adb/adbPath'
 import { getAdbSetupState, startAdbSetup } from '../adb/platformToolsService'
@@ -63,6 +64,46 @@ export function registerIpcHandlers(): void {
     }
     return { found: true, path: loc.path, source: loc.source }
   })
+  ipcMain.handle('adb:diagnose', async () => {
+    const { customAdbPath, simulationMode } = getSettings()
+    const configured = customAdbPath.trim()
+    const loc = detectAdb(process.env, undefined, undefined, configured || undefined)
+    const bin = loc?.path ?? null
+
+    function runCmd(args: string[]): Promise<string> {
+      if (!bin) return Promise.resolve('(adb introuvable)')
+      return new Promise((resolve) => {
+        execFile(
+          bin,
+          args,
+          { timeout: 10_000, maxBuffer: 4 * 1024 * 1024, windowsHide: true },
+          (err, stdout, stderr) => {
+            if (err) {
+              resolve(`ERREUR: ${err.message}${stderr ? `\nstderr: ${String(stderr)}` : ''}`)
+            } else {
+              resolve(String(stdout).trim())
+            }
+          }
+        )
+      })
+    }
+
+    const [adbVersion, adbDevices] = await Promise.all([
+      runCmd(['version']),
+      runCmd(['devices', '-l']),
+    ])
+
+    return {
+      simulationMode,
+      configuredPath: customAdbPath,
+      resolvedPath: bin,
+      adbVersion: bin ? adbVersion : null,
+      adbDevices: bin ? adbDevices : null,
+      pathEnv: process.env.PATH ?? '(non défini)',
+      error: bin ? null : `Aucun adb trouvé (chemin configuré : "${customAdbPath}")`,
+    }
+  })
+
   ipcMain.handle('adb:pickAdbPath', async (e) => {
     const win = BrowserWindow.fromWebContents(e.sender)
     const options: Electron.OpenDialogOptions = {

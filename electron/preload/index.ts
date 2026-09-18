@@ -21,6 +21,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     retrySetup: () => ipcRenderer.invoke('adb:retrySetup'),
     getAdbInfo: () => ipcRenderer.invoke('adb:getAdbInfo'),
     pickAdbPath: () => ipcRenderer.invoke('adb:pickAdbPath'),
+    diagnose: () => ipcRenderer.invoke('adb:diagnose'),
     onSetupState: (cb: (state: unknown) => void) => {
       const listener = (_e: unknown, state: unknown) => cb(state)
       ipcRenderer.on('adb:setupState', listener)

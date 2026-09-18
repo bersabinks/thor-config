@@ -8,7 +8,8 @@ let cachedMock: MockAdbClient | null = null
 let cachedCustomAdbPath: string | null = null
 
 export function getAdbClient(): AdbClient {
-  const { simulationMode, customAdbPath } = getSettings()
+  const { simulationMode, customAdbPath: rawCustomAdbPath } = getSettings()
+  const customAdbPath = rawCustomAdbPath.trim()
   if (simulationMode) {
     if (!cachedMock) cachedMock = new MockAdbClient()
     return cachedMock

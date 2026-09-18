@@ -4,11 +4,26 @@ import type { PrepareApkSource } from '../modules/emulators/emulatorInstall'
 import type { AdbSetupState } from '../../electron/main/adb/platformTools'
 import type { DiagnosticPackResult } from '../../electron/main/diagnostics/diagnosticPack'
 import type { FirmwareDownloadResult } from '../../electron/main/vita/firmwareDownload'
-
 export interface AdbInfo {
   found: boolean
   path: string | null
   source: string | null
+}
+
+export interface AdbDiagnosticResult {
+  simulationMode: boolean
+  /** Chemin brut depuis les settings (peut contenir des espaces) */
+  configuredPath: string
+  /** Premier chemin adb existant sur le disque (null = introuvable) */
+  resolvedPath: string | null
+  /** Sortie de « adb version » ou message d'erreur */
+  adbVersion: string | null
+  /** Sortie de « adb devices -l » ou message d'erreur */
+  adbDevices: string | null
+  /** process.env.PATH vu par Electron */
+  pathEnv: string
+  /** Message d'erreur global si aucun adb trouvé */
+  error: string | null
 }
 
 export interface ElectronAPI {
@@ -27,6 +42,8 @@ export interface ElectronAPI {
     retrySetup(): Promise<AdbSetupState>
     getAdbInfo(): Promise<AdbInfo>
     pickAdbPath(): Promise<string | null>
+    /** Lance adb version + adb devices avec le chemin résolu et retourne tout pour le diagnostic. */
+    diagnose(): Promise<AdbDiagnosticResult>
     onSetupState(cb: (state: AdbSetupState) => void): () => void
   }
   diagnostics: {

@@ -33,7 +33,7 @@ export class RealAdbClient implements AdbClient {
     } catch {
       // ignore
     }
-    const bin = this.adbPath ?? resolveAdbPath(process.env, undefined, undefined, custom)
+    const bin = this.adbPath?.trim() || resolveAdbPath(process.env, undefined, undefined, custom)
     return new Promise((resolve, reject) => {
       execFile(
         bin,
