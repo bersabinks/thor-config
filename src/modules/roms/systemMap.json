@@ -10,7 +10,7 @@
   {
     "id": "3ds",
     "displayName": "Nintendo 3DS",
-    "folder": "n3ds",
+    "folder": "3ds",
     "extensions": [".3ds", ".cci", ".cxi", ".cia"],
     "chd": false,
     "magic": [{ "offset": 256, "hex": "4E435344" }]
@@ -81,6 +81,62 @@
     "displayName": "Nintendo Switch",
     "folder": "switch",
     "extensions": [".nsp", ".xci"],
+    "chd": false,
+    "magic": []
+  },
+  {
+    "id": "gba",
+    "displayName": "Game Boy Advance",
+    "folder": "gba",
+    "extensions": [".gba"],
+    "chd": false,
+    "magic": []
+  },
+  {
+    "id": "gbc",
+    "displayName": "Game Boy Color",
+    "folder": "gbc",
+    "extensions": [".gbc"],
+    "chd": false,
+    "magic": []
+  },
+  {
+    "id": "gb",
+    "displayName": "Game Boy",
+    "folder": "gb",
+    "extensions": [".gb"],
+    "chd": false,
+    "magic": []
+  },
+  {
+    "id": "snes",
+    "displayName": "Super Nintendo",
+    "folder": "snes",
+    "extensions": [".sfc", ".smc"],
+    "chd": false,
+    "magic": []
+  },
+  {
+    "id": "nes",
+    "displayName": "Nintendo Entertainment System",
+    "folder": "nes",
+    "extensions": [".nes"],
+    "chd": false,
+    "magic": []
+  },
+  {
+    "id": "megadrive",
+    "displayName": "Sega Mega Drive",
+    "folder": "megadrive",
+    "extensions": [".gen", ".smd"],
+    "chd": false,
+    "magic": []
+  },
+  {
+    "id": "dreamcast",
+    "displayName": "Sega Dreamcast",
+    "folder": "dreamcast",
+    "extensions": [".cdi", ".gdi"],
     "chd": false,
     "magic": []
   }

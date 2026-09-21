@@ -138,3 +138,19 @@ describe('identifySystem — Sony (conflits de signature .iso / .bin)', () => {
     expect(r.reason).toBe('ambiguous')
   })
 })
+
+describe('identifySystem — consoles rétro (GBA, SNES, NES, Mega Drive, Dreamcast)', () => {
+  it('identifie les systèmes par leurs extensions exclusives', () => {
+    expect(identifySystem('Pokemon Emerald.gba').system?.folder).toBe('gba')
+    expect(identifySystem('Pokemon Crystal.gbc').system?.folder).toBe('gbc')
+    expect(identifySystem('Tetris.gb').system?.folder).toBe('gb')
+    expect(identifySystem('Super Mario World.sfc').system?.folder).toBe('snes')
+    expect(identifySystem('Super Mario World.smc').system?.folder).toBe('snes')
+    expect(identifySystem('Super Mario Bros.nes').system?.folder).toBe('nes')
+    expect(identifySystem('Sonic 2.smd').system?.folder).toBe('megadrive')
+    expect(identifySystem('Sonic 2.gen').system?.folder).toBe('megadrive')
+    expect(identifySystem('Crazy Taxi.cdi').system?.folder).toBe('dreamcast')
+    expect(identifySystem('Shenmue.gdi').system?.folder).toBe('dreamcast')
+  })
+})
+
