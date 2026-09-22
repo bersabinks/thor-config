@@ -20,7 +20,12 @@ import {
   SIMULATION_IMPORT_FILES,
   type VitaIpc,
 } from '../vita'
-import { run as runLauncher, makeDefaultLauncherIpc, makeSimulationLauncherIpc } from '../launcher'
+import {
+  run as runLauncher,
+  makeDefaultLauncherIpc,
+  makeSimulationLauncherIpc,
+  getFrontendDef,
+} from '../launcher'
 import { run as runUtilities } from '../utilities'
 
 export interface BuildModulesOptions {
@@ -28,6 +33,7 @@ export interface BuildModulesOptions {
   importFolder?: string
   vitaOutputFolder?: string
   romsParallelism?: number
+  selectedLauncher?: string
 }
 
 /**
@@ -192,13 +198,17 @@ export async function buildThorModules(opts: BuildModulesOptions): Promise<ThorM
   )
 
   // ── 6. Launcher ─────────────────────────────────────────────────────────────
+  const frontendConfig = getFrontendDef(opts.selectedLauncher)
   modules.push(
     makeModule('launcher', 'Launcher', async (ctx, onStep) => {
       await runLauncher({
         serial: ctx.serial,
         onStep,
         ipc: simulation ? makeSimulationLauncherIpc() : makeDefaultLauncherIpc(),
-        options: simulation ? { retryDelayMs: 300 } : undefined,
+        options: {
+          config: frontendConfig,
+          ...(simulation ? { retryDelayMs: 300 } : undefined),
+        },
       })
     })
   )

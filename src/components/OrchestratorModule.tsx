@@ -67,7 +67,8 @@ function PhaseIcon({ phase }: { phase: ModulePhase }) {
 const guard: Guard = makeDeviceGuard(makeDefaultPreCheckIpc())
 
 export function OrchestratorModule({ device }: Props) {
-  const { simulationMode, importFolder, vitaOutputFolder, romsParallelism } = useSettings()
+  const { simulationMode, importFolder, vitaOutputFolder, romsParallelism, selectedLauncher } =
+    useSettings()
   const [runStatus, setRunStatus] = useState<RunStatus>('idle')
   const [phases, setPhases] = useState<Record<string, ModulePhase>>({})
   const [pauseReason, setPauseReason] = useState<string | null>(null)
@@ -99,6 +100,7 @@ export function OrchestratorModule({ device }: Props) {
     importFolder,
     vitaOutputFolder,
     romsParallelism,
+    selectedLauncher,
   })
 
   async function handleRun() {

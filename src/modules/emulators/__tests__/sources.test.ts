@@ -63,6 +63,18 @@ const EXPECTED: Record<string, Expected> = {
     sourceType: 'playstore',
     packageName: 'com.github.stenzek.duckstation',
   },
+  nethersx2: {
+    displayName: 'NetherSX2 (PS2)',
+    sourceType: 'github',
+    githubRepo: 'masterjg/nethersx2-builds',
+    packageName: 'xyz.aethersx2.android',
+  },
+  flycast: {
+    displayName: 'Flycast (Dreamcast)',
+    sourceType: 'github',
+    githubRepo: 'flyinghead/flycast',
+    packageName: 'org.flycast.flycast',
+  },
 }
 
 const entries = sourcesJson as EmulatorSource[]
@@ -70,12 +82,14 @@ const entries = sourcesJson as EmulatorSource[]
 const matches = (pattern: string | undefined, name: string) => new RegExp(pattern ?? '', 'i').test(name)
 
 describe('sources.json — valeurs vérifiées', () => {
-  it('contient exactement les 6 émulateurs attendus', () => {
+  it('contient exactement les 8 émulateurs attendus', () => {
     expect(entries.map((s) => s.id).sort()).toEqual([
       'azahar',
       'cemu',
       'dolphin',
       'duckstation',
+      'flycast',
+      'nethersx2',
       'ppsspp',
       'watermelonds',
     ])

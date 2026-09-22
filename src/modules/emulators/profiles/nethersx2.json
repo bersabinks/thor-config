@@ -1,0 +1,11 @@
+{
+  "_confirmed": false,
+  "_note": "NetherSX2 stocke sa configuration dans /sdcard/Android/data/xyz.aethersx2.android/files/. Sur Android 11+, l'accès direct est soumis au Scoped Storage. Les réglages sont documentés pour l'utilisateur dans le guide.",
+  "configPath": "/sdcard/Android/data/xyz.aethersx2.android/files/inis/PCSX2.ini",
+  "settings": {
+    "[UI]GameListDirectory": "/storage/emulated/0/ROMs/ps2",
+    "[UI]BiosDirectory": "/storage/emulated/0/BIOS",
+    "[EmuCore/GS]Renderer": "12",
+    "[EmuCore/GS]UpscaleMultiplier": "3"
+  }
+}

@@ -48,6 +48,8 @@ describe('EMULATOR_GUIDES', () => {
       cemu: true,
       ppsspp: true,
       duckstation: true,
+      nethersx2: true,
+      flycast: true,
     })
   })
 

@@ -45,5 +45,21 @@
     "sourceType": "playstore",
     "playStoreUrl": "https://play.google.com/store/apps/details?id=com.github.stenzek.duckstation",
     "packageName": "com.github.stenzek.duckstation"
+  },
+  {
+    "id": "nethersx2",
+    "displayName": "NetherSX2 (PS2)",
+    "sourceType": "github",
+    "githubRepo": "masterjg/nethersx2-builds",
+    "assetPattern": "\\.apk$",
+    "packageName": "xyz.aethersx2.android"
+  },
+  {
+    "id": "flycast",
+    "displayName": "Flycast (Dreamcast)",
+    "sourceType": "github",
+    "githubRepo": "flyinghead/flycast",
+    "assetPattern": "flycast.*\\.apk$",
+    "packageName": "org.flycast.flycast"
   }
 ]

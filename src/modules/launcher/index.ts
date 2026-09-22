@@ -5,6 +5,7 @@ import { makeDefaultLauncherIpc } from './launcherIpc'
 export { configureLauncher, LAUNCHER_CONFIG, LAUNCHER_COMMANDS } from './launcherProcess'
 export type { LauncherConfig, LauncherIpc, LauncherOptions } from './launcherProcess'
 export { makeDefaultLauncherIpc, makeSimulationLauncherIpc } from './launcherIpc'
+export { SUPPORTED_FRONTENDS, getFrontendDef, type FrontendDef } from './frontends'
 
 export interface LauncherRunContext {
   serial: string

@@ -1,5 +1,6 @@
 import { useSettings } from '../store/settings'
 import { DiagnosticExport } from '../components/DiagnosticExport'
+import { SUPPORTED_FRONTENDS } from '../modules/launcher'
 
 export function Settings() {
   const {
@@ -11,6 +12,7 @@ export function Settings() {
     importFolder, setImportFolder,
     romsParallelism, setRomsParallelism,
     vitaOutputFolder, setVitaOutputFolder,
+    selectedLauncher, setSelectedLauncher,
   } = useSettings()
 
   async function handlePickAdbPath() {
@@ -267,6 +269,76 @@ export function Settings() {
                   {vitaOutputFolder ? 'Changer…' : 'Choisir…'}
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ── Launcher & Frontend ── */}
+        <div className="card">
+          <div className="card-header">
+            <h3>Launcher & Frontend (Interface de navigation)</h3>
+            <p className="card-desc">
+              Sélectionnez l'interface d'accueil principale pour votre AYN Thor. ThorConfig
+              s'assure de son installation, la définit comme application Home par défaut et la lance automatiquement.
+            </p>
+          </div>
+          <div className="card-body">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {Object.values(SUPPORTED_FRONTENDS).map((fe) => {
+                const isSelected = (selectedLauncher || 'cocoon') === fe.id
+                return (
+                  <div
+                    key={fe.id}
+                    onClick={() => setSelectedLauncher(fe.id)}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'flex-start',
+                      gap: '12px',
+                      padding: '12px 14px',
+                      borderRadius: 'var(--radius)',
+                      border: isSelected ? '1px solid var(--accent)' : '1px solid var(--border)',
+                      background: isSelected ? 'rgba(99, 102, 241, 0.1)' : 'rgba(255, 255, 255, 0.02)',
+                      cursor: 'pointer',
+                      transition: 'all 0.15s ease',
+                    }}
+                  >
+                    <input
+                      type="radio"
+                      name="selectedLauncher"
+                      checked={isSelected}
+                      onChange={() => setSelectedLauncher(fe.id)}
+                      style={{ marginTop: '3px', cursor: 'pointer' }}
+                    />
+                    <div style={{ flex: 1 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                        <span style={{ fontWeight: 600, color: 'var(--text)' }}>{fe.displayName}</span>
+                        {fe.badge && (
+                          <span
+                            style={{
+                              fontSize: '11px',
+                              padding: '2px 8px',
+                              borderRadius: '10px',
+                              background: fe.id === 'cocoon' ? 'var(--accent)' : 'rgba(255, 255, 255, 0.1)',
+                              color: '#fff',
+                              fontWeight: 500,
+                            }}
+                          >
+                            {fe.badge}
+                          </span>
+                        )}
+                      </div>
+                      <p style={{ margin: 0, fontSize: '13px', color: 'var(--text-muted)' }}>
+                        {fe.description}
+                      </p>
+                      <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#94a3b8' }}>
+                        {fe.apkSource
+                          ? '✓ Installation automatique depuis GitHub (si absent).'
+                          : 'ℹ Sideload requis (Patreon / Amazon Appstore). ThorConfig active et définit le Home.'}
+                      </p>
+                    </div>
+                  </div>
+                )
+              })}
             </div>
           </div>
         </div>

@@ -99,6 +99,8 @@ export const MOCK_FIXTURES: MockFixtures = {
       versionName: 'sim-1.0',
       versionCode: 10000,
     },
+    'xyz.aethersx2.android': { packageName: 'xyz.aethersx2.android', versionName: 'sim-1.0', versionCode: 10000 },
+    'org.flycast.flycast': { packageName: 'org.flycast.flycast', versionName: 'sim-1.0', versionCode: 10000 },
     // Gestionnaire de mises à jour (src/modules/emulators/obtainium.json)
     'dev.imranr.obtainium': { packageName: 'dev.imranr.obtainium', versionName: 'sim-1.0', versionCode: 10000 },
 

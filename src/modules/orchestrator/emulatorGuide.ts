@@ -235,6 +235,51 @@ export const EMULATOR_GUIDES: EmulatorGuide[] = [
     },
     screenshots: [],
   },
+  {
+    id: 'nethersx2',
+    displayName: 'NetherSX2 (PS2)',
+    intro: 'Menu ≡ → App Settings, sections Graphics et BIOS.',
+    settings: [
+      { path: 'App Settings → Graphics → GPU Renderer', value: 'Vulkan' },
+      { path: 'App Settings → Graphics → Upscale Multiplier', value: '3× Native (~1080p)' },
+      { path: 'App Settings → BIOS', value: 'Détecter les BIOS dans /sdcard/BIOS/' },
+      { path: 'Game List → Add Search Directory', value: '/storage/emulated/0/ROMs/ps2' },
+    ],
+    thor: {
+      gpuDriver: {
+        applicable: true,
+        instructions: `Renderer Vulkan, puis sélection du pilote Turnip personnalisé dans App Settings → Graphics → Custom Driver. ${TURNIP_SOURCE}`,
+      },
+      internalResolution: {
+        value: '3× (~1080p)',
+        rationale: 'Idéal pour le Snapdragon 8 Gen 2 et l’écran 1080p AMOLED de la Thor. Reste à 60 FPS sur la grande majorité des hits PS2.',
+      },
+      triggers: 'Gâchettes L2/R2 en mode Analog configurées pour la sensibilité progressive DualShock 2.',
+    },
+    screenshots: [],
+  },
+  {
+    id: 'flycast',
+    displayName: 'Flycast (Dreamcast)',
+    intro: 'Settings, onglets Video et Content.',
+    settings: [
+      { path: 'Settings → Video → Graphics API', value: 'Vulkan' },
+      { path: 'Settings → Video → Internal Resolution', value: '3× (1080p)' },
+      { path: 'Settings → Content → Add Content Location', value: '/storage/emulated/0/ROMs/dreamcast' },
+    ],
+    thor: {
+      gpuDriver: {
+        applicable: true,
+        instructions: `Renderer Vulkan. ${TURNIP_SOURCE}`,
+      },
+      internalResolution: {
+        value: '3×',
+        rationale: 'Rendu 1080p parfait pour les jeux Dreamcast 4:3 sur l’écran de la Thor.',
+      },
+      triggers: 'Gâchettes analogiques L2/R2 mappées sur les gâchettes Dreamcast L/R.',
+    },
+    screenshots: [],
+  },
 ]
 
 /** Affiché dans le rapport final pour les émulateurs non installables par ADB. */

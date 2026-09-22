@@ -18,6 +18,7 @@ export interface LauncherConfig {
   packageName: string
   /** "package/activité" ou ".Activité" ; null = résolue à l'exécution. */
   mainActivity: string | null
+  apkSource?: PrepareApkSource
 }
 
 export const LAUNCHER_CONFIG: LauncherConfig = configJson
@@ -123,14 +124,18 @@ export async function configureLauncher(
       if (isInstalled) return
 
       if (ipc.prepareApk && ipc.installApk) {
-        const prep = await ipc.prepareApk({
+        const source = cfg.apkSource ?? (cfg.id === 'cocoon' ? {
           id: 'cocoon',
-          sourceType: 'github',
+          sourceType: 'github' as const,
           githubRepo: 'inssekt/CocoonFE',
           assetPattern: '\\.apk$',
           packageName: pkg,
-        })
-        await ipc.installApk(serial, prep.localPath)
+        } : undefined)
+
+        if (source) {
+          const prep = await ipc.prepareApk(source)
+          await ipc.installApk(serial, prep.localPath)
+        }
       }
     },
     check: async () => isPackageListed(await ipc.shell(serial, LAUNCHER_COMMANDS.listPackage(pkg)), pkg),
@@ -139,7 +144,7 @@ export async function configureLauncher(
     ...retry,
   })
   const installed = presence.status === 'success'
-  const hasAutoInstall = Boolean(ipc.prepareApk && ipc.installApk)
+  const hasAutoInstall = Boolean(ipc.prepareApk && ipc.installApk && (cfg.apkSource || cfg.id === 'cocoon'))
   steps.push(
     installed
       ? { ...presence, note: hasAutoInstall ? 'Détecté ou installé avec succès sur la console.' : 'Détecté sur la console (aucune source APK officielle vérifiée : pas d’installation automatique).' }

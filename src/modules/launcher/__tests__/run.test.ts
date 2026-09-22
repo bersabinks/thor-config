@@ -174,3 +174,65 @@ describe('run — launcher actif', () => {
     expect(LAUNCHER_COMMANDS.resumedActivity).toMatch(/\|\| true$/)
   })
 })
+
+describe('frontends — registre multi-launcher', () => {
+  it('contient Cocoon, Daijishō et ES-DE avec les bons packageNames', async () => {
+    const { SUPPORTED_FRONTENDS, getFrontendDef } = await import('../index')
+    expect(SUPPORTED_FRONTENDS.cocoon.packageName).toBe('rip.moth.cocoonshell')
+    expect(SUPPORTED_FRONTENDS.daijishou.packageName).toBe('com.magneticchen.daijishou')
+    expect(SUPPORTED_FRONTENDS.esde.packageName).toBe('org.es_de.frontend')
+
+    expect(getFrontendDef('daijishou').id).toBe('daijishou')
+    expect(getFrontendDef('esde').id).toBe('esde')
+    expect(getFrontendDef('unknown').id).toBe('cocoon')
+  })
+
+  it('exécute la configuration pour Daijishō avec auto-installation APK si absent', async () => {
+    const { SUPPORTED_FRONTENDS, configureLauncher } = await import('../index')
+    const installedPkgs = new Set<string>()
+    const prepared: string[] = []
+    const installedApks: string[] = []
+
+    const mockIpc = {
+      shell: async (_serial: string, cmd: string) => {
+        if (cmd.startsWith('pm list packages')) {
+          const target = cmd.split(' ').pop() ?? ''
+          return installedPkgs.has(target) ? `package:${target}` : ''
+        }
+        if (cmd.startsWith('cmd role get-role-holders')) {
+          return 'com.magneticchen.daijishou'
+        }
+        if (cmd.startsWith('cmd package set-home-activity')) {
+          return 'Success'
+        }
+        if (cmd === 'input keyevent KEYCODE_HOME') {
+          return ''
+        }
+        if (cmd.startsWith('dumpsys activity activities')) {
+          return '  topResumedActivity=ActivityRecord{com.magneticchen.daijishou/.MainActivity}'
+        }
+        if (cmd.startsWith('find ')) return '10\n'
+        return ''
+      },
+      prepareApk: async (source: { id: string }) => {
+        prepared.push(source.id)
+        return { id: source.id, localPath: '/tmp/daijishou.apk', fileName: 'daijishou.apk' }
+      },
+      installApk: async (_serial: string, _path: string) => {
+        installedApks.push(_path)
+        installedPkgs.add('com.magneticchen.daijishou')
+      },
+    }
+
+    const steps = await configureLauncher('sim', mockIpc, {
+      config: SUPPORTED_FRONTENDS.daijishou,
+      maxRetries: 0,
+      retryDelayMs: 0,
+    })
+
+    expect(prepared).toContain('daijishou')
+    expect(installedApks).toContain('/tmp/daijishou.apk')
+    expect(steps.find((s) => s.label.includes('Présence'))?.status).toBe('success')
+    expect(steps.find((s) => s.label.includes('Définition comme Home'))?.status).toBe('success')
+  })
+})

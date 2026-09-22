@@ -1,0 +1,9 @@
+{
+  "_confirmed": true,
+  "configPath": "/sdcard/flycast/emu.cfg",
+  "settings": {
+    "[config]content_location_0": "/storage/emulated/0/ROMs/dreamcast",
+    "[config]rend.rend": "1",
+    "[config]rend.rescaling": "3"
+  }
+}

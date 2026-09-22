@@ -9,6 +9,7 @@ interface SettingsStore {
   importFolder: string
   romsParallelism: number
   vitaOutputFolder: string
+  selectedLauncher: string
   loaded: boolean
   load: () => Promise<void>
   setSimulationMode: (value: boolean) => Promise<void>
@@ -19,6 +20,7 @@ interface SettingsStore {
   setImportFolder: (value: string) => Promise<void>
   setRomsParallelism: (value: number) => Promise<void>
   setVitaOutputFolder: (value: string) => Promise<void>
+  setSelectedLauncher: (value: string) => Promise<void>
 }
 
 async function persist(key: string, value: unknown) {
@@ -34,20 +36,31 @@ export const useSettings = create<SettingsStore>((set) => ({
   importFolder: '',
   romsParallelism: 2,
   vitaOutputFolder: '',
+  selectedLauncher: 'cocoon',
   loaded: false,
 
   load: async () => {
-    const [simMode, customAdb, abxy, trigger, fwWait, importFolder, parallelism, vitaOutputFolder] =
-      await Promise.all([
-        window.electronAPI.settings.get('simulationMode'),
-        window.electronAPI.settings.get('customAdbPath'),
-        window.electronAPI.settings.get('aynAbxyLayout'),
-        window.electronAPI.settings.get('aynTriggerMode'),
-        window.electronAPI.settings.get('firmwareUpdateWaitSeconds'),
-        window.electronAPI.settings.get('importFolder'),
-        window.electronAPI.settings.get('romsParallelism'),
-        window.electronAPI.settings.get('vitaOutputFolder'),
-      ])
+    const [
+      simMode,
+      customAdb,
+      abxy,
+      trigger,
+      fwWait,
+      importFolder,
+      parallelism,
+      vitaOutputFolder,
+      selectedLauncher,
+    ] = await Promise.all([
+      window.electronAPI.settings.get('simulationMode'),
+      window.electronAPI.settings.get('customAdbPath'),
+      window.electronAPI.settings.get('aynAbxyLayout'),
+      window.electronAPI.settings.get('aynTriggerMode'),
+      window.electronAPI.settings.get('firmwareUpdateWaitSeconds'),
+      window.electronAPI.settings.get('importFolder'),
+      window.electronAPI.settings.get('romsParallelism'),
+      window.electronAPI.settings.get('vitaOutputFolder'),
+      window.electronAPI.settings.get('selectedLauncher'),
+    ])
     set({
       simulationMode: simMode !== false,
       customAdbPath: (customAdb as string) ?? '',
@@ -57,6 +70,7 @@ export const useSettings = create<SettingsStore>((set) => ({
       importFolder: (importFolder as string) ?? '',
       romsParallelism: (parallelism as number) ?? 2,
       vitaOutputFolder: (vitaOutputFolder as string) ?? '',
+      selectedLauncher: (selectedLauncher as string) ?? 'cocoon',
       loaded: true,
     })
   },
@@ -99,5 +113,10 @@ export const useSettings = create<SettingsStore>((set) => ({
   setVitaOutputFolder: async (value) => {
     await persist('vitaOutputFolder', value)
     set({ vitaOutputFolder: value })
+  },
+
+  setSelectedLauncher: async (value) => {
+    await persist('selectedLauncher', value)
+    set({ selectedLauncher: value })
   },
 }))

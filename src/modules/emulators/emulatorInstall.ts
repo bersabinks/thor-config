@@ -5,6 +5,8 @@ import duckstationProfile from './profiles/duckstation.json'
 import azaharProfile from './profiles/azahar.json'
 import dolphinProfile from './profiles/dolphin.json'
 import cemuProfile from './profiles/cemu.json'
+import nethersx2Profile from './profiles/nethersx2.json'
+import flycastProfile from './profiles/flycast.json'
 
 export interface EmulatorSource {
   id: string
@@ -45,6 +47,8 @@ const PROFILES: Record<string, ConfigProfile> = {
   azahar: azaharProfile as ConfigProfile,
   dolphin: dolphinProfile as ConfigProfile,
   cemu: cemuProfile as ConfigProfile,
+  nethersx2: nethersx2Profile as ConfigProfile,
+  flycast: flycastProfile as ConfigProfile,
 }
 
 /** Ce dont le process main a besoin pour récupérer l'APK d'une source. */
